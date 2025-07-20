@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">  
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Procurent Form</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Procurent Form</h1>
+        <form method="post">
+
+            <label for="itemlist">Items</label>
+            <select name="itemlist" id="itemlist">
+                <option value="">Select Item</option>
+            </select>
+
+            <label for="units">Units</label>
+            <input type="text" id="units" name="units" placeholder="Enter the units" required>
+
+            <label for="expenditure">Expenditure</label>
+            <input type="text" id="expenditure" name="expenditure" placeholder="Enter the expenditure" required>
+
+            <button type="submit">save</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budgeting Form</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Budgeting Form</h1>
+
+        <!-- Show error/success messages -->
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+        {% if success %}
+            <div class="alert alert-success">{{ success }}</div>
+        {% endif %}
+
+        <!-- Budgeting form -->
+        <form method="post" action="/form">
+            <label for="financialyear">Financial Year:</label>
+            <select id="financialyear" name="financialyear" class="form-control" required>
+                <option value="">Select Financial Year</option>
+                <option value="2024-2025">2024-2025</option>
+                <option value="2022-2023">2022-2023</option>
+                <option value="2020-2021">2020-2021</option>
+            </select>
+
+            <label for="totalbudget">Total Budget Allocated:</label>
+            <input type="number" id="totalbudget" name="totalbudget" class="form-control" placeholder="Enter Total Budget" required>
+
+            <label for="budgetmonth">Budget Month:</label>
+            <input type="month" id="budgetmonth" name="budgetmonth" class="form-control" required>
+
+            <label for="budgetused">Budget Used:</label>
+            <input type="number" id="budgetused" name="budgetused" class="form-control" placeholder="Enter Budget Used" required>
+
+            <label for="budgetupto">Budget Upto June 2025:</label>
+            <input type="number" id="budgetupto" name="budgetupto" class="form-control" placeholder="Enter Budget" required>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <a href="{{ url_for('show_budget_list') }}">Budget List</a>
+        </form>
+        <br>
+    </div>
+</body>
+</html>
