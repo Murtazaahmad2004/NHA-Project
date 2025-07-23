@@ -22,7 +22,11 @@
         <form method="post" action="{{ url_for('edit__repair_maintenance', id=record['id']) }}">
 
             <label for="itemlist">Items</label>
-            <input type="text" id="itemlist" name="itemlist" value="{{ record['item_name'] }}" placeholder="Enter Item Name" required>
+             <select name="itemlist" id="itemlist">
+                {% for item in items %}
+                    <option value="{{ item['items_name'] }}">{{ item['items_name'] }}</option>
+                {% endfor %}
+            </select>
 
             <label for="units">Units In-House:</label>
             <input type="number" id="units" name="units" value="{{ record['unit_in_house'] }}" placeholder="Enter units" required>

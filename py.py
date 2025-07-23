@@ -247,6 +247,20 @@ def delete_item(id):
 # Route to edit an item
 @app.route('/edit_item/<int:id>', methods=['GET', 'POST'])
 def edit_item(id):
+    error = None
+    success = None
+    items = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, items_name FROM item")
+        items = cursor.fetchall()
+        cursor.close()
+    except Exception as e:
+        error = f"Error fetching items: {e}"
+        return render_template('repair_maintenance.html', items=[], error=error, success=success)
+    
     if request.method == 'POST':
         item_name = request.form['itemname']
 
@@ -279,7 +293,7 @@ def edit_item(id):
         cursor.close()
         conn.close()
 
-    return render_template('edit_item.html', record=record)
+    return render_template('edit_item.html', items=items, record=record)
 
 # procurement form submission
 @app.route('/procrument_form', methods=['GET', 'POST'])
@@ -357,6 +371,20 @@ def delete_procrument(id):
 # Route to edit a procurement item
 @app.route('/edit_procrument/<int:id>', methods=['GET', 'POST'])
 def edit_procrument(id):
+    error = None
+    success = None
+    items = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, items_name FROM item")
+        items = cursor.fetchall()
+        cursor.close()
+    except Exception as e:
+        error = f"Error fetching items: {e}"
+        return render_template('repair_maintenance.html', items=[], error=error, success=success)
+    
     if request.method == 'POST':
         item_name = request.form['item_name']
         units = request.form['units']
@@ -399,7 +427,7 @@ def edit_procrument(id):
         cursor.close()
         conn.close()
 
-    return render_template('edit_procrument.html', record=record)
+    return render_template('edit_procrument.html', items=items, record=record)
 
 # Repair and Maintenance form submission
 @app.route('/repair_maintenance', methods=['GET', 'POST'])
@@ -481,6 +509,20 @@ def delete_repair_maintenance(id):
 # Route to edit a repair maintenance item
 @app.route('/edit_repair_maintenance/<int:id>', methods=['GET', 'POST'])
 def edit__repair_maintenance(id):
+    error = None
+    success = None
+    items = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, items_name FROM item")
+        items = cursor.fetchall()
+        cursor.close()
+    except Exception as e:
+        error = f"Error fetching items: {e}"
+        return render_template('repair_maintenance.html', items=[], error=error, success=success)
+    
     if request.method == 'POST':
         itemlist = request.form['itemlist']
         units = request.form['units']
@@ -531,7 +573,7 @@ def edit__repair_maintenance(id):
         cursor.close()
         conn.close()
 
-    return render_template('edit_repair_maintenance.html', record=record)
+    return render_template('edit_repair_maintenance.html', items=items, record=record)
 
 if __name__ == '__main__':
     app.run(debug=True)
