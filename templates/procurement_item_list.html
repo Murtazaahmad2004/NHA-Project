@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Procrument Data</title>
+</head>
+<body>
+    <script>
+        function confirmDelete() {
+            return confirm("Are you sure you want to delete this record?");
+        }
+    </script>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <h2>Procrument Records</h2>
+
+    <button class="btnn btn-primary"><a href="/procrument_form">Add New Procrument Data</a></button>
+
+    <table class="table2" border="1">
+        <tr>
+            <th>ID</th>
+            <th>Item Name</th>
+            <th>Units</th>
+            <th>Expenditure</th>
+            <th>Delete Operations</th>
+            <th>Edit Operations</th>
+        </tr>
+        {% for record in records %}
+        <tr>
+            <td>{{ record['id'] }}</td>
+            <td>{{ record['item_name'] }}</td>
+            <td>{{ record['units'] }}</td>
+            <td>{{ record['expenditure'] }}</td>
+            <td>
+                <form action="/delete_procrument/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </td>
+            <td>
+                <button class="btn btn-primary">
+                    <a href="/edit_procrument/{{ record['id'] }}">Edit</a>
+                </button>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="3">No records found.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

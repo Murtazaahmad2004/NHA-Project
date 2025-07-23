@@ -19,20 +19,15 @@
         <div class="alert alert-danger">{{ error }}</div>
     {% endif %}
 
-    <form method="POST" action="/procrument_form">
-        <label for="item">Select Item:</label>
-        <select id="item" name="item" class="form-control" required>
-            <option value="">Select an Item</option>
-            {% for item in items %}
-                <option value="{{ item['items_name'] }}">{{ item['items_name'] }}</option>
-            {% endfor %}
-        </select>
+    <form method="POST" action="{{ url_for('edit_procrument', id=record['id']) }}">
+        <label for="item_name">Item Name:</label>
+        <input type="text" id="item_name" name="item_name" class="form-control" value="{{ record['item_name'] }}" placeholder="Enter item name" required>
 
         <label for="units">Units:</label>
-        <input type="text" id="units" name="units" class="form-control" placeholder="Enter units" required>
+        <input type="text" id="units" name="units" class="form-control" value="{{ record['units'] }}" placeholder="Enter units" required>
 
         <label for="expenditure">Expenditure:</label>
-        <input type="number" id="expenditure" name="expenditure" class="form-control" placeholder="Enter expenditure" required>
+        <input type="number" id="expenditure" name="expenditure" class="form-control" value="{{ record['expenditure'] }}" placeholder="Enter expenditure" required>
 
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>

@@ -3,20 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Head Form</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Head Form</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Head Form</h1>
-        <form method="post">
+<div class="container">
+    <h1>Head Form</h1>
 
-            <label for="itemname">Item Name:</label>
-            <input type="text" id="itemname" name="itemname" placeholder="Enter Item Name" required>
+    <!-- Messages -->
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    {% if success %}
+        <div class="alert alert-success">{{ success }}</div>
+    {% endif %}
 
-            <button type="submit">Submit</button>
-        </form>
-    </div>
+    <!-- Form -->
+    <form method="POST" action="/head_form" id="itemForm">
+        <div id="itemFields">
+            <div class="form-group">
+                <input type="text" name="itemname[]" class="form-control" placeholder="Enter Item Name" required>
+            </div>
+        </div>
+        <button type="button" class="btn btn-info" onclick="addField()">➕ Add More</button>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+
+<script>
+    function addField() {
+        const div = document.createElement('div');
+        div.classList.add('form-group');
+        div.innerHTML = `
+            <input type="text" name="itemname[]" class="form-control" placeholder="Enter Item Name" required>
+        `;
+        document.getElementById('itemFields').appendChild(div);
+    }
+</script>
 </body>
 </html>

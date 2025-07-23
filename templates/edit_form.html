@@ -26,10 +26,10 @@
             <label for="budgetupto">Budget Upto June 2025:</label>
             <input type="number" id="budgetupto" name="budgetupto" value="{{ record['budget_used_upto_june'] }}" required>
 
-            <label>Reporting Month Last Day:</label>
-            <input type="number" name="reporting_month_last_day" value="{{ record['reporting_month_last_day'] }}" required><br>
+            <label for="lastday">Reporting Month Last Day:</label>
+            <input type="number" id="lastday" name="reporting_month_last_day" value="{{ record['reporting_month_last_day'] }}" required readonly><br>
 
-            <label>Remaining Budget:</label>
+            <label for="remaining_budget">Remaining Budget:</label>
             <input type="number" id="remaining_budget" name="remaining_budget" value="{{ record['remaining_budget'] }}" readonly>
 
             <button type="submit" class="btn btn-primary">Update</button>
@@ -48,6 +48,20 @@
 
         document.getElementById('totalbudget').addEventListener('input', calculateRemaining);
         document.getElementById('budgetupto').addEventListener('input', calculateRemaining);
+    </script>
+
+    <script>
+        document.getElementById('budgetmonth').addEventListener('change', function () {
+            const value = this.value;
+            if (value) {
+                const [year, month] = value.split('-').map(Number);
+                const lastDay = new Date(year, month, 0); // Last day of selected month
+                const dayOnly = lastDay.getDate(); // Just the number (e.g., 31)
+                document.getElementById('lastday').value = dayOnly;
+            } else {
+                document.getElementById('lastday').value = '';
+            }
+        });
     </script>
 </body>
 </html>
