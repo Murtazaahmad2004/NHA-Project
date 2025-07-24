@@ -33,7 +33,8 @@
         <label for="expenditure">Expenditure:</label>
         <input type="number" id="expenditure" name="expenditure" class="form-control" value="{{ record['expenditure'] }}" placeholder="Enter expenditure" required>
 
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">Update</button>
+        <a href="{{ url_for('procurement_item_list') }}" class="btn3 btn-danger">Cancel</a>
     </form>
     </div>
 </body>

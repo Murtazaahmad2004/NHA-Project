@@ -455,13 +455,19 @@ def repair_form():
         expenditure = request.form.get('expenditure')
 
         try:
+            item_total = int(units) + int(unit)
+        except ValueError:
+            error = "⚠️ Invalid numeric values for units or unit."
+            return render_template('repair_maintenance.html', items=items, error=error, success=success)
+        
+        try:
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO repair_maintenance (item_name, unit_in_house, units_externals, 
-                           hours_spend_in_house, days_externals, expenditure)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, (itemlist, units, unit, hoursspend, days, expenditure))
+                           hours_spend_in_house, days_externals, expenditure, item_total)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (itemlist, units, unit, hoursspend, days, expenditure, item_total))
             conn.commit()
             success = "✅ Repair & Maintenance data submitted successfully!"
         except Exception as e:
@@ -480,14 +486,35 @@ def repair_maintenance_list():
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM repair_maintenance")
         records = cursor.fetchall()
+
+        # ✅ Calculate total of all item_total values
+        total_items = sum(int(r['item_total']) for r in records if r['item_total'])
+        total_expenditure = sum(int(r['expenditure']) for r in records if r['expenditure'])
+        unit_in_house = sum(int(r['unit_in_house']) for r in records if r['unit_in_house'])
+        units_externals = sum(int(r['units_externals']) for r in records if r['units_externals'])
+        hours_spend_in_house = sum(int(r['hours_spend_in_house']) for r in records if r['hours_spend_in_house'])
+        days_externals = sum(int(r['days_externals']) for r in records if r['days_externals'])
+        avg_cost_per_unit = (total_expenditure / units_externals) if units_externals > 0 else 0
+        percenteage_inhouse_unit = (unit_in_house / total_items * 100) if total_items > 0 else 0
+        percenteage_external_unit = (units_externals / total_items * 100) if total_items > 0 else 0
+
+        for r in records:
+            if r['expenditure'] and total_expenditure > 0:
+                r['percentage_of_an_item'] = round((float(r['expenditure']) / total_expenditure) * 100)
+            else:
+                r['percentage_of_an_item'] = 0.0
+
     except Exception as e:
         records = []
+        total_items = 0
         print("Error fetching repair and maintenance items:", e)
     finally:
         cursor.close()
         conn.close()
 
-    return render_template('repair_maintenance_list.html', records=records)
+    return render_template('repair_maintenance_list.html', records=records, total_items=total_items, total_expenditure=total_expenditure, 
+                           unit_in_house=unit_in_house, units_externals=units_externals, percenteage_inhouse_unit=percenteage_inhouse_unit, 
+                           percenteage_external_unit=percenteage_external_unit, hours_spend_in_house=hours_spend_in_house, days_externals=days_externals, avg_cost_per_unit=avg_cost_per_unit)
 
 # Route to delete a repair maintenance item
 @app.route('/delete_repair_maintenance/<int:id>', methods=['POST'])
@@ -511,42 +538,35 @@ def delete_repair_maintenance(id):
 def edit__repair_maintenance(id):
     error = None
     success = None
-    items = []
-
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT id, items_name FROM item")
-        items = cursor.fetchall()
-        cursor.close()
-    except Exception as e:
-        error = f"Error fetching items: {e}"
-        return render_template('repair_maintenance.html', items=[], error=error, success=success)
     
     if request.method == 'POST':
         itemlist = request.form['itemlist']
-        units = request.form['units']
+        units = int(request.form['units'])
         hoursspend = request.form['hoursspend']
-        unit = request.form['unit']
+        unit = int(request.form['unit'])
         days = request.form['days']
         expenditure = request.form['expenditure']
+        item_total = units + unit 
+
         try:
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
             cursor.execute("""
-                UPDATE repair_maintenance SET
-                    item_name = %s,
-                    unit_in_house = %s,
-                    units_externals = %s,
-                    hours_spend_in_house = %s,
-                    days_externals = %s,
-                    expenditure = %s
-                WHERE id = %s
-            """, (itemlist, units, hoursspend, unit, days, expenditure, id))
+            UPDATE repair_maintenance SET
+                item_name = %s,
+                unit_in_house = %s,
+                units_externals = %s,
+                hours_spend_in_house = %s,
+                days_externals = %s,
+                expenditure = %s,
+                item_total = %s
+            WHERE id = %s
+        """, (itemlist, units, unit, hoursspend, days, expenditure, item_total, id))
+
             conn.commit()
-            flash("✅ Repair & Maintenance updated successfully.", 'success')
+            success("✅ Repair & Maintenance updated successfully.", 'success')
         except Exception as e:
-            flash("❌ Error updating item.", 'danger')
+            error("❌ Error updating item.", 'danger')
             print("Update error:", e)
         finally:
             cursor.close()
@@ -573,7 +593,7 @@ def edit__repair_maintenance(id):
         cursor.close()
         conn.close()
 
-    return render_template('edit_repair_maintenance.html', items=items, record=record)
+    return render_template('edit_repair_maintenance.html', record=record)
 
 if __name__ == '__main__':
     app.run(debug=True)

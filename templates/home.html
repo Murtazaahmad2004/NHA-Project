@@ -1,60 +1,18 @@
-<!-- <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Home Screen</title>
-</head>
-<body>
-<div class="container1">
-    <a class="btn3 btn-danger" href="form">Budget Form</a>
-    <a class="btn3 btn-danger" href="budget_list">Show Budget List</a>
-    <a class="btn3 btn-danger" href="head_form">Head Form</a>
-    <a class="btn3 btn-danger" href="procrument_form">Procurement Form</a>
-    <a class="btn3 btn-danger" href="repair_maintenance">Repair & Maintenance Form</a>
-</div>
-</body>
-</html> -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Home - Budgeting System</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <style>
-        body {
-            padding: 40px;
-            background-color: #f8f8f8;
-        }
-        .btn-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-width: 300px;
-            margin: auto;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-        .btn-lg {
-            font-size: 18px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Budget Management Home</h1>
+    <h1>Rocords Listng</h1><br>
     <div class="btn-container">
-        <a href="/form" class="btn btn-primary btn-lg btn-block">1️⃣ Budget Form</a>
-        <a href="/head_form" class="btn btn-success btn-lg btn-block">2️⃣ Head Form</a>
-        <a href="/procrument_form" class="btn btn-info btn-lg btn-block">3️⃣ Procurement Form</a>
-        <a href="/repair_maintenance" class="btn btn-default btn-lg btn-block">4️⃣ Repair & Maintenance Form</a>
-        <a href="/item_list" class="btn btn-warning btn-lg btn-block">5️⃣ Show Items List</a>
-        <a href="/budget_list" class="btn btn-danger btn-lg btn-block">6️⃣ Show Budget List</a>
-        <a href="/procurement_item_list" class="btn btn-danger btn-lg btn-block">7️⃣ Show Procurement Item List</a>
-        <a href="/repair_maintenance_list" class="btn btn-danger btn-lg btn-block">8️⃣ Show Repair Maintenance List</a>
+        <a href="/item_list" class="btn6 btn-primary btn-lg btn-block">1️⃣ Items List</a>
+        <a href="/budget_list" class="btn6 btn-success btn-lg btn-block">2️⃣ Budget List</a>
+        <a href="/procurement_item_list" class="btn6 btn-info btn-lg btn-block">3️⃣ Procurement Item List</a>
+        <a href="/repair_maintenance_list" class="btn6 btn-warning btn-lg btn-block">4️⃣ Repair List</a>
     </div>
 </body>
 </html>

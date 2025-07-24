@@ -22,11 +22,7 @@
         <form method="post" action="{{ url_for('edit__repair_maintenance', id=record['id']) }}">
 
             <label for="itemlist">Items</label>
-             <select name="itemlist" id="itemlist">
-                {% for item in items %}
-                    <option value="{{ item['items_name'] }}">{{ item['items_name'] }}</option>
-                {% endfor %}
-            </select>
+            <input type="text" id="itemlist" name="itemlist" value="{{ record['item_name'] }}" placeholder="Enter Item Name" required>
 
             <label for="units">Units In-House:</label>
             <input type="number" id="units" name="units" value="{{ record['unit_in_house'] }}" placeholder="Enter units" required>
@@ -43,7 +39,8 @@
             <label for="expenditure">Expenditure:</label>
             <input type="number" id="expenditure" name="expenditure" value="{{ record['expenditure'] }}" placeholder="Enter Expenditure" required>
 
-            <button type="submit">Submit</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <a href="{{ url_for('repair_maintenance_list') }}" class="btn3 btn-danger">Cancel</a>
         </form>
     </div>
 </body>

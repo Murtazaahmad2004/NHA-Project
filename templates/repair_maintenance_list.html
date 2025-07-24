@@ -27,30 +27,43 @@
     {% endwith %}
 
     <h2>Repair Maintenance Records</h2>
+    <h1><p>MIS Section has Repair/ Maintenance items in the month of June, 2025: </p></h1>
 
     <button class="btnn btn-primary"><a href="/repair_maintenance">Add New Repair Maintenance Data</a></button>
 
-    <table class="table" border="1">
+<table class="table3" border="1">
+    <thead>
         <tr>
-            <th>ID</th>
-            <th>Item Name</th>
-            <th>Units In-House</th>
-            <th>Hours Spend (In-House)</th>
-            <th>Units Externals</th>
-            <th>Days (Externals)</th>
-            <th>Expenditure</th>
-            <th>Delete Operations</th>
-            <th>Edit Operations</th>
+            <th rowspan="2">S. #</th>
+            <th rowspan="2">Items</th>
+            <th rowspan="2">Total Items</th>
+            <th colspan="2">In House</th>
+            <th colspan="2">External</th>
+            <th rowspan="2">Expenditures on <br> External Repairs in Rs.</th>
+            <th rowspan="2">Percentage (%)</th>
+            <th rowspan="2">Delete Operation</th>
+            <th rowspan="2">Edit Operation</th>
         </tr>
+        <tr>
+            <th>Units</th>
+            <th>Hours Spent</th>
+            <th>Units</th>
+            <th>Days</th>
+        </tr>
+    </thead>
+    <tbody>
         {% for record in records %}
         <tr>
-            <td>{{ record['id'] }}</td>
-            <td>{{ record['item_name'] }}</td>
-            <td>{{ record['unit_in_house'] }}</td>
-            <td>{{ record['hours_spend_in_house'] }}</td>
-            <td>{{ record['units_externals'] }}</td>
-            <td>{{ record['days_externals'] }}</td>
-            <td>{{ record['expenditure'] }}</td>
+            <td>{{ loop.index }}</td>
+            <td>{{ record.item_name }}</td>
+            <td>{{ record.item_total }}</td>
+            <td>{{ record.unit_in_house }}</td>
+            <td>{{ record.hours_spend_in_house }}</td>
+            <td>{{ record.units_externals }}</td>
+            <td>{{ record.days_externals }}</td>
+            <td>{{ record.expenditure }}</td>
+            <td>{{ record.percentage_of_an_item }}</td>
+            <td>{{ record.avg_cost_per_unit }}</td>
             <td>
                 <form action="/delete_repair_maintenance/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
                     <button type="submit" class="btn btn-danger">Delete</button>
@@ -62,11 +75,22 @@
                 </button>
             </td>
         </tr>
-        {% else %}
-        <tr>
-            <td colspan="9">No records found.</td>
-        </tr>
         {% endfor %}
-    </table>
+
+        <tr>
+            <td colspan="2"><strong>Total</strong></td>
+            <td><strong>{{ total_items }}</strong></td>
+            <td><strong>{{ unit_in_house }} <br> ({{ percenteage_inhouse_unit | int }}%)</strong></td>
+            <td><strong>{{ hours_spend_in_house }}</strong></td>
+            <td><strong>{{ units_externals }} <br> ({{ percenteage_external_unit | int }}%)</strong></td>
+            <td><strong>{{ days_externals }}</strong></td>
+            <td><strong>{{ total_expenditure }}</strong></td>
+        </tr>
+        <tr>
+            <td colspan="7"><strong>Avg./ Unit</strong></td>
+            <td><strong>{{ avg_cost_per_unit | int}}</strong></td>
+        </tr>
+    </tbody>
+</table>
 </body>
 </html>
