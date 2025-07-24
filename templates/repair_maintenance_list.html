@@ -63,20 +63,18 @@
             <td>{{ record.days_externals }}</td>
             <td>{{ record.expenditure }}</td>
             <td>{{ record.percentage_of_an_item }}</td>
-            <td>{{ record.avg_cost_per_unit }}</td>
             <td>
                 <form action="/delete_repair_maintenance/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
             </td>
             <td>
-                <button class="btn btn-primary">
-                    <a href="/edit_repair_maintenance/{{ record['id'] }}">Edit</a>
-                </button>
+                <a href="/edit_repair_maintenance/{{ record['id'] }}" class="btn btn-primary">Edit</a>
             </td>
         </tr>
         {% endfor %}
 
+        <!-- Total Row -->
         <tr>
             <td colspan="2"><strong>Total</strong></td>
             <td><strong>{{ total_items }}</strong></td>
@@ -85,10 +83,14 @@
             <td><strong>{{ units_externals }} <br> ({{ percenteage_external_unit | int }}%)</strong></td>
             <td><strong>{{ days_externals }}</strong></td>
             <td><strong>{{ total_expenditure }}</strong></td>
+            <td colspan="3"></td> <!-- For Percentage, Delete, Edit -->
         </tr>
+
+        <!-- Average Cost Row -->
         <tr>
             <td colspan="7"><strong>Avg./ Unit</strong></td>
-            <td><strong>{{ avg_cost_per_unit | int}}</strong></td>
+            <td><strong>{{ avg_cost_per_unit | int }}</strong></td>
+            <td colspan="2"></td>
         </tr>
     </tbody>
 </table>

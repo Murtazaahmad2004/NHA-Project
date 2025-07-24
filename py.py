@@ -536,9 +536,6 @@ def delete_repair_maintenance(id):
 # Route to edit a repair maintenance item
 @app.route('/edit_repair_maintenance/<int:id>', methods=['GET', 'POST'])
 def edit__repair_maintenance(id):
-    error = None
-    success = None
-    
     if request.method == 'POST':
         itemlist = request.form['itemlist']
         units = int(request.form['units'])
@@ -552,21 +549,21 @@ def edit__repair_maintenance(id):
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
             cursor.execute("""
-            UPDATE repair_maintenance SET
-                item_name = %s,
-                unit_in_house = %s,
-                units_externals = %s,
-                hours_spend_in_house = %s,
-                days_externals = %s,
-                expenditure = %s,
-                item_total = %s
-            WHERE id = %s
-        """, (itemlist, units, unit, hoursspend, days, expenditure, item_total, id))
+                UPDATE repair_maintenance SET
+                    item_name = %s,
+                    unit_in_house = %s,
+                    units_externals = %s,
+                    hours_spend_in_house = %s,
+                    days_externals = %s,
+                    expenditure = %s,
+                    item_total = %s
+                WHERE id = %s
+            """, (itemlist, units, unit, hoursspend, days, expenditure, item_total, id))
 
             conn.commit()
-            success("✅ Repair & Maintenance updated successfully.", 'success')
+            flash("✅ Repair & Maintenance updated successfully.", 'success')
         except Exception as e:
-            error("❌ Error updating item.", 'danger')
+            flash("❌ Error updating item.", 'danger')
             print("Update error:", e)
         finally:
             cursor.close()
@@ -593,6 +590,7 @@ def edit__repair_maintenance(id):
         cursor.close()
         conn.close()
 
+    # ✅ Ensure you always return a response
     return render_template('edit_repair_maintenance.html', record=record)
 
 if __name__ == '__main__':
