@@ -211,21 +211,22 @@ def head_form():
     return render_template('head_form.html', success=success, error=error)
 
 # head/items List route
-@app.route('/item_list')
+@app.route('/item_list', methods=['GET'])
 def item_list():
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
+    items_name = request.args.get('items_name', default='')
+
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    if items_name:
+        cursor.execute("SELECT * FROM item WHERE items_name LIKE %s", ('%' + items_name + '%',))
+    else:
         cursor.execute("SELECT * FROM item")
-        records = cursor.fetchall()
-    except Exception as e:
-        records = []
-        print("Error fetching items:", e)
-    finally:
-        cursor.close()
-        conn.close()
-    
-    return render_template('item_list.html', records=records)
+
+    records = cursor.fetchall()
+    conn.close()
+
+    return render_template("item_list.html", records=records, items_name=items_name)
 
 # Route to delete an item
 @app.route('/delete_item/<int:id>', methods=['POST'])
@@ -337,19 +338,20 @@ def procrument_form():
 # Procurement item list route
 @app.route('/procurement_item_list')
 def procurement_item_list():
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM procurement")
-        records = cursor.fetchall()
-    except Exception as e:
-        records = []
-        print("Error fetching procurement items:", e)
-    finally:
-        cursor.close()
-        conn.close()
+    item_name = request.args.get('item_name', default='')
 
-    return render_template('procurement_item_list.html', records=records)
+    conn = mysql.connector.connect(**db_config)
+    cursor = conn.cursor(dictionary=True)
+
+    if item_name:
+        cursor.execute("SELECT * FROM procurement WHERE item_name LIKE %s", ('%' + item_name + '%',))
+    else:
+        cursor.execute("SELECT * FROM procurement")
+
+    records = cursor.fetchall()
+    conn.close()
+
+    return render_template("procurement_item_list.html", records=records, item_name=item_name)
 
 # Route to delete a procrument item
 @app.route('/delete_procrument/<int:id>', methods=['POST'])
@@ -481,40 +483,67 @@ def repair_form():
 # Repair and Maintenance item list route
 @app.route('/repair_maintenance_list')
 def repair_maintenance_list():
+    items_name = request.args.get('items_name', default='')
+
+    records = []
+    total_items = total_expenditure = unit_in_house = units_externals = 0
+    hours_spend_in_house = days_externals = avg_cost_per_unit = percenteage_inhouse_unit = percenteage_external_unit = 0
+
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM repair_maintenance")
+
+        # ✅ Filter by item_name if given
+        if items_name:
+            cursor.execute("SELECT * FROM repair_maintenance WHERE item_name LIKE %s", ('%' + items_name + '%',))
+        else:
+            cursor.execute("SELECT * FROM repair_maintenance")
+
         records = cursor.fetchall()
 
-        # ✅ Calculate total of all item_total values
-        total_items = sum(int(r['item_total']) for r in records if r['item_total'])
-        total_expenditure = sum(int(r['expenditure']) for r in records if r['expenditure'])
-        unit_in_house = sum(int(r['unit_in_house']) for r in records if r['unit_in_house'])
-        units_externals = sum(int(r['units_externals']) for r in records if r['units_externals'])
-        hours_spend_in_house = sum(int(r['hours_spend_in_house']) for r in records if r['hours_spend_in_house'])
-        days_externals = sum(int(r['days_externals']) for r in records if r['days_externals'])
-        avg_cost_per_unit = (total_expenditure / units_externals) if units_externals > 0 else 0
-        percenteage_inhouse_unit = (unit_in_house / total_items * 100) if total_items > 0 else 0
-        percenteage_external_unit = (units_externals / total_items * 100) if total_items > 0 else 0
+        if records:  # Avoid division by zero if no records
+            total_items = sum(int(r['item_total']) for r in records if r['item_total'])
+            total_expenditure = sum(int(r['expenditure']) for r in records if r['expenditure'])
+            unit_in_house = sum(int(r['unit_in_house']) for r in records if r['unit_in_house'])
+            units_externals = sum(int(r['units_externals']) for r in records if r['units_externals'])
+            hours_spend_in_house = sum(int(r['hours_spend_in_house']) for r in records if r['hours_spend_in_house'])
+            days_externals = sum(int(r['days_externals']) for r in records if r['days_externals'])
 
-        for r in records:
-            if r['expenditure'] and total_expenditure > 0:
-                r['percentage_of_an_item'] = round((float(r['expenditure']) / total_expenditure) * 100)
-            else:
-                r['percentage_of_an_item'] = 0.0
+            avg_cost_per_unit = total_expenditure / units_externals if units_externals > 0 else 0
+            percenteage_inhouse_unit = (unit_in_house / total_items * 100) if total_items > 0 else 0
+            percenteage_external_unit = (units_externals / total_items * 100) if total_items > 0 else 0
+
+            for r in records:
+                expenditure = float(r['expenditure']) if r['expenditure'] else 0
+                r['percentage_of_an_item'] = round((expenditure / total_expenditure) * 100) if total_expenditure > 0 else 0
+        else:
+            # Default values if no matching record
+            avg_cost_per_unit = 0
+            percenteage_inhouse_unit = 0
+            percenteage_external_unit = 0
 
     except Exception as e:
-        records = []
-        total_items = 0
         print("Error fetching repair and maintenance items:", e)
     finally:
-        cursor.close()
-        conn.close()
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
 
-    return render_template('repair_maintenance_list.html', records=records, total_items=total_items, total_expenditure=total_expenditure, 
-                           unit_in_house=unit_in_house, units_externals=units_externals, percenteage_inhouse_unit=percenteage_inhouse_unit, 
-                           percenteage_external_unit=percenteage_external_unit, hours_spend_in_house=hours_spend_in_house, days_externals=days_externals, avg_cost_per_unit=avg_cost_per_unit)
+    return render_template(
+        'repair_maintenance_list.html',
+        records=records,
+        total_items=total_items,
+        total_expenditure=total_expenditure,
+        unit_in_house=unit_in_house,
+        units_externals=units_externals,
+        percenteage_inhouse_unit=percenteage_inhouse_unit,
+        percenteage_external_unit=percenteage_external_unit,
+        hours_spend_in_house=hours_spend_in_house,
+        days_externals=days_externals,
+        avg_cost_per_unit=avg_cost_per_unit,
+        items_name=items_name
+    )
 
 # Route to delete a repair maintenance item
 @app.route('/delete_repair_maintenance/<int:id>', methods=['POST'])

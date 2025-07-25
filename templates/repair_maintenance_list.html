@@ -29,6 +29,14 @@
     <h2>Repair Maintenance Records</h2>
     <h1><p>MIS Section has Repair/ Maintenance items in the month of June, 2025: </p></h1>
 
+     <div class="items_name">
+        <form method="GET" action="/repair_maintenance_list">
+            <label for="items_name">Search Item:</label>
+            <input type="text" id="items_name" name="items_name" placeholder="Enter item name" class="form-control" value="{{ items_name }}">
+            <button type="submit" class="btn1 btn-primary">Filter</button>
+        </form>
+    </div>
+
     <button class="btnn btn-primary"><a href="/repair_maintenance">Add New Repair Maintenance Data</a></button>
 
 <table class="table3" border="1">
@@ -90,7 +98,7 @@
         <tr>
             <td colspan="7"><strong>Avg./ Unit</strong></td>
             <td><strong>{{ avg_cost_per_unit | int }}</strong></td>
-            <td colspan="2"></td>
+            <td colspan="3"></td>
         </tr>
     </tbody>
 </table>

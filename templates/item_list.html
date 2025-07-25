@@ -28,6 +28,14 @@
 
     <h2>Items Records</h2>
 
+    <div class="items_name">
+        <form method="GET" action="/item_list">
+            <label for="items_name">Search Item:</label>
+            <input type="text" id="items_name" name="items_name" placeholder="Enter item name" class="form-control" value="{{ items_name }}">
+            <button type="submit" class="btn1 btn-primary">Filter</button>
+        </form>
+    </div>
+
     <button class="btnn btn-primary"><a href="/head_form">Add New Item</a></button>
 
     <table class="table2" border="1">

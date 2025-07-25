@@ -119,6 +119,7 @@ tr:nth-child(even) {
 
 .table3 {
     margin-left: 0;
+    margin-top: 25px;
     width: 100%;
 }
 
@@ -299,10 +300,6 @@ h2 {
     margin: auto;
 }
 
-.btn6 btn-lg {
-    font-size: 18px;
-}
-
 .container1 {
     display: flex;
     flex-direction: column;
@@ -359,6 +356,12 @@ h2 {
     background-color: #0056b3;
 }
 
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+    width: 115px;
+}
+
  input, select {
     margin-bottom: 15px;
     padding: 10px;
@@ -366,6 +369,20 @@ h2 {
 }
 
 .financial_year {
+    width: 12%;
+    margin-bottom: 10px;
+    font-size: medium;
+    height: 50px;
+}
+
+.items_name {
+    width: 10%;
+    margin-bottom: 10px;
+    font-size: medium;
+    height: 50px;
+}
+
+.item_name {
     width: 10%;
     margin-bottom: 10px;
     font-size: medium;
