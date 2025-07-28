@@ -48,7 +48,7 @@
             <th colspan="2">In House</th>
             <th colspan="2">External</th>
             <th rowspan="2">Expenditures on <br> External Repairs in Rs.</th>
-            <th rowspan="2">Percentage (%)</th>
+            <th rowspan="2">Percentage of an Item (%)</th>
             <th rowspan="2">Delete Operation</th>
             <th rowspan="2">Edit Operation</th>
         </tr>
@@ -70,7 +70,7 @@
             <td>{{ record.units_externals }}</td>
             <td>{{ record.days_externals }}</td>
             <td>{{ record.expenditure }}</td>
-            <td>{{ record.percentage_of_an_item }}</td>
+            <td>{{ record.percentage_of_an_item }} %</td>
             <td>
                 <form action="/delete_repair_maintenance/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
                     <button type="submit" class="btn btn-danger">Delete</button>
