@@ -19,6 +19,112 @@ db_config = {
 def home():
     return render_template('home.html')
 
+# Route to show financial year from
+@app.route('/financial_year_form', methods=['GET', 'POST'])
+def financial_year_form():
+    error = None
+    success = None
+
+    if request.method == 'POST':
+        financial_year = request.form.get('financialyear')
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO financial_year (financial_year) VALUES (%s)", (financial_year,))
+            conn.commit()
+            success = "✅ Financial year added successfully!"
+            flash(success, 'success')
+        except Exception as e:
+            error = f"❌ Error adding financial year: {e}"
+            flash(error, 'danger')
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+        return redirect(url_for('financial_year_form'))
+
+    return render_template('financial_year_form.html', success=success, error=error)
+
+# Route to show financial year list
+@app.route('/financial_year_list', methods=['GET', 'POST'])
+def financial_year_list():
+    financialyear = request.args.get('financialyear')
+    
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        if financialyear:
+            cursor.execute("SELECT * FROM financial_year WHERE financial_year LIKE %s", (financialyear,))
+        else:
+            cursor.execute("SELECT * FROM financial_year ORDER BY id DESC")
+        records = cursor.fetchall()
+    except Exception as e:
+        records = []
+        print("Error fetching records:", e)
+    finally:
+        cursor.close()
+        conn.close()
+    return render_template('financial_year_list.html', records=records, financialyear=financialyear)
+
+# Route to delete a financial year record
+@app.route('/delete_financial_year/<int:id>', methods=['POST'])
+def delete_financial_year(id):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM financial_year WHERE id = %s", (id,))
+        conn.commit()
+        flash("✅ Financial year deleted successfully.", 'success')
+    except Exception as e:
+        flash("❌ Error deleting financial year.", 'danger')
+        print("Delete error:", e)
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+    return redirect(url_for('financial_year_list'))
+
+# Route to edit a financial year record
+@app.route('/edit_financial_year/<int:id>', methods=['GET', 'POST'])
+def edit_financial_year(id):
+    if request.method == 'POST':
+        financial_year = request.form['financialyear']
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("UPDATE financial_year SET financial_year = %s WHERE id = %s", (financial_year, id))
+            conn.commit()
+            flash("✅ Financial year updated successfully.", 'success')
+        except Exception as e:
+            flash("❌ Error updating financial year.", 'danger')
+            print("Update error:", e)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+        return redirect(url_for('financial_year_list'))
+
+    # GET method
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM financial_year WHERE id = %s", (id,))
+        record = cursor.fetchone()
+    except Exception as e:
+        flash("❌ Error loading financial year.", 'danger')
+        print("Fetch error:", e)
+        record = None
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return render_template('edit_financial_year.html', record=record)
+
 # Form for budget submission
 @app.route('/form', methods=['GET', 'POST'])
 def form():
