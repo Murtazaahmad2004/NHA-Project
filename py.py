@@ -455,7 +455,6 @@ def repair_form():
         hoursspend = request.form.get('hoursspend')
         days = request.form.get('days')
         expenditure = request.form.get('expenditure')
-        total_expenditure = request.form.get('total_expenditure', default=0)
 
         try:
             units = int(units)
@@ -463,9 +462,17 @@ def repair_form():
             item_total = units + unit
             expenditure = float(expenditure)
 
-            # Auto-computed values
+            # Reconnect to DB to calculate total expenditure (include current)
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("SELECT SUM(expenditure) FROM repair_maintenance")
+            result = cursor.fetchone()
+            total_expenditure = float(result[0]) if result[0] else 0
+            total_expenditure += expenditure  # Include the current one
+
+            # Correct calculations
             percentage_of_an_item = round((expenditure / total_expenditure) * 100) if total_expenditure > 0 else 0
-            avg_cost_per_unit = round(expenditure / item_total) if item_total else 0
+            avg_cost_per_unit = expenditure / unit if unit > 0 else 0
             total_unit_repaired_in_house = units
             total_unit_repaired_external = unit
         except ValueError:
@@ -473,20 +480,17 @@ def repair_form():
             return render_template('repair_maintenance.html', items=items, error=error, success=success)
 
         try:
-            conn = mysql.connector.connect(**db_config)
-            cursor = conn.cursor()
             cursor.execute("""
-            INSERT INTO repair_maintenance (
-                item_name, unit_in_house, units_externals, hours_spend_in_house, 
-                days_externals, expenditure, item_total, percentage_of_an_item, 
-                avg_cost_per_unit, total_unit_repaired_in_house, total_unit_repaired_external
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (
-            itemlist, units, unit, hoursspend, days, expenditure, item_total,
-            percentage_of_an_item, avg_cost_per_unit,
-            total_unit_repaired_in_house, total_unit_repaired_external
-        ))
-
+                INSERT INTO repair_maintenance (
+                    item_name, unit_in_house, units_externals, hours_spend_in_house, 
+                    days_externals, expenditure, item_total, percentage_of_an_item, 
+                    avg_cost_per_unit, total_unit_repaired_in_house, total_unit_repaired_external
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
+                itemlist, units, unit, hoursspend, days, expenditure, item_total,
+                percentage_of_an_item, avg_cost_per_unit,
+                total_unit_repaired_in_house, total_unit_repaired_external
+            ))
             conn.commit()
             success = "✅ Repair & Maintenance data submitted successfully!"
         except Exception as e:
