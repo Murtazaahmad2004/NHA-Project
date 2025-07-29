@@ -476,15 +476,17 @@ def repair_form():
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
             cursor.execute("""
-                INSERT INTO repair_maintenance (item_name, unit_in_house, units_externals, hours_spend_in_house, 
-                           days_externals, expenditure, item_total, percentage_of_an_item, avg_cost_per_unit, 
-                           total_unit_repaired_in_house, total_unit_repaired_external
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            """, (
-                itemlist, units, unit, hoursspend, days, expenditure, item_total,
-                percentage_of_an_item, avg_cost_per_unit,
-                total_unit_repaired_in_house, total_unit_repaired_external
-            ))
+            INSERT INTO repair_maintenance (
+                item_name, unit_in_house, units_externals, hours_spend_in_house, 
+                days_externals, expenditure, item_total, percentage_of_an_item, 
+                avg_cost_per_unit, total_unit_repaired_in_house, total_unit_repaired_external
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (
+            itemlist, units, unit, hoursspend, days, expenditure, item_total,
+            percentage_of_an_item, avg_cost_per_unit,
+            total_unit_repaired_in_house, total_unit_repaired_external
+        ))
+
             conn.commit()
             success = "✅ Repair & Maintenance data submitted successfully!"
         except Exception as e:
