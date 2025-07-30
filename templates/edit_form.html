@@ -6,6 +6,7 @@
     <title>Edit Budgeting Form</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='main.js') }}" defer></script>
 </head>
 <body>
     <div class="container">
@@ -37,31 +38,5 @@
         </form>
         <br>
     </div>
-
-    <script>
-        function calculateRemaining() {
-            const total = parseFloat(document.getElementById('totalbudget').value) || 0;
-            const upto = parseFloat(document.getElementById('budgetupto').value) || 0;
-            const remaining = total - upto;
-            document.getElementById('remaining_budget').value = remaining.toFixed(2);
-        }
-
-        document.getElementById('totalbudget').addEventListener('input', calculateRemaining);
-        document.getElementById('budgetupto').addEventListener('input', calculateRemaining);
-    </script>
-
-    <script>
-        document.getElementById('budgetmonth').addEventListener('change', function () {
-            const value = this.value;
-            if (value) {
-                const [year, month] = value.split('-').map(Number);
-                const lastDay = new Date(year, month, 0); // Last day of selected month
-                const dayOnly = lastDay.getDate(); // Just the number (e.g., 31)
-                document.getElementById('lastday').value = dayOnly;
-            } else {
-                document.getElementById('lastday').value = '';
-            }
-        });
-    </script>
 </body>
 </html>

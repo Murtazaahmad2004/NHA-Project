@@ -6,6 +6,7 @@
     <title>Head Form</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='main.js') }}" defer></script>
 </head>
 <body>
 <div class="container">
@@ -30,16 +31,5 @@
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 </div>
-
-<script>
-    function addField() {
-        const div = document.createElement('div');
-        div.classList.add('form-group');
-        div.innerHTML = `
-            <input type="text" name="itemname[]" class="form-control" placeholder="Enter Item Name" required>
-        `;
-        document.getElementById('itemFields').appendChild(div);
-    }
-</script>
 </body>
 </html>

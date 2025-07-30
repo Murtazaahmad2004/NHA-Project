@@ -158,7 +158,7 @@ h2 {
 }
 
 .btn {
-    width: 80px; /* Same width for both Delete and Edit */
+    width: 80px;
     display: inline-block;
     text-align: center;
     padding: 6px 12px;
@@ -393,4 +393,22 @@ h2 {
     margin-bottom: 10px;
     font-size: medium;
     height: 50px;
+}
+
+.btn-group {
+    display: flex;
+    gap: 10px;
+}
+
+.btnPage {
+    background-color: transparent;
+    color: black;
+    width: 30px;
+    display: inline-block;
+    text-align: center;
+    padding: 6px 12px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 4px;
+    text-decoration: none;
 }

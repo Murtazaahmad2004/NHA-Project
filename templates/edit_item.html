@@ -6,6 +6,7 @@
     <title>Edit Item Form</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='main.js') }}" defer></script>
 </head>
 <body>
     <div class="container">
@@ -24,20 +25,5 @@
         </form>
         <br>
     </div>
-    <script>
-    function updateTotal() {
-        const unitsInHouse = parseInt(document.getElementById('units').value) || 0;
-        const unitsExternals = parseInt(document.getElementById('unit').value) || 0;
-        const total = unitsInHouse + unitsExternals;
-        document.getElementById('total_items').value = total;
-    }
-
-    document.getElementById('units').addEventListener('input', updateTotal);
-    document.getElementById('unit').addEventListener('input', updateTotal);
-
-    // Call once on page load in case initial values are set
-    updateTotal();
-</script>
-
 </body>
 </html>

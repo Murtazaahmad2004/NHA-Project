@@ -220,7 +220,7 @@ def delete_record(id):
         cursor = conn.cursor()
         cursor.execute("DELETE FROM budget WHERE id = %s", (id,))
         conn.commit()
-        flash("Record deleted successfully.", 'success')
+        flash("✅ Record deleted successfully.", 'success')
     except Exception as e:
         flash("Error deleting record.", 'danger')
         print("Delete error:", e)
@@ -261,7 +261,7 @@ def edit_record(id):
                 budget_used, budget_upto, reporting_day, remaining, id
             ))
             conn.commit()
-            flash("Record updated successfully.", 'success')
+            flash("✅ Record updated successfully.", 'success')
         except Exception as e:
             flash("Error updating record.", 'danger')
             print("Update error:", e)

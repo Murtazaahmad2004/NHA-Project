@@ -7,15 +7,10 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='main.js') }}" defer></script>
     <title>Procrument Data</title>
 </head>
 <body>
-    <script>
-        function confirmDelete() {
-            return confirm("Are you sure you want to delete this record?");
-        }
-    </script>
-
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
         {% for category, message in messages %}
