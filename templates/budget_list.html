@@ -51,7 +51,6 @@
             <th>Delete Operations</th>
             <th>Edit Operations</th>
         </tr>
-        <tbody class="records">
         {% for record in records %}
         <tr>
             <td>{{ record['id'] }}</td>
@@ -78,7 +77,6 @@
             <td colspan="9">No records found.</td>
         </tr>
         {% endfor %}
-        </tbody>
     </table>
     
     <div class="btn float-end btn-group btn-light"> 
