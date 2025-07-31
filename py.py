@@ -24,15 +24,17 @@ def home():
 def financial_year_form():
     error = None
     success = None
+    financialyear= []
 
     if request.method == 'POST':
-        financial_year = request.form.get('financialyear')
+        financial_year = request.form.getlist('financialyear[]')
+
         try:
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
             cursor.execute("INSERT INTO financial_year (financial_year) VALUES (%s)", (financial_year,))
             conn.commit()
-            success = "✅ Financial year added successfully!"
+            success = f"✅ {len([i for i in financialyear if i.strip()])} financial year submitted successfully!"
             flash(success, 'success')
         except Exception as e:
             error = f"❌ Error adding financial year: {e}"
@@ -196,21 +198,38 @@ def form():
 @app.route('/budget_list')
 def show_budget_list():
     selected_year = request.args.get('financial_year')
+
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
+
+        # Fetch all financial years for dropdown from 'financial_year' table
+        cursor.execute("SELECT financial_year FROM financial_year ORDER BY financial_year DESC")
+        financial_years = cursor.fetchall()  # this gives list of dicts with 'financial_year'
+
+        # Fetch budget records filtered by selected financial year
         if selected_year:
-            cursor.execute("SELECT * FROM financial_year WHERE financial_year = %s", (selected_year,))
+            cursor.execute("SELECT * FROM budget WHERE financial_year = %s ORDER BY id DESC", (selected_year,))
         else:
             cursor.execute("SELECT * FROM budget ORDER BY id DESC")
+
         records = cursor.fetchall()
+
     except Exception as e:
+        print("Error:", e)
         records = []
-        print("Error fetching records:", e)
+        financial_years = []
+
     finally:
         cursor.close()
         conn.close()
-    return render_template('budget_list.html', records=records, selected_year=selected_year)
+
+    return render_template(
+        'budget_list.html',
+        records=records,
+        financial_year=financial_years,
+        selected_year=selected_year
+    )
 
 # Route to delete a budget record
 @app.route('/delete/<int:id>', methods=['POST'])
@@ -748,6 +767,11 @@ def edit__repair_maintenance(id):
 
     # ✅ Ensure you always return a response
     return render_template('edit_repair_maintenance.html', record=record)
+
+# Complaints form submission
+@app.route('/complaints_form', methods=['GET', 'POST'])
+def complaints_form():
+    return render_template('complaints_form.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

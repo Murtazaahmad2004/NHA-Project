@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+    <title>Complaints Data</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <h2>Complaints Records</h2>
+    <h1><p>MIS Section has Repair/ Maintenance items in the month of June, 2025: </p></h1>
+
+     <!-- <div class="items_name">
+        <form method="GET" action="/repair_maintenance_list">
+            <label for="items_name">Search Item:</label>
+            <input type="text" id="items_name" name="items_name" placeholder="Enter item name" class="form-control" value="{{ items_name }}">
+            <button type="submit" class="btn1 btn-primary">Filter</button>
+        </form>
+    </div> -->
+
+    <button class="btnn btn-primary"><a href="/complaints_form">Add New Complaint</a></button>
+
+<table class="table3" border="1">
+    <thead>
+        <tr>
+            <th rowspan="2"></th>
+            <th rowspan="2"></th>
+            <th rowspan="2"></th>
+            <th colspan="2"></th>
+            <th colspan="2"></th>
+            <th rowspan="2"></th>
+            <th rowspan="2"></th>
+            <th rowspan="2"></th>
+            <th rowspan="2">Operation</th>
+        </tr>
+        <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- {% for record in records %} -->
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                <form action="/delete_repair_maintenance/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </td>
+            <td>
+                <a href="/edit_repair_maintenance/{{ record['id'] }}" class="btn btn-primary">Edit</a>
+            </td>
+        </tr>
+        {% endfor %}
+
+        <!-- Total Row -->
+        <tr>
+            <td colspan="2"><strong></strong></td>
+            <td><strong></strong></td>
+            <td><strong></strong></td>
+            <td><strong></strong></td>
+            <td><strong></strong></td>
+            <td><strong></strong></td>
+            <td><strong></strong></td>
+            <td colspan="3"></td> <!-- For Percentage, Delete, Edit -->
+        </tr>
+
+        <!-- Average Cost Row -->
+        <tr>
+            <td colspan="7"><strong></strong></td>
+            <td><strong></strong></td>
+            <td colspan="3"></td>
+        </tr>
+    </tbody>
+</table>
+</body>
+</html>

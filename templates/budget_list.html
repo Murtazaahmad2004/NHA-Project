@@ -23,12 +23,16 @@
     {% endwith %}
 
     <h2>Budget Records</h2>
+
     <div class="financial_year">
         <form method="GET" action="/budget_list">
             <label for="financial_year">Financial Year:</label>
             <select id="financial_year" name="financial_year">
-                {% for financial_year in financial_year %}
-                    <option value="{{ financial_year['financial_year'] }}">{{ financial_year['financial_year'] }}</option>
+                <option value="">Select Financial Year</option>
+                {% for fy in financial_year %}
+                    <option value="{{ fy['financial_year'] }}" {% if fy['financial_year'] == selected_year %}selected{% endif %}>
+                        {{ fy['financial_year'] }}
+                    </option>
                 {% endfor %}
             </select>
             <button type="submit" class="btn1 btn-primary">Filter</button>
@@ -61,19 +65,19 @@
             <td>{{ record['reporting_month_last_day'] }}</td>
             <td>{{ record['remaining_budget'] }}</td>
             <td>
-            <form action="/delete/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
-                <button type="submit" class="btn btn-danger">Delete</button>
-            </form>
+                <form action="/delete/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
             </td>
             <td>
-            <button class="btn btn-primary">
-                <a href="/edit_form/{{ record['id'] }}">Edit</a>
-            </button>
+                <button class="btn btn-primary">
+                    <a href="/edit_form/{{ record['id'] }}">Edit</a>
+                </button>
             </td>
         </tr>
         {% else %}
         <tr>
-            <td colspan="9">No records found.</td>
+            <td colspan="10">No records found.</td>
         </tr>
         {% endfor %}
     </table>

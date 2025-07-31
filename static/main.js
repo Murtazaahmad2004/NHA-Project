@@ -48,8 +48,10 @@ function addField() {
     div.classList.add('form-group');
     div.innerHTML = `
     <input type="text" name="itemname[]" class="form-control" placeholder="Enter Item Name" required>
+    <input type="text" name="financialyear[]" class="form-control" placeholder="Enter Financial Year" required>
     `;
     document.getElementById('itemFields')?.appendChild(div);
+    document.getElementById('financial_year')?.appendChild(div);
 }
 
 const all_rows = document.querySelectorAll('#records tr');
