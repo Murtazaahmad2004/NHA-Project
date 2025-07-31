@@ -200,7 +200,7 @@ def show_budget_list():
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
         if selected_year:
-            cursor.execute("SELECT * FROM budget WHERE financial_year = %s", (selected_year,))
+            cursor.execute("SELECT * FROM financial_year WHERE financial_year = %s", (selected_year,))
         else:
             cursor.execute("SELECT * FROM budget ORDER BY id DESC")
         records = cursor.fetchall()
