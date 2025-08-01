@@ -845,36 +845,42 @@ def complaints_form():
     return render_template('complaints_form.html')
 
 # Meetings Route
-@app.route('/complaints_form', methods=['GET', 'POST'])
-def complaints_form():
-    return render_template('complaints_form.html')
+@app.route('/meetingform', methods=['GET', 'POST'])
+def meetingform():
+    return render_template('meetingform.html')
 
 # Network route
-@app.route('/complaints_form', methods=['GET', 'POST'])
-def complaints_form():
-    return render_template('complaints_form.html')
+@app.route('/networkform', methods=['GET', 'POST'])
+def networkform():
+    return render_template('networkform.html')
 
 # PMIS Route
-@app.route('/complaints_form', methods=['GET', 'POST'])
-def complaints_form():
-    return render_template('complaints_form.html')
+@app.route('/pmisreport', methods=['GET', 'POST'])
+def pmisreport():
+    return render_template('pmisreport.html')
 
 # Software complaints Route
-@app.route('/complaints_form', methods=['GET', 'POST'])
-def complaints_form():
-    return render_template('complaints_form.html')
+@app.route('/softwarecomplainet', methods=['GET', 'POST'])
+def softwarecomplainet():
+    return render_template('softwarecomplainet.html')
 
 # Software form submission Route
-@app.route('/complaints_form', methods=['GET', 'POST'])
-def complaints_form():
-    return render_template('complaints_form.html')
+@app.route('/softwareform', methods=['GET', 'POST'])
+def softwareform():
+    return render_template('softwareform.html')
 
 # Summarize Route
-@app.route('/complaints_form', methods=['GET', 'POST'])
-def complaints_form():
-    return render_template('complaints_form.html')
+@app.route('/summarisereport', methods=['GET', 'POST'])
+def summarisereport():
+    return render_template('summarisereport.html')
+
+# Core Software Form
+@app.route('/coresoftwareform', methods=['GET', 'POST'])
+def coresoftwareform():
+    return render_template('coresoftwareform.html')
 
 # Store Items Route
+
 # Uploading Route
 if __name__ == '__main__':
     app.run(debug=True)

@@ -3,94 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Software Complaints</title>
-    <style>
-        body {
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-        form {
-            max-width: 600px;
-            margin: auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1{
-            text-align: center;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-        }
-        input[type="text"],
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        form > div {
-            display: flex;
-            flex-direction: column;
-        }
-        form > div > label {
-            margin-top: 10px;
-        }
-        form > div > input[type="text"],
-        form > div > input[type="number"],
-        form > div > select {
-            margin-bottom: 15px;
-        }
-        form > div > button {
-            margin-top: 10px;
-        }
-        a {
-            display: block;
-            text-align: center;
-            margin-top: 10px;
-            color: #007bff;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
 </head>
 <body>
     <div class="container">
-        <form action="/softwarecomplaint" method="post">
+        <form  method="post"action="/softwarecomplaint">
             <h1>Softwares Details</h1>
-            <p>Software Complaints Received/Resolved - Report by Director(MIS)</p>
             <label for="softwares">Software's</label>
-            <input type="text" name="softwares" id="softwares" placeholder=" enter software name" required>
+            <input type="text" name="softwares" id="softwares" placeholder="Enter Software Name" required>
             <br>
             <label for="discription">Discription</label>
-            <textarea name="discription" id="discription" placeholder="enter software discription" required></textarea>
+            <textarea name="discription" id="discription" placeholder="Enter Software Discription" required></textarea>
             <br>
             <label for="totalcomplaints"> Total Complaints</label>
-            <input type="number" id="totalcomplaints" name="totalcomplaints" placeholder="enter total Complaints" required>
+            <input type="number" id="totalcomplaints" name="totalcomplaints" placeholder="Enter Total Complaints" required>
             <br>
             <label for="resolved">Resolved</label>
-            <input type="number" id="resolved" name="resolved" placeholder="enter resolved" required>
+            <input type="number" id="resolved" name="resolved" placeholder="Enter Resolved" required>
             <br> 
-            <button type="submit">Submit</button>
+            <button type="submit" class="btn1 btn-success">Submit</button>
         </form>
     </div>
 </body>

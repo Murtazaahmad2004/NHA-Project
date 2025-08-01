@@ -3,84 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Summarise Report</title>
-    <style>
-            body {
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-        }
-        form {
-            max-width: 600px;
-            margin: auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-        }
-        input[type="text"],
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        form > div {
-            display: flex;
-            flex-direction: column;
-        }
-        form > div > label {
-            margin-top: 10px;
-        }
-        form > div > input[type="text"],
-        form > div > input[type="number"],
-        form > div > select {
-            margin-bottom: 15px;
-        }
-        form > div > button {
-            margin-top: 10px;
-        }
-        
-    </style>
 </head>
 <body>
     <div class="container">
-        <form action="/summarisereport" method="post">
+        <form method="post" action="/summarisereport">
             <h1>Summarise Report</h1>
             <label for="procurement">Procurement Activities</label>
-            <input type="text" name="procurement" id="procurement" placeholder="enter procurement Activities name" required>
+            <input type="text" name="procurement" id="procurement" placeholder="Enter Procurement Activities Name" required>
             <br>
             <label for="availablehours">Available Hours</label>
-            <input type="number" name="availablehours" id="availablehours" placeholder="enetr available hours" required>
+            <input type="number" name="availablehours" id="availablehours" placeholder="Enter Available Hours" required>
             <br>
             <label for="workingstrength">Working Strength</label>
-            <input type="number" name="workingstrength" id="workingstrength" placeholder="enter wirking Strength" required>
+            <input type="number" name="workingstrength" id="workingstrength" placeholder="Enter Working Strength" required>
             <br>
             <label for="hoursworked">Hours Worked</label>
-            <input type="number" name="hoursworked" id="hoursworked" placeholder="enter hours Worked " required>
+            <input type="number" name="hoursworked" id="hoursworked" placeholder="Enter Hours Worked " required>
             <br>
-            <button type="submit">Submit</button>
+            <button type="submit" class="btn1 btn-success">Submit</button>
         </form>
     </div>
 </body>
