@@ -25,8 +25,15 @@
 
     <div class="items_name">
         <form method="GET" action="/item_list">
-            <label for="items_name">Search Item:</label>
-            <input type="text" id="items_name" name="items_name" placeholder="Enter item name" class="form-control" value="{{ items_name }}">
+            <label for="items_name">Item Name:</label>
+            <select id="items_name" name="items_name" class="form-control" required>
+                <option value="">Select item Name</option>
+                {% for record in records %}
+                    <option value="{{ record['items_name'] }}" {% if selected_item == record['items_name'] %}selected{% endif %}>
+                        {{ record['items_name'] }}
+                    </option>
+                {% endfor %}
+            </select>
             <button type="submit" class="btn1 btn-primary">Filter</button>
         </form>
     </div>

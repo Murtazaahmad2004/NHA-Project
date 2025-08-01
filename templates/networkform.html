@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Networks</title>
+    <style>
+            body {
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            max-width: 600px;
+            margin: auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        form > div {
+            display: flex;
+            flex-direction: column;
+        }
+        form > div > label {
+            margin-top: 10px;
+        }
+        form > div > input[type="text"],
+        form > div > input[type="number"],
+        form > div > select {
+            margin-bottom: 15px;
+        }
+        form > div > button {
+            margin-top: 10px;
+        }
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <form action="/networks" method="post">
+            <h1>Network</h1>
+            <p>Performance of Internet, Network NHA Website & Servers</p>
+            <label for="item">Item</label>
+            <input type="text" id="item" name="item" placeholder="enter item name " required>
+            <br>
+            <label for="downitem">Down Item</label>
+            <input type="number" name="downitem" id="downitem" placeholder="enter downitem" required>
+            <br>
+            <label for="remarks">Remarks</label>
+            <textarea name="remarks" id="remarks" placeholder="enter remarks" required></textarea>
+            <br>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>

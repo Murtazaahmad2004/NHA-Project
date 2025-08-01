@@ -25,8 +25,15 @@
 
     <div class="financialyear">
         <form method="GET" action="/financial_year_list">
-            <label for="financialyear">Search Financial Year:</label>
-            <input type="text" id="financialyear" name="financialyear" placeholder="Enter Financial Year" value="{{ financial_year }}">
+            <label for="financialyear">Financial Year:</label>
+            <select id="financialyear" name="financialyear" class="form-control" required>
+                <option value="">Select Financial Year</option>
+                {% for fy in financial_years %}
+                    <option value="{{ fy['financial_year'] }}" {% if selected_year == fy['financial_year'] %}selected{% endif %}>
+                        {{ fy['financial_year'] }}
+                    </option>
+                {% endfor %}
+            </select>
             <button type="submit" class="btn1 btn-primary">Filter</button>
         </form>
     </div>

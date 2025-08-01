@@ -48,11 +48,39 @@ function addField() {
     div.classList.add('form-group');
     div.innerHTML = `
     <input type="text" name="itemname[]" class="form-control" placeholder="Enter Item Name" required>
-    <input type="text" name="financialyear[]" class="form-control" placeholder="Enter Financial Year" required>
     `;
     document.getElementById('itemFields')?.appendChild(div);
+}
+
+function GenerateYearOptions() {
+    const currentyear =  new Date().getFullYear();
+    const startyear = 2018;
+    let options = `<option value="">Select Financial Year</option>`;
+
+    for(let year = startyear; year < currentyear; year++){
+        const range = `${year} - ${year + 1}`;
+        options += `<option value="${range}">${range}</option>`;
+    }
+    return options;
+}
+
+function AddField() {
+    const div = document.createElement('div');
+    div.classList.add('form-group');
+    div.innerHTML = `
+   <select name="financialyear[]" class="form-control" required>
+        ${GenerateYearOptions()}
+   </select>
+    `;
     document.getElementById('financial_year')?.appendChild(div);
 }
+
+window.onload = function () {
+    const selects = document.querySelectorAll('select[name="financialyear[]"]');
+    selects.forEach(select => {
+        select.innerHTML = GenerateYearOptions();
+    });
+};
 
 const all_rows = document.querySelectorAll('#records tr');
 const records_per_page = 2;

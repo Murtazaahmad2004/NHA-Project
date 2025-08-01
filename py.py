@@ -19,33 +19,55 @@ db_config = {
 def home():
     return render_template('home.html')
 
-# Route to show financial year from
+# Route to submission financial year 
 @app.route('/financial_year_form', methods=['GET', 'POST'])
 def financial_year_form():
     error = None
     success = None
-    financialyear= []
 
+    # If the request method is POST, it means the form was submitted
     if request.method == 'POST':
-        financial_year = request.form.getlist('financialyear[]')
+        # Get all submitted financial years as a list (e.g., ['2020-2021', '2021-2022'])
+        financial_years = request.form.getlist('financialyear[]')
 
         try:
+            # Connect to MySQL database using your config
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
-            cursor.execute("INSERT INTO financial_year (financial_year) VALUES (%s)", (financial_year,))
-            conn.commit()
-            success = f"✅ {len([i for i in financialyear if i.strip()])} financial year submitted successfully!"
+
+            count = 0  # to count how many records are successfully inserted
+
+            # Loop through the submitted years
+            for fy in financial_years:
+                fy = fy.strip()  # remove any leading/trailing spaces
+                if fy:  # only insert if not empty
+                    cursor.execute(
+                        "INSERT INTO financial_year (financial_year) VALUES (%s)", (fy,)
+                    )
+                    count += 1  # count inserted records
+
+            conn.commit()  # save changes in DB
+
+            # Flash a success message with the number of inserted years
+            success = f"✅ {count} financial year(s) submitted successfully!"
             flash(success, 'success')
+
         except Exception as e:
+            # If any error occurs, flash an error message
             error = f"❌ Error adding financial year: {e}"
             flash(error, 'danger')
+
         finally:
+            # Close cursor and connection if they were opened
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
+
+        # Redirect to the same page after form submission (prevents resubmission on refresh)
         return redirect(url_for('financial_year_form'))
 
+    # If method is GET, just render the form
     return render_template('financial_year_form.html', success=success, error=error)
 
 # Route to show financial year list
@@ -56,18 +78,25 @@ def financial_year_list():
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
+
+        # Fetch all financial years for dropdown from 'financial_year' table
+        cursor.execute("SELECT financial_year FROM financial_year ORDER BY financial_year DESC")
+        financial_years = cursor.fetchall()
+
         if financialyear:
             cursor.execute("SELECT * FROM financial_year WHERE financial_year LIKE %s", (financialyear,))
         else:
             cursor.execute("SELECT * FROM financial_year ORDER BY id DESC")
         records = cursor.fetchall()
+        
     except Exception as e:
         records = []
+        financial_years = []
         print("Error fetching records:", e)
     finally:
         cursor.close()
         conn.close()
-    return render_template('financial_year_list.html', records=records, financialyear=financialyear)
+    return render_template('financial_year_list.html', records=records, financialyear=financialyear, financial_years=financial_years)
 
 # Route to delete a financial year record
 @app.route('/delete_financial_year/<int:id>', methods=['POST'])
@@ -132,8 +161,25 @@ def edit_financial_year(id):
 def form():
     error = None
     success = None
+    financial_years = []
+
+    try:
+        # Fetch all financial years from DB
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT financial_year FROM financial_year ORDER BY financial_year DESC")
+        financial_years = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching financial years:", e)
+        financial_years = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
 
     if request.method == 'POST':
+        # Get form values
         financial_year = request.form.get('financialyear')
         totalbudget = request.form.get('totalbudget')
         budgetmonth = request.form.get('budgetmonth')
@@ -147,18 +193,20 @@ def form():
             budgetupto_val = float(budgetupto)
         except ValueError:
             error = "⚠️ Invalid numeric values."
-            return render_template('form.html', error=error)
+            return render_template('form.html', financial_years=financial_years, error=error)
 
-        # Validate date format
+        # Validate month format
         try:
             year, month = map(int, budgetmonth.split('-'))
             reporting_month_last_day = calendar.monthrange(year, month)[1]
         except:
             error = "⚠️ Invalid month format. Use YYYY-MM."
-            return render_template('form.html', error=error)
+            return render_template('form.html', financial_years=financial_years, error=error)
 
+        # Calculate remaining budget
         remaining_budget = totalbudget_val - budgetupto_val
 
+        # Insert data into DB
         try:
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
@@ -191,14 +239,15 @@ def form():
             if conn:
                 conn.close()
 
-        return render_template('form.html', success=success, error=error)
-    return render_template('form.html')
+        return render_template('form.html', financial_years=financial_years, success=success, error=error)
+
+    return render_template('form.html', financial_years=financial_years)
 
 # Route to show budget list
 @app.route('/budget_list')
 def show_budget_list():
-    selected_year = request.args.get('financial_year')
-
+    selected_year = request.args.get('financialyear')
+    
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
@@ -227,7 +276,7 @@ def show_budget_list():
     return render_template(
         'budget_list.html',
         records=records,
-        financial_year=financial_years,
+        financial_years=financial_years,
         selected_year=selected_year
     )
 
@@ -340,8 +389,14 @@ def head_form():
 def item_list():
     items_name = request.args.get('items_name', default='')
 
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, item_name FROM item")
+        items = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching items:", e)
+        items = []
 
     if items_name:
         cursor.execute("SELECT * FROM item WHERE items_name LIKE %s", ('%' + items_name + '%',))
@@ -351,7 +406,7 @@ def item_list():
     records = cursor.fetchall()
     conn.close()
 
-    return render_template("item_list.html", records=records, items_name=items_name)
+    return render_template("item_list.html", records=records, items_name=items_name, items=items)
 
 # Route to delete an item
 @app.route('/delete_item/<int:id>', methods=['POST'])
@@ -464,19 +519,25 @@ def procrument_form():
 @app.route('/procurement_item_list')
 def procurement_item_list():
     item_name = request.args.get('item_name', default='')
-
-    conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor(dictionary=True)
-
+    
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, item_name FROM item")
+        items = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching items:", e)
+        items = []
+    
     if item_name:
         cursor.execute("SELECT * FROM procurement WHERE item_name LIKE %s", ('%' + item_name + '%',))
     else:
         cursor.execute("SELECT * FROM procurement")
-
+    
     records = cursor.fetchall()
     conn.close()
 
-    return render_template("procurement_item_list.html", records=records, item_name=item_name)
+    return render_template("procurement_item_list.html", records=records, item_name=item_name, items=items)
 
 # Route to delete a procrument item
 @app.route('/delete_procrument/<int:id>', methods=['POST'])
@@ -638,6 +699,15 @@ def repair_maintenance_list():
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, item_name FROM item")
+        items = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching items:", e)
+        items = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
 
         # ✅ Filter by item_name if given
         if items_name:
@@ -688,7 +758,8 @@ def repair_maintenance_list():
         hours_spend_in_house=hours_spend_in_house,
         days_externals=days_externals,
         avg_cost_per_unit=avg_cost_per_unit,
-        items_name=items_name
+        items_name=items_name,
+        items=items
     )
 
 # Route to delete a repair maintenance item
@@ -773,5 +844,37 @@ def edit__repair_maintenance(id):
 def complaints_form():
     return render_template('complaints_form.html')
 
+# Meetings Route
+@app.route('/complaints_form', methods=['GET', 'POST'])
+def complaints_form():
+    return render_template('complaints_form.html')
+
+# Network route
+@app.route('/complaints_form', methods=['GET', 'POST'])
+def complaints_form():
+    return render_template('complaints_form.html')
+
+# PMIS Route
+@app.route('/complaints_form', methods=['GET', 'POST'])
+def complaints_form():
+    return render_template('complaints_form.html')
+
+# Software complaints Route
+@app.route('/complaints_form', methods=['GET', 'POST'])
+def complaints_form():
+    return render_template('complaints_form.html')
+
+# Software form submission Route
+@app.route('/complaints_form', methods=['GET', 'POST'])
+def complaints_form():
+    return render_template('complaints_form.html')
+
+# Summarize Route
+@app.route('/complaints_form', methods=['GET', 'POST'])
+def complaints_form():
+    return render_template('complaints_form.html')
+
+# Store Items Route
+# Uploading Route
 if __name__ == '__main__':
     app.run(debug=True)
