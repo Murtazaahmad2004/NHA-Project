@@ -117,45 +117,6 @@ def delete_financial_year(id):
             conn.close()
     return redirect(url_for('financial_year_list'))
 
-# Route to edit a financial year record
-@app.route('/edit_financial_year/<int:id>', methods=['GET', 'POST'])
-def edit_financial_year(id):
-    if request.method == 'POST':
-        financial_year = request.form['financialyear']
-        try:
-            conn = mysql.connector.connect(**db_config)
-            cursor = conn.cursor()
-            cursor.execute("UPDATE financial_year SET financial_year = %s WHERE id = %s", (financial_year, id))
-            conn.commit()
-            flash("✅ Financial year updated successfully.", 'success')
-        except Exception as e:
-            flash("❌ Error updating financial year.", 'danger')
-            print("Update error:", e)
-        finally:
-            if cursor:
-                cursor.close()
-            if conn:
-                conn.close()
-        return redirect(url_for('financial_year_list'))
-
-    # GET method
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM financial_year WHERE id = %s", (id,))
-        record = cursor.fetchone()
-    except Exception as e:
-        flash("❌ Error loading financial year.", 'danger')
-        print("Fetch error:", e)
-        record = None
-    finally:
-        if cursor:
-            cursor.close()
-        if conn:
-            conn.close()
-
-    return render_template('edit_financial_year.html', record=record)
-
 # Form for budget submission
 @app.route('/form', methods=['GET', 'POST'])
 def form():
@@ -164,7 +125,6 @@ def form():
     financial_years = []
 
     try:
-        # Fetch all financial years from DB
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT financial_year FROM financial_year ORDER BY financial_year DESC")
@@ -842,7 +802,216 @@ def edit__repair_maintenance(id):
 # Complaints form submission
 @app.route('/complaints_form', methods=['GET', 'POST'])
 def complaints_form():
+    error = None
+    success = None
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.close()
+    except Exception as e:
+        error = f"Not Found: {e}"
+        return render_template('complaints_form.html', error=error, success=success)
+
+    if request.method == 'POST':
+        # Get form data
+        network_resolved = request.form.get('network_resolved')
+        network_pending = request.form.get('network_pending')
+        it_resolved = request.form.get('it_resolved')
+        it_pending = request.form.get('it_pending')
+        hours_spend = request.form.get('hours_spend')
+
+        try:
+            network_resolved = int(network_resolved)
+            network_pending = int(network_pending)
+            total_calls_network = network_resolved + network_pending
+            it_resolved = int(it_resolved)
+            it_pending = int(it_pending)
+            total_calls_it = it_resolved + it_pending
+            grand_total_calls = total_calls_network + total_calls_it
+
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+        except ValueError:
+            error = "⚠️ Invalid numeric values."
+            return render_template('complaints_form.html', error=error, success=success)
+
+        # Insert into DB
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO complaints (
+                    network_resolved_complaints, 
+                    network_pending_complaints, 
+                    total_calls_network,
+                    it_resolved_complaints, 
+                    it_pending_complaints, 
+                    total_calls_it,
+                    total_hours_spend,
+                    grand_total_calls
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
+                network_resolved,
+                network_pending,
+                total_calls_network,
+                it_resolved,
+                it_pending,
+                total_calls_it,
+                hours_spend,
+                grand_total_calls
+            ))
+            conn.commit()
+            success = "✅ Complaint data inserted successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+        return render_template('complaints_form.html', success=success, error=error)
+
+    # Handle GET
     return render_template('complaints_form.html')
+
+# Complaints List Route
+@app.route('/complaints_list', methods=['GET', 'POST'])
+def complaints_list():
+    records = []
+    total_calls_netork = total_calls_it = grand_total_calls = 0
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+    except Exception as e:
+        print("error", e)
+    
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM complaints")
+        records = cursor.fetchall()
+
+        if records:
+            total_calls_netork = sum(int(r['network_resolved']) for r in records if r['network_pending'])
+            total_calls_it = sum(int(r['it_resolved']) for r in records if r['it_pending'])
+            grand_total_calls = sum(int(r['total_calls_netork']) for r in records if r['total_calls_it'])
+        else:
+            total_calls_netork
+            total_calls_it
+            grand_total_calls
+
+    except Exception as e:
+        print("Error fetching complaints records:", e)
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+    return render_template('complaints_list.html', records=records, total_calls_netork=total_calls_netork, total_calls_it=total_calls_it)
+
+# Route to delete a complaints
+@app.route('/delete_complaints_form/<int:id>', methods=['POST'])
+def delete_complaints_form(id):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM complaints WHERE id = %s", (id,))
+        conn.commit()
+        flash("✅ Complaint deleted successfully.", 'success')
+    except Exception as e:
+        flash("❌ Error deleting item.", 'danger')
+        print("Delete error:", e)
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('complaints_list'))
+
+# Route to edit a complaints form
+@app.route('/edit_complaints_form/<int:id>', methods=['GET', 'POST'])
+def edit_complaints_form(id):
+    error = None
+    success = None
+
+    if request.method == 'POST':
+        # ✅ Get form values
+        try:
+            network_resolved = int(request.form['network_resolved'])
+            network_pending = int(request.form['network_pending'])
+            total_calls_network = network_resolved + network_pending
+
+            it_resolved = int(request.form['it_resolved'])
+            it_pending = int(request.form['it_pending'])
+            total_calls_it = it_resolved + it_pending
+
+            grand_total_calls = total_calls_network + total_calls_it
+
+            hours_spend = request.form['hours_spend']
+
+            # ✅ Update the record in database
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE complaints SET
+                    network_resolved_complaints = %s, 
+                    network_pending_complaints = %s, 
+                    total_calls_network = %s,
+                    it_resolved_complaints = %s, 
+                    it_pending_complaints = %s, 
+                    total_calls_it = %s,
+                    total_hours_spend = %s,
+                    grand_total_calls = %s
+                WHERE id = %s
+            """, (
+                network_resolved,
+                network_pending,
+                total_calls_network,
+                it_resolved,
+                it_pending,
+                total_calls_it,
+                hours_spend,
+                grand_total_calls,
+                id
+            ))
+            conn.commit()
+            success = "✅ Complaint data updated successfully."
+        except Exception as e:
+            error = f"❌ Failed to update data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+        # ✅ Return back to the list view or confirmation page
+        return redirect(url_for('complaints_list', error=error, success=success))  # or render_template with success message
+
+    else:
+        # ✅ GET request: fetch existing data for the form
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM complaints WHERE id = %s", (id,))
+            record = cursor.fetchone()
+
+            if record is None:
+                flash("❌ Record not found!", 'danger')
+                return redirect(url_for('complaints_list'))
+
+        except Exception as e:
+            flash("❌ Error loading complaint record.", 'danger')
+            print("Fetch error:", e)
+            return redirect(url_for('complaints_list'))
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+        return render_template('edit_complaints_form.html', record=record)
 
 # Meetings Route
 @app.route('/meetingform', methods=['GET', 'POST'])

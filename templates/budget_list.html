@@ -51,8 +51,7 @@
             <th>Budget Used Upto June</th>
             <th>Reporting Month Last Day</th>
             <th>Remaining Budget</th>
-            <th>Delete Operations</th>
-            <th>Edit Operations</th>
+            <th>Actions</th>
         </tr>
         {% for record in records %}
         <tr>
@@ -64,15 +63,17 @@
             <td>{{ record['budget_used_upto_june'] }}</td>
             <td>{{ record['reporting_month_last_day'] }}</td>
             <td>{{ record['remaining_budget'] }}</td>
-            <td>
-                <form action="/delete/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </td>
-            <td>
-                <button class="btn btn-primary">
-                    <a href="/edit_form/{{ record['id'] }}">Edit</a>
-                </button>
+             <td>
+                <div class="action-buttons">
+                    <a href="/edit_form/{{ record['id'] }}" class="icon-button edit" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <form action="/delete/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
+                        <button type="submit" class="icon-button delete" title="Delete">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                </div>
             </td>
         </tr>
         {% else %}

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -46,8 +47,7 @@
             <th>Item Name</th>
             <th>Units</th>
             <th>Expenditure</th>
-            <th>Delete Operations</th>
-            <th>Edit Operations</th>
+            <th>Actions</th>
         </tr>
         {% for record in records %}
         <tr>
@@ -56,14 +56,16 @@
             <td>{{ record['units'] }}</td>
             <td>{{ record['expenditure'] }}</td>
             <td>
-                <form action="/delete_procrument/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </td>
-            <td>
-                <button class="btn btn-primary">
-                    <a href="/edit_procrument/{{ record['id'] }}">Edit</a>
-                </button>
+                <div class="action-buttons">
+                    <a href="/edit_procrument/{{ record['id'] }}" class="icon-button edit" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <form action="/delete_procrument/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
+                        <button type="submit" class="icon-button delete" title="Delete">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                </div>
             </td>
         </tr>
         {% else %}

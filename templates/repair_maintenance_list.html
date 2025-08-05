@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
@@ -51,8 +52,7 @@
             <th colspan="2">External</th>
             <th rowspan="2">Expenditures on <br> External Repairs in Rs.</th>
             <th rowspan="2">Percentage of an Item (%)</th>
-            <th rowspan="2">Delete Operation</th>
-            <th rowspan="2">Edit Operation</th>
+            <th rowspan="2">Actions</th>
         </tr>
         <tr>
             <th>Units</th>
@@ -74,12 +74,16 @@
             <td>{{ record.expenditure }}</td>
             <td>{{ record.percentage_of_an_item }} %</td>
             <td>
-                <form action="/delete_repair_maintenance/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </form>
-            </td>
-            <td>
-                <a href="/edit_repair_maintenance/{{ record['id'] }}" class="btn btn-primary">Edit</a>
+                <div class="action-buttons">
+                    <a href="/edit_repair_maintenance/{{ record['id'] }}" class="icon-button edit" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <form action="/delete_repair_maintenance/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
+                        <button type="submit" class="icon-button delete" title="Delete">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                </div>
             </td>
         </tr>
         {% endfor %}

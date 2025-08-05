@@ -43,3 +43,12 @@ CREATE TABLE repair_maintenance (
     total_unit_repaired_in_house INT,
     total_unit_repaired_external INT
 );
+
+CREATE TABLE complaints (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    network_resolved_complaints varchar(255),
+    network_pending_complaints varchar(255),
+    it_resolved_complaints varchar(255),
+    it_pending_complaints varchar(255),
+    total_hours_spend int
+);
