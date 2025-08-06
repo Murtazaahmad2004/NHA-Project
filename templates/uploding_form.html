@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Uploding</title>
+</head>
+<body>
+    <div class="container">
+        <form action="/uplodingform" method="post">
+            <h1>Tender & Uploding Details</h1>
+            <label for="particulars">Particulars</label>
+            <input type="text" name="particulars" id="particulars" placeholder="Enter Particulars Name" required>
+            <br>
+            <label for="res_person">Res Person</label>
+            <input type="number" name="res_person" id="res_person" placeholder="Enter res_person" required>
+            <br>
+            <label for="may_25">MAY,25</label>
+            <input type="month" name="may_25" id="may_25" placeholder="Enter may_25" required>
+            <br>
+            <label for="june_25"> June,25</label>
+            <input type="month" name="june_25" id="june_25" placeholder=" Enter june_25" required>
+            <br>
+            <label for="hoursspend">Total Hours Spend</label>
+            <input type="number" name="hoursspend" id="hoursspend" placeholder="Enter hours spend" required>
+            <br>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>

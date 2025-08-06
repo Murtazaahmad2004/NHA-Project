@@ -323,6 +323,7 @@ def head_form():
 
     if request.method == 'POST':
         item_names = request.form.getlist('itemname[]')
+        quantity = request.form.get('quantity')
 
         try:
             conn = mysql.connector.connect(**db_config)
@@ -332,7 +333,7 @@ def head_form():
             for item in item_names:
                 item = item.strip()
                 if item:
-                    cursor.execute("INSERT INTO item (items_name) VALUES (%s)", (item,))
+                    cursor.execute("INSERT INTO item (items_name, quantity) VALUES (%s, %s)", (item, quantity,))
 
             conn.commit()
             success = f"✅ {len([i for i in item_names if i.strip()])} items submitted successfully!"
@@ -400,7 +401,7 @@ def edit_item(id):
         cursor.close()
     except Exception as e:
         error = f"Error fetching items: {e}"
-        return render_template('repair_maintenance.html', items=[], error=error, success=success)
+        return render_template('item_list.html', items=[], error=error, success=success)
     
     if request.method == 'POST':
         item_name = request.form['itemname']
@@ -531,7 +532,7 @@ def edit_procrument(id):
         cursor.close()
     except Exception as e:
         error = f"Error fetching items: {e}"
-        return render_template('repair_maintenance.html', items=[], error=error, success=success)
+        return render_template('procurement_item_list.html', items=[], error=error, success=success)
     
     if request.method == 'POST':
         item_name = request.form['item_name']
@@ -1013,6 +1014,206 @@ def edit_complaints_form(id):
 
         return render_template('edit_complaints_form.html', record=record)
 
+# Store Items submission Route
+@app.route('/store_item', methods=['GET', 'POST'])
+def store_item():
+    success = None
+    error = None
+    items = []
+    
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, items_name FROM item")
+        items = cursor.fetchall()
+        cursor.close()
+    except Exception as e:
+        error = f"Error fetching items: {e}"
+        return render_template('store_item.html', items=[], error=error, success=success)
+    
+    if request.method == 'POST':
+        Items_Name = request.form.get('Items_Name')
+        pending_demands = request.form.get('pending_demands')
+        select_month = request.form.get('select_month')
+        demands_curnt_month = request.form.get('demands_curnt_month')
+        selected_month = request.form.get('selected_month')
+        issued_cunt_month = request.form.get('issued_cunt_month')
+        total_hours_spend = request.form.get('total_hours_spend')
+
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO store_items (
+                    items_name, 
+                    pending_dmands, 
+                    select_month, 
+                    demands_of_current_month, 
+                    selected_month, 
+                    issued_of_current_month, 
+                    total_hours_spend
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """,(
+                Items_Name,
+                pending_demands,
+                select_month,
+                demands_curnt_month,
+                selected_month,
+                issued_cunt_month,
+                total_hours_spend
+            ))
+            conn.commit()
+            success = "✅ Items data inserted successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+    return render_template('store_item.html', items=items, success=success, error=error)
+
+# store item list route
+@app.route('/store_item_list', methods=['GET'])
+def store_item_list():
+    item_name = request.args.get('item_name', default='')
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # Fetch items from item table
+        cursor.execute("SELECT id, items_name FROM item")
+        items = cursor.fetchall()
+
+        # Filter store_items based on selected item_name
+        if item_name:
+            cursor.execute("SELECT * FROM store_items WHERE items_name LIKE %s", ('%' + item_name + '%',))
+        else:
+            cursor.execute("SELECT * FROM store_items")
+
+        records = cursor.fetchall()
+
+    except Exception as e:
+        print("Error:", e)
+        items = []
+        records = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return render_template("store_item_list.html", records=records, item_name=item_name, items=items)
+
+# Route to delete a complaints
+@app.route('/delete_store_item_list/<int:id>', methods=['POST'])
+def delete_store_item_list(id):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM store_items WHERE id = %s", (id,))
+        conn.commit()
+        flash("✅ Store items deleted successfully.", 'success')
+    except Exception as e:
+        flash("❌ Error deleting item.", 'danger')
+        print("Delete error:", e)
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('store_item_list'))
+
+# Route to edit a complaints form
+@app.route('/edit_store_item_list/<int:id>', methods=['GET', 'POST'])
+def edit_store_item_list(id):
+    error = None
+    success = None
+    items = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, items_name FROM item")
+        items = cursor.fetchall()
+        cursor.close()
+    except Exception as e:
+        error = f"Error fetching items: {e}"
+        return render_template('edit_store_item_list.html', items=[], error=error, success=success)
+    
+    if request.method == 'POST':
+        Items_Name = request.form.get('Items_Name')
+        pending_demands = request.form.get('pending_demands')
+        select_month = request.form.get('select_month')
+        demands_curnt_month = request.form.get('demands_curnt_month')
+        selected_month = request.form.get('selected_month')
+        issued_cunt_month = request.form.get('issued_cunt_month')
+        total_hours_spend = request.form.get('total_hours_spend')
+        
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE store_items SET
+                   items_name = %s, 
+                    pending_dmands = %s, 
+                    select_month = %s, 
+                    demands_of_current_month = %s, 
+                    selected_month = %s, 
+                    issued_of_current_month = %s, 
+                    total_hours_spend = %s
+                WHERE id = %s
+            """, (
+                Items_Name,
+                pending_demands,
+                select_month,
+                demands_curnt_month,
+                selected_month,
+                issued_cunt_month,
+                total_hours_spend,
+                id
+            ))
+            conn.commit()
+            success = "✅ Store items data updated successfully."
+        except Exception as e:
+            error = f"❌ Failed to update data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+        # ✅ Return back to the list view or confirmation page
+        return redirect(url_for('store_item_list', error=error, success=success))  # or render_template with success message
+
+    else:
+        # ✅ GET request: fetch existing data for the form
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM store_items WHERE id = %s", (id,))
+            record = cursor.fetchone()
+
+            if record is None:
+                flash("❌ Record not found!", 'danger')
+                return redirect(url_for('edit_store_item_list'))
+
+        except Exception as e:
+            flash("❌ Error loading complaint record.", 'danger')
+            print("Fetch error:", e)
+            return redirect(url_for('edit_store_item_list'))
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+        return render_template('edit_store_item_list.html', record=record, items=items)
+    
+# Uploading Route
+@app.route('/uploding_form', methods=['GET', 'POST'])
+def uploding_form():
+    return render_template('uploding_form.html')
+
 # Meetings Route
 @app.route('/meetingform', methods=['GET', 'POST'])
 def meetingform():
@@ -1048,8 +1249,5 @@ def summarisereport():
 def coresoftwareform():
     return render_template('coresoftwareform.html')
 
-# Store Items Route
-
-# Uploading Route
 if __name__ == '__main__':
     app.run(debug=True)

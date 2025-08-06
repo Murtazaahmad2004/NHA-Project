@@ -13,10 +13,12 @@
         <h1>Edit Item Form</h1>
         <form method="post" action="{{ url_for('edit_item', id=record['id']) }}">
 
-            <label for="itemname">Item Name:</label>
-            <select name="itemname" id="itemname">
+            <select name="itemname" id="itemname" class="form-control">
                 {% for item in items %}
-                    <option value="{{ item['items_name'] }}">{{ item['items_name'] }}</option>
+                    <option value="{{ item['items_name'] }}"
+                        {% if item['items_name'] == record['items_name'] %}selected{% endif %}>
+                        {{ item['items_name'] }}
+                    </option>
                 {% endfor %}
             </select>
 

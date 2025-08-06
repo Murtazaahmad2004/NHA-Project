@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Items Data</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <h2>Store Items Records</h2>
+
+    <div class="financial_year">
+        <form method="GET" action="/store_item_list">
+            <label for="Items_Name">Select Item:</label>
+            <select id="Items_Name" name="item_name" class="form-control" required>
+                <option value="">Select an Item</option>
+                {% for item in items %}
+                    <option value="{{ item['items_name'] }}" {% if item_name == item['items_name'] %}selected{% endif %}>
+                        {{ item['items_name'] }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn1 btn-primary">Filter</button>
+        </form>
+    </div>
+
+    <button class="btn2 btn-primary"><a href="/store_item">Add New Store Item</a></button>
+
+    <table class="table3" border="1">
+        <tr>
+            <th>S. #</th>
+            <th>Items Name</th>
+            <th>Pending Demands</th>
+            <th>Demand Month</th>
+            <th>Demands of Current Month</th>
+            <th>Issued Month</th>
+            <th>Issued of Current Month</th>
+            <th>Total Hours Spend</th>
+            <th>Actions</th>
+        </tr>
+        {% for record in records %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ record['items_name'] }}</td>
+            <td>{{ record['pending_dmands'] }}</td>
+            <td>{{ record['select_month'] }}</td>
+            <td>{{ record['demands_of_current_month'] }}</td>
+            <td>{{ record['selected_month'] }}</td>
+            <td>{{ record['issued_of_current_month'] }}</td>
+            <td>{{ record['total_hours_spend'] }}</td>
+            <td>
+                <div class="action-buttons">
+                    <a href="/edit_store_item_list/{{ record['id'] }}" class="icon-button edit" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <form action="/delete_store_item_list/{{ record['id'] }}" method="POST" onsubmit="return confirm('Are you sure to delete?');">
+                        <button type="submit" class="icon-button delete" title="Delete">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="9">No records found.</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

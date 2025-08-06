@@ -48,6 +48,7 @@ function addField() {
     div.classList.add('form-group');
     div.innerHTML = `
     <input type="text" name="itemname[]" class="form-control" placeholder="Enter Item Name" required>
+    <input type="number" name="quantity" class="form-control" placeholder="Quantity" required>
     `;
     document.getElementById('itemFields')?.appendChild(div);
 }
