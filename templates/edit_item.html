@@ -21,6 +21,8 @@
                     </option>
                 {% endfor %}
             </select>
+            
+            <input type="number" id="quantity" name="quantity" value="{{ record['quantity']}}" required>
 
             <button type="submit" class="btn4 btn-primary">Update</button>
             <a href="{{ url_for('item_list') }}" class="btn3 btn-danger">Cancel</a>

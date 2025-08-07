@@ -13,6 +13,16 @@ body {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
+.container5{
+    max-width: 700px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow-y: hidden;
+}
+
 h1 {
     text-align: center;
     color: #333333;
@@ -324,7 +334,6 @@ h2 {
     align-items: center;
     justify-content: center;
     gap: 90px;
-    width: 72%;
     margin: 20px;
 }
 
@@ -363,7 +372,7 @@ h2 {
     margin-left: 92%;
     width: 150px;
     font-size: medium;
-    height: 50px;
+    height: 60px;
 }
 
 .btnn a {

@@ -52,3 +52,23 @@ CREATE TABLE complaints (
     it_pending_complaints varchar(255),
     total_hours_spend int
 );
+
+CREATE TABLE store_items (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    items_name varchar(255),
+    pending_dmands varchar(255),
+    select_month int,
+    demands_of_current_month int,
+    selected_month int,
+    issued_of_current_month int,
+    total_hours_spend int
+); 
+
+CREATE TABLE uploding (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    particulars varchar(255),
+    res_person int,
+    month text,
+    months text,
+    hoursspend int
+);

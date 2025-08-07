@@ -349,6 +349,11 @@ def head_form():
 @app.route('/item_list', methods=['GET'])
 def item_list():
     items_name = request.args.get('items_name', default='')
+    
+    records = []
+    quantity = 0
+    total_quantity = 0
+    percentage_of_item = 0
 
     try:
         conn = mysql.connector.connect(**db_config)
@@ -365,9 +370,19 @@ def item_list():
         cursor.execute("SELECT * FROM item")
 
     records = cursor.fetchall()
+
+    if records:
+        
+        total_quantity = sum(int(r['quantity']) for r in records if r['quantity'])
+        for r in records:
+            quantity = int(r['quantity']) if r['quantity'] else 0
+            r['percentage_of_item'] = round((quantity / total_quantity) * 100) if total_quantity > 0 else 0
+    else:
+        total_quantity = 0
+        
     conn.close()
 
-    return render_template("item_list.html", records=records, items_name=items_name, items=items)
+    return render_template("item_list.html", records=records, items_name=items_name, items=items, quantity=quantity, total_quantity=total_quantity, percentage_of_item=percentage_of_item)
 
 # Route to delete an item
 @app.route('/delete_item/<int:id>', methods=['POST'])
@@ -396,7 +411,7 @@ def edit_item(id):
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT id, items_name FROM item")
+        cursor.execute("SELECT id, items_name, quantity FROM item")
         items = cursor.fetchall()
         cursor.close()
     except Exception as e:
@@ -405,11 +420,19 @@ def edit_item(id):
     
     if request.method == 'POST':
         item_name = request.form['itemname']
+        quantity = request.form['quantity']
 
         try:
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
-            cursor.execute("UPDATE item SET items_name = %s WHERE id = %s", (item_name, id))
+            cursor.execute("""
+                UPDATE item SET 
+                    items_name = %s,
+                    quantity = %s
+                WHERE id = %s 
+            """,(
+                item_name, quantity, id
+            ))
             conn.commit()
             flash("✅ Item updated successfully.", 'success')
         except Exception as e:
@@ -1212,7 +1235,55 @@ def edit_store_item_list(id):
 # Uploading Route
 @app.route('/uploding_form', methods=['GET', 'POST'])
 def uploding_form():
-    return render_template('uploding_form.html')
+    success = None
+    error = None
+
+    if request.method == 'POST':
+        particulars = request.form.get('particulars')
+        res_person = request.form.get('res_person')
+        previous_month = request.form.get('previous_month')
+        previous_month_quantity = request.form.get('previous_month_quantity')
+        current_month = request.form.get('current_month')
+        current_month_quantity = request.form.get('current_month_quantity')
+        hoursspend = request.form.get('hoursspend')
+
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO uploding (
+                    particulars, 
+                    res_person, 
+                    previous_month, 
+                    previous_month_quantity, 
+                    current_month, 
+                    current_month_quantity, 
+                    hoursspend
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """,(
+                particulars, 
+                res_person,
+                previous_month,
+                previous_month_quantity,
+                current_month,
+                current_month_quantity,
+                hoursspend
+            ))
+            conn.commit()
+            success = "✅ Uploading data inserted successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+    return render_template('uploding_form.html', success=success, error=error)
+
+# uploding list
+@app.route('/uploding_list', methods=['GET', 'POST'])
+def uploding_list():
+    return render_template('uploding_list.html')
 
 # Meetings Route
 @app.route('/meetingform', methods=['GET', 'POST'])
