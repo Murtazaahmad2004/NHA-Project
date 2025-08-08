@@ -28,9 +28,9 @@
 
     <div class="financial_year">
        <form method="GET" action="/uploding_list">
-            <label for="previous_month">Select Month:</label>
+            <label for="previous_month">Filter by Month:</label>
             <select id="previous_month" name="previous_month" class="form-control">
-                <option value="">All Months</option>
+                <option value="">Month</option>
                 {% for month in months %}
                     <option value="{{ month['previous_month'] }}" {% if previous_month == month['previous_month'] %}selected{% endif %}>
                         {{ month['previous_month'] }}

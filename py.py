@@ -1285,7 +1285,6 @@ def uploding_form():
 @app.route('/uploding_list', methods=['GET', 'POST'])
 def uploding_list():
     previous_month = request.args.get('previous_month', default='')
-
     conn = None
     cursor = None
     records = []
@@ -1307,7 +1306,7 @@ def uploding_list():
             cursor.execute("SELECT * FROM uploding WHERE previous_month = %s", (previous_month,))
         else:
             cursor.execute("SELECT * FROM uploding")
-        records = cursor.fetchall()
+            records = cursor.fetchall()
 
         # Totals
         total_previous_month_quantity = sum(int(r['previous_month_quantity']) for r in records if r['previous_month_quantity'])
@@ -1333,7 +1332,6 @@ def uploding_list():
         total_current_month_quantity=total_current_month_quantity,
         total_hours_spend=total_hours_spend
     )
-
 
 # Route to delete uploading item
 @app.route('/delete_uploding_item/<int:id>', methods=['POST'])
@@ -1460,38 +1458,243 @@ def softwareform():
 
 # Software form List Route
 @app.route('/softwareform_list', methods=['GET', 'POST'])
-def software_form_list():
-    return render_template('softwareform_list.html')
+def softwareform_list():
+    filter_activities = request.args.get('activities', default='')
+    records = []
+    total_working_hours = 0
+    activities_list = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # Get distinct activity names for dropdown
+        cursor.execute("SELECT DISTINCT activities FROM software_form")
+        activities_list = cursor.fetchall()
+
+        # Fetch records based on filter
+        if filter_activities:
+            cursor.execute("SELECT * FROM software_form WHERE activities = %s", (filter_activities,))
+        else:
+            cursor.execute("SELECT * FROM software_form")
+
+        records = cursor.fetchall()
+
+        total_working_hours = sum(
+            int(r['working_hours_during_month']) for r in records if r['working_hours_during_month']
+        )
+
+    except Exception as e:
+        print("Error fetching software items:", e)
+        records = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return render_template(
+        'softwareform_list.html',
+        records=records,
+        activities=activities_list,
+        selected_activity=filter_activities,
+        total_working_hours=total_working_hours
+    )
+
+# Route to delete software item
+@app.route('/delete_softwareform_list/<int:id>', methods=['POST'])
+def delete_softwareform_list(id):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM software_form WHERE id = %s", (id,))
+        conn.commit()
+        flash("✅ Software item deleted successfully.", 'success')
+    except Exception as e:
+        flash("❌ Error deleting item.", 'danger')
+        print("Delete error:", e)
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('softwareform_list'))
+
+# Route to edit software item
+@app.route('/edit_softwareform_list/<int:id>', methods=['GET', 'POST'])
+def edit_softwareform_list(id):
+    error = None
+    success = None
+
+    if request.method == 'POST':
+        activities = request.form.get('activities')
+        no_of_software = request.form.get('no_of_software')
+        no_of_team_member = request.form.get('no_of_team_member')
+        working_hours = request.form.get('working_hours')
+
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE software_form SET
+                    activities = %s, 
+                    no_of_software_under_development = %s, 
+                    no_of_team_member = %s, 
+                    working_hours_during_month = %s
+                WHERE id = %s
+            """,(
+                activities, 
+                no_of_software,
+                no_of_team_member,
+                working_hours,
+                id
+            ))
+            conn.commit()
+            flash("✅ Software Data updated successfully.", 'success')
+        except Exception as e:
+            flash("❌ Error updating software data.", 'danger')
+            print("Update error:", e)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+        return redirect(url_for('softwareform_list', error=error, success=success))
+
+    # GET method
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM software_form WHERE id = %s", (id,))
+        record = cursor.fetchone()
+    except Exception as e:
+        flash("❌ Error update software item.", 'danger')
+        print("Fetch error:", e)
+        record = None
+    finally:
+        cursor.close()
+        conn.close()
+
+    return render_template('edit_softwareform_list.html', record=record)
 
 # Core Software Form
 @app.route('/coresoftwareform', methods=['GET', 'POST'])
 def coresoftwareform():
     return render_template('coresoftwareform.html')
 
+# Core Software List
+@app.route('/core_software_form_list', methods=['GET', 'POST'])
+def core_software_form_list():
+    return render_template('core_software_form_list.html')
+
+# Core Software Form delete
+@app.route('/delete_core_software_form', methods=['GET', 'POST'])
+def delete_core_software_form():
+    return render_template('core_software_form_list.html')
+
+# Core Software Form edit
+@app.route('/edit_core_software_form_list', methods=['GET', 'POST'])
+def edit_core_software_form_list():
+    return render_template('edit_core_software_form_list.html')
+
 # Software complaints Route
 @app.route('/softwarecomplainet', methods=['GET', 'POST'])
 def softwarecomplainet():
     return render_template('softwarecomplainet.html')
+
+# Software complaints List
+@app.route('/softwarecomplainet_list', methods=['GET', 'POST'])
+def softwarecomplainet_list():
+    return render_template('softwarecomplainet_list.html')
+
+# Software complaints delete
+@app.route('/delete_softwarecomplainet', methods=['GET', 'POST'])
+def delete_softwarecomplainet():
+    return render_template('softwarecomplainet_list.html')
+
+# Software complaints edit
+@app.route('/edit_softwarecomplainet_list', methods=['GET', 'POST'])
+def edit_softwarecomplainet_list():
+    return render_template('edit_softwarecomplainet_list.html')
 
 # Meetings Route
 @app.route('/meetingform', methods=['GET', 'POST'])
 def meetingform():
     return render_template('meetingform.html')
 
+# Meetings List
+@app.route('/meetingform_list', methods=['GET', 'POST'])
+def meetingform_list():
+    return render_template('meetingform_list.html')
+
+# Meetings delete
+@app.route('/delete_meetingform_list', methods=['GET', 'POST'])
+def delete_meetingform_list():
+    return render_template('meetingform_list.html')
+
+# Meetings edit
+@app.route('/edit_meetingform_list', methods=['GET', 'POST'])
+def edit_meetingform_list():
+    return render_template('edit_meetingform_list.html')
+
 # Network route
 @app.route('/networkform', methods=['GET', 'POST'])
 def networkform():
     return render_template('networkform.html')
+
+# Network List
+@app.route('/networkform_list', methods=['GET', 'POST'])
+def networkform_list():
+    return render_template('networkform_list.html')
+
+# Network delete
+@app.route('/delete_networkform_list', methods=['GET', 'POST'])
+def delete_networkform_list():
+    return render_template('networkform_list.html')
+
+# Network edit
+@app.route('/edit_networkform_list', methods=['GET', 'POST'])
+def edit_networkform_list():
+    return render_template('edit_networkform_list.html')
 
 # PMIS Route
 @app.route('/pmisreport', methods=['GET', 'POST'])
 def pmisreport():
     return render_template('pmisreport.html')
 
+# PMIS List
+@app.route('/pmisreport_list', methods=['GET', 'POST'])
+def pmisreport_list():
+    return render_template('pmisreport_list.html')
+
+# PMIS delete
+@app.route('/delete_pmisreport_list', methods=['GET', 'POST'])
+def delete_pmisreport_list():
+    return render_template('pmisreport_list.html')
+
+# PMIS edit
+@app.route('/edit_pmisreport_list', methods=['GET', 'POST'])
+def edit_pmisreport_list():
+    return render_template('edit_pmisreport_list.html')
+
 # Summarize Route
 @app.route('/summarisereport', methods=['GET', 'POST'])
 def summarisereport():
     return render_template('summarisereport.html')
+
+# Summarize List
+@app.route('/summarisereport_list', methods=['GET', 'POST'])
+def summarisereport_list():
+    return render_template('summarisereport_list.html')
+
+# Summarize delete
+@app.route('/delete_summarisereport_list', methods=['GET', 'POST'])
+def delete_summarisereport_list():
+    return render_template('summarisereport_list.html')
+
+# Summarize edit
+@app.route('/edit_summarisereport_list', methods=['GET', 'POST'])
+def edit_summarisereport_list():
+    return render_template('edit_summarisereport_list.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

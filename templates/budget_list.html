@@ -27,9 +27,9 @@
 
     <div class="financial_year">
         <form method="GET" action="/budget_list">
-            <label for="financialyear">Financial Year:</label>
+            <label for="financialyear">Filter by Financial Year:</label>
             <select id="financialyear" name="financialyear" class="form-control" required>
-                <option value="">Select Financial Year</option>
+                <option value="">Financial Year</option>
                 {% for fy in financial_years %}
                     <option value="{{ fy['financial_year'] }}" {% if selected_year == fy['financial_year'] %}selected{% endif %}>
                         {{ fy['financial_year'] }}
