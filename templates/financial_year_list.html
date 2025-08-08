@@ -44,13 +44,13 @@
 
     <table class="table2" border="1">
         <tr>
-            <th>ID</th>
+            <th>S. #</th>
             <th>Financial Year</th>
             <th>Actions</th>
         </tr>
         {% for record in records %}
         <tr>
-            <td>{{ record['id'] }}</td>
+            <td>{{ loop.index}}</td>
             <td>{{ record['financial_year'] }}</td> <!-- Fixed here -->
              <td>
                 <div class="action-buttons">

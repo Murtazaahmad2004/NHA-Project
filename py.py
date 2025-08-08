@@ -14,6 +14,7 @@ db_config = {
     'password': 'NHA@2004',
     'database': 'nha_db'
 }
+
 # home page route
 @app.route('/')
 def home():
@@ -521,7 +522,7 @@ def procurement_item_list():
     records = cursor.fetchall()
     conn.close()
 
-    return render_template("procurement_item_list.html", records=records, item_name=item_name, items=items)
+    return render_template('procurement_item_list.html', records=records, item_name=item_name, items=items)
 
 # Route to delete a procrument item
 @app.route('/delete_procrument/<int:id>', methods=['POST'])
@@ -1253,7 +1254,7 @@ def uploding_form():
             cursor.execute("""
                 INSERT INTO uploding (
                     particulars, 
-                    res_person, 
+                    reserve_person, 
                     previous_month, 
                     previous_month_quantity, 
                     current_month, 
@@ -1283,7 +1284,194 @@ def uploding_form():
 # uploding list
 @app.route('/uploding_list', methods=['GET', 'POST'])
 def uploding_list():
-    return render_template('uploding_list.html')
+    previous_month = request.args.get('previous_month', default='')
+
+    conn = None
+    cursor = None
+    records = []
+    total_previous_month_quantity = 0
+    total_current_month_quantity = 0
+    total_hours_spend = 0
+    months = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # For dropdown
+        cursor.execute("SELECT DISTINCT previous_month FROM uploding")
+        months = cursor.fetchall()
+
+        # Filtered or full list
+        if previous_month:
+            cursor.execute("SELECT * FROM uploding WHERE previous_month = %s", (previous_month,))
+        else:
+            cursor.execute("SELECT * FROM uploding")
+        records = cursor.fetchall()
+
+        # Totals
+        total_previous_month_quantity = sum(int(r['previous_month_quantity']) for r in records if r['previous_month_quantity'])
+        total_current_month_quantity = sum(int(r['current_month_quantity']) for r in records if r['current_month_quantity'])
+        total_hours_spend = sum(int(r['hoursspend']) for r in records if r['hoursspend'])
+
+    except Exception as e:
+        print("Error fetching uploading items:", e)
+        records = []
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return render_template(
+        'uploding_list.html',
+        records=records,
+        previous_month=previous_month,
+        months=months,
+        total_previous_month_quantity=total_previous_month_quantity,
+        total_current_month_quantity=total_current_month_quantity,
+        total_hours_spend=total_hours_spend
+    )
+
+
+# Route to delete uploading item
+@app.route('/delete_uploding_item/<int:id>', methods=['POST'])
+def delete_uploading_item(id):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM uploding WHERE id = %s", (id,))
+        conn.commit()
+        flash("✅ Uploadig item deleted successfully.", 'success')
+    except Exception as e:
+        flash("❌ Error deleting item.", 'danger')
+        print("Delete error:", e)
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('uploding_list'))
+
+# Route to edit_uploading_item
+@app.route('/edit_uploading_item/<int:id>', methods=['GET', 'POST'])
+def edit_uploading_item(id):
+    error = None
+    success = None
+
+    if request.method == 'POST':
+        particulars = request.form.get('particulars')
+        res_person = request.form.get('res_person')
+        previous_month = request.form.get('previous_month')
+        previous_month_quantity = request.form.get('previous_month_quantity')
+        current_month = request.form.get('current_month')
+        current_month_quantity = request.form.get('current_month_quantity')
+        hoursspend = request.form.get('hoursspend')
+
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE uploding SET 
+                    particulars = %s, 
+                    reserve_person = %s, 
+                    previous_month = %s, 
+                    previous_month_quantity = %s, 
+                    current_month = %s, 
+                    current_month_quantity = %s, 
+                    hoursspend = %s
+                WHERE id = %s
+            """,(
+                particulars, 
+                res_person,
+                previous_month,
+                previous_month_quantity,
+                current_month,
+                current_month_quantity,
+                hoursspend,
+                id
+            ))
+            conn.commit()
+            flash("✅ Uploding Data updated successfully.", 'success')
+        except Exception as e:
+            flash("❌ Error updating uploading data.", 'danger')
+            print("Update error:", e)
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+        return redirect(url_for('uploding_list', error=error, success=success))
+
+    # GET method
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM uploding WHERE id = %s", (id,))
+        record = cursor.fetchone()
+    except Exception as e:
+        flash("❌ Error uploading item.", 'danger')
+        print("Fetch error:", e)
+        record = None
+    finally:
+        cursor.close()
+        conn.close()
+
+    return render_template('edit_uploading_item.html', record=record)
+
+# Software form submission Route
+@app.route('/softwareform', methods=['GET', 'POST'])
+def softwareform():
+    success = None
+    error = None
+
+    if request.method == 'POST':
+        activities = request.form.get('activities')
+        no_of_software = request.form.get('no_of_software')
+        no_of_team_member = request.form.get('no_of_team_member')
+        working_hours = request.form.get('working_hours')
+
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO software_form (
+                    activities, 
+                    no_of_software_under_development, 
+                    no_of_team_member, 
+                    working_hours_during_month 
+                ) VALUES (%s, %s, %s, %s)
+            """,(
+                activities, 
+                no_of_software,
+                no_of_team_member,
+                working_hours
+            ))
+            conn.commit()
+            success = "✅ Software data inserted successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+    return render_template('softwareform.html', success=success, error=error)
+
+# Software form List Route
+@app.route('/softwareform_list', methods=['GET', 'POST'])
+def software_form_list():
+    return render_template('softwareform_list.html')
+
+# Core Software Form
+@app.route('/coresoftwareform', methods=['GET', 'POST'])
+def coresoftwareform():
+    return render_template('coresoftwareform.html')
+
+# Software complaints Route
+@app.route('/softwarecomplainet', methods=['GET', 'POST'])
+def softwarecomplainet():
+    return render_template('softwarecomplainet.html')
 
 # Meetings Route
 @app.route('/meetingform', methods=['GET', 'POST'])
@@ -1300,25 +1488,10 @@ def networkform():
 def pmisreport():
     return render_template('pmisreport.html')
 
-# Software complaints Route
-@app.route('/softwarecomplainet', methods=['GET', 'POST'])
-def softwarecomplainet():
-    return render_template('softwarecomplainet.html')
-
-# Software form submission Route
-@app.route('/softwareform', methods=['GET', 'POST'])
-def softwareform():
-    return render_template('softwareform.html')
-
 # Summarize Route
 @app.route('/summarisereport', methods=['GET', 'POST'])
 def summarisereport():
     return render_template('summarisereport.html')
-
-# Core Software Form
-@app.route('/coresoftwareform', methods=['GET', 'POST'])
-def coresoftwareform():
-    return render_template('coresoftwareform.html')
 
 if __name__ == '__main__':
     app.run(debug=True)

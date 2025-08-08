@@ -11,19 +11,27 @@
     <div class="container">
         <form method="post" action="/softwareform">
             <h1>Software</h1>
+
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+                <div class="alert alert-success">{{ success }}</div>
+            {% endif %}
+            
             <label for="activities">Activities</label>
             <input type="text" id="activities" name="activities" placeholder="Enter Activity Name" required>
-            <br>
-            <label for="No.ofSoftware">No.of Software's under Development</label>
-            <input type="number" id="No.ofSoftware" name="No.ofSoftware" placeholder="Enter No.of Software" required>
-            <br>
-            <label for="No.ofteamMember">No.of Team Member</label>
-            <input type="number" id="No.ofteamMember" name="No.ofteamMember" placeholder="Enter No.of Team Member" required>
-            <br>
-            <label for="workinghours"> Working Hours During the Month</label>
-            <input type="number" id="workinghours" name="workinghours" placeholder="Enter Working Hours" required>
-            <br>
-            <button type="submit" class="btn1 btn-primary">Submit</button>
+           
+            <label for="no_of_software">No.of Software's Under Development:</label>
+            <input type="number" id="no_of_software" name="no_of_software" placeholder="Enter No.of Software Under Development" required>
+           
+            <label for="no_of_team_member">No.of Team Member:</label>
+            <input type="number" id="no_of_team_member" name="no_of_team_member" placeholder="Enter No.of Team Member" required>
+           
+            <label for="working_hours">Working Hours During the Month:</label>
+            <input type="number" id="working_hours" name="working_hours" placeholder="Enter Working Hours During the Month" required>
+           
+            <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
 </body>

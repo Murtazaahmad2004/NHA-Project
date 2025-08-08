@@ -72,3 +72,11 @@ CREATE TABLE uploding (
     months text,
     hoursspend int
 );
+
+CREATE TABLE software_form (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    activities varchar(255),
+    no_of_software_under_development int,
+    no_of_team_member int,
+    working_hours_during_month int
+);

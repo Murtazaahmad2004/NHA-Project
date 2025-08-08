@@ -44,7 +44,7 @@
 
     <table class="table3" border="1">
         <tr>
-            <th>ID</th>
+            <th>S. #</th>
             <th>Financial Year</th>
             <th>Total Budget</th>
             <th>Budget Month</th>
@@ -56,7 +56,7 @@
         </tr>
         {% for record in records %}
         <tr>
-            <td>{{ record['id'] }}</td>
+            <td>{{ loop.index }}</td>
             <td>{{ record['financial_year'] }}</td>
             <td>{{ record['total_budget'] }}</td>
             <td>{{ record['budget_month'] }}</td>
