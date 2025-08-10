@@ -11,16 +11,18 @@
     <div class="container">
         <form method="post" action="/summarisereport">
             <h1>Summarise Report</h1>
-            <label for="procurement">Procurement Activities</label>
+            <label for="procurement">Procurement Activities:</label>
             <input type="text" name="procurement" id="procurement" placeholder="Enter Procurement Activities Name" required>
        
-            <label for="availablehours">Available Hours</label>
-            <input type="number" name="availablehours" id="availablehours" placeholder="Enter Available Hours" required>
+            <label for="current_month">Current Month::</label>
+            <input type="month" name="current_month" id="current_month" required>
+            <label for="availablehours">Available Hours Current Month:</label>
+            <input type="number" name="availablehours" id="availablehours" placeholder="Enter Available Hours Current Month" required>
        
-            <label for="workingstrength">Working Strength</label>
+            <label for="workingstrength">Working Strength:</label>
             <input type="number" name="workingstrength" id="workingstrength" placeholder="Enter Working Strength" required>
        
-            <label for="hoursworked">Hours Worked</label>
+            <label for="hoursworked">Hours Worked:</label>
             <input type="number" name="hoursworked" id="hoursworked" placeholder="Enter Hours Worked " required>
        
             <button type="submit" class="btn btn-primary">Submit</button>

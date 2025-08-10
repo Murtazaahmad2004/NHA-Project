@@ -1579,27 +1579,179 @@ def edit_softwareform_list(id):
 # Core Software Form
 @app.route('/coresoftwareform', methods=['GET', 'POST'])
 def coresoftwareform():
-    return render_template('coresoftwareform.html')
+    success = None
+    error = None
+
+    if request.method == 'POST':
+        coresoftware = request.form.get('coresoftware')
+        module = request.form.get('module')
+        
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO core_software (
+                    core_software, 
+                    modules 
+                ) VALUES (%s, %s)
+            """,(
+                coresoftware, 
+                module
+            ))
+            conn.commit()
+            success = "✅ Core software data inserted successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+    return render_template(
+        'coresoftwareform.html', 
+        success=success, 
+        error=error, 
+    )
 
 # Core Software List
 @app.route('/core_software_form_list', methods=['GET', 'POST'])
 def core_software_form_list():
-    return render_template('core_software_form_list.html')
+    filter_core_software = request.args.get('core_software', default='')
+    records = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT DISTINCT core_software FROM core_software")
+        core_software_list = cursor.fetchall()
+
+        if filter_core_software:
+            cursor.execute("SELECT * FROM core_software WHERE core_software = %s", (filter_core_software,))
+        else:
+            cursor.execute("SELECT * FROM core_software")
+
+        records = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching software items:", e)
+        records = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return render_template(
+        'core_software_form_list.html', 
+        records=records, 
+        filter_core_software=filter_core_software,
+        core_software_list=core_software_list
+        )
 
 # Core Software Form delete
-@app.route('/delete_core_software_form', methods=['GET', 'POST'])
-def delete_core_software_form():
-    return render_template('core_software_form_list.html')
+@app.route('/delete_core_software_form_list/<int:id>', methods=['GET', 'POST'])
+def delete_core_software_form_list(id):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM core_software WHERE id = %s", (id,))
+        conn.commit()
+        flash("✅ Core Software deleted successfully.", 'success')
+    except Exception as e:
+        flash("❌ Error deleting item.", 'danger')
+        print("Delete error:", e)
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('core_software_form_list'))
 
 # Core Software Form edit
-@app.route('/edit_core_software_form_list', methods=['GET', 'POST'])
-def edit_core_software_form_list():
-    return render_template('edit_core_software_form_list.html')
+@app.route('/edit_core_software_form_list/<int:id>', methods=['GET', 'POST'])
+def edit_core_software_form_list(id):
+    success = None
+    error = None
+
+    if request.method == 'POST':
+        coresoftware = request.form.get('coresoftware')
+        module = request.form.get('module')
+        
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE core_software SET
+                    core_software = %s, 
+                    modules = %s 
+                WHERE id = %s
+            """,(
+                coresoftware, 
+                module,
+                id
+            ))
+            conn.commit()
+            success = "✅ Core software data inserted successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+        return redirect(url_for('core_software_form_list', error=error, success=success))
+
+    # GET method
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM core_software WHERE id = %s", (id,))
+        record = cursor.fetchone()
+    except Exception as e:
+        flash("❌ Error update core software item.", 'danger')
+        print("Fetch error:", e)
+        record = None
+    finally:
+        cursor.close()
+        conn.close()
+
+    return render_template('edit_core_software_form_list.html', record=record)
 
 # Software complaints Route
 @app.route('/softwarecomplainet', methods=['GET', 'POST'])
 def softwarecomplainet():
-    return render_template('softwarecomplainet.html')
+    success = None
+    error = None
+
+    if request.method == 'POST':
+        softwares = request.form.get('softwares')
+        remarks = request.form.get('remarks')
+        totalcomplaints = request.form.get('totalcomplaints')
+        resolved = request.form.get('resolved')
+        
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("""
+                INSERT INTO software_complaints (
+                    software_name,
+                    description,
+                    total_complaints,
+                    resolved
+                ) VALUES (%s, %s, %s, %s)
+            """,(
+                softwares,
+                remarks,
+                totalcomplaints,
+                resolved
+            ))
+            conn.commit()
+            success = "✅ Core software data inserted successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+    return render_template('softwarecomplainet.html', success=success, error=error)
 
 # Software complaints List
 @app.route('/softwarecomplainet_list', methods=['GET', 'POST'])
@@ -1607,13 +1759,13 @@ def softwarecomplainet_list():
     return render_template('softwarecomplainet_list.html')
 
 # Software complaints delete
-@app.route('/delete_softwarecomplainet', methods=['GET', 'POST'])
-def delete_softwarecomplainet():
+@app.route('/delete_softwarecomplainet/<int:id>', methods=['GET', 'POST'])
+def delete_softwarecomplainet(id):
     return render_template('softwarecomplainet_list.html')
 
 # Software complaints edit
-@app.route('/edit_softwarecomplainet_list', methods=['GET', 'POST'])
-def edit_softwarecomplainet_list():
+@app.route('/edit_softwarecomplainet_list/<int:id>', methods=['GET', 'POST'])
+def edit_softwarecomplainet_list(id):
     return render_template('edit_softwarecomplainet_list.html')
 
 # Meetings Route
@@ -1627,13 +1779,13 @@ def meetingform_list():
     return render_template('meetingform_list.html')
 
 # Meetings delete
-@app.route('/delete_meetingform_list', methods=['GET', 'POST'])
-def delete_meetingform_list():
+@app.route('/delete_meetingform_list/<int:id>', methods=['GET', 'POST'])
+def delete_meetingform_list(id):
     return render_template('meetingform_list.html')
 
 # Meetings edit
-@app.route('/edit_meetingform_list', methods=['GET', 'POST'])
-def edit_meetingform_list():
+@app.route('/edit_meetingform_list/<int:id>', methods=['GET', 'POST'])
+def edit_meetingform_list(id):
     return render_template('edit_meetingform_list.html')
 
 # Network route
@@ -1647,13 +1799,13 @@ def networkform_list():
     return render_template('networkform_list.html')
 
 # Network delete
-@app.route('/delete_networkform_list', methods=['GET', 'POST'])
-def delete_networkform_list():
+@app.route('/delete_networkform_list/<int:id>', methods=['GET', 'POST'])
+def delete_networkform_list(id):
     return render_template('networkform_list.html')
 
 # Network edit
-@app.route('/edit_networkform_list', methods=['GET', 'POST'])
-def edit_networkform_list():
+@app.route('/edit_networkform_list/<int:id>', methods=['GET', 'POST'])
+def edit_networkform_list(id):
     return render_template('edit_networkform_list.html')
 
 # PMIS Route
@@ -1667,13 +1819,13 @@ def pmisreport_list():
     return render_template('pmisreport_list.html')
 
 # PMIS delete
-@app.route('/delete_pmisreport_list', methods=['GET', 'POST'])
-def delete_pmisreport_list():
+@app.route('/delete_pmisreport_list/<int:id>', methods=['GET', 'POST'])
+def delete_pmisreport_list(id):
     return render_template('pmisreport_list.html')
 
 # PMIS edit
-@app.route('/edit_pmisreport_list', methods=['GET', 'POST'])
-def edit_pmisreport_list():
+@app.route('/edit_pmisreport_list/<int:id>', methods=['GET', 'POST'])
+def edit_pmisreport_list(id):
     return render_template('edit_pmisreport_list.html')
 
 # Summarize Route
@@ -1687,13 +1839,13 @@ def summarisereport_list():
     return render_template('summarisereport_list.html')
 
 # Summarize delete
-@app.route('/delete_summarisereport_list', methods=['GET', 'POST'])
-def delete_summarisereport_list():
+@app.route('/delete_summarisereport_list/<int:id>', methods=['GET', 'POST'])
+def delete_summarisereport_list(id):
     return render_template('summarisereport_list.html')
 
 # Summarize edit
-@app.route('/edit_summarisereport_list', methods=['GET', 'POST'])
-def edit_summarisereport_list():
+@app.route('/edit_summarisereport_list/<int:id>', methods=['GET', 'POST'])
+def edit_summarisereport_list(id):
     return render_template('edit_summarisereport_list.html')
 
 if __name__ == '__main__':

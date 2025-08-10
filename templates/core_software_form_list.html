@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+    <title>Core Software Data</title>
+</head>
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <h2>Core Software Records</h2>
+    <div class="financial_year">
+       <form method="GET" action="/core_software_form_list">
+            <label for="core_software">Filter by Core Software:</label>
+            <select id="core_software" name="core_software" class="form-control">
+                <option value="">Core Software</option>
+                {% for record in core_software_list  %}
+                    <option value="{{ record['core_software'] }}" {% if core_software == record['core_software'] %}selected{% endif %}>
+                        {{ record['core_software'] }}
+                    </option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="btn1 btn-primary">Filter</button>
+        </form>
+    </div>
+
+    <button class="btnn btn-primary"><a href="/coresoftwareform">Add New Core Software Detail</a></button>
+
+<table class="table2" border="1">
+    <thead>
+        <tr>
+            <th colspan="1">S. #</th>
+            <th colspan="1">Core Software</th>
+            <th colspan="1">Modules</th>
+            <th colspan="1">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in records %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ record['core_software']}}</td>
+            <td>{{ record['modules']}}</td>
+            <td>
+                <div class="action-buttons">
+                    <a href="/edit_core_software_form_list/{{ record['id'] }}" class="icon-button edit" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <form action="/delete_core_software_form_list/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
+                        <button type="submit" class="icon-button delete" title="Delete">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</body>
+</html>

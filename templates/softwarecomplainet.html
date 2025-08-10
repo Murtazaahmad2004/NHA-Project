@@ -9,9 +9,17 @@
 </head>
 <body>
     <div class="container5">
-        <form  method="post" action="/softwarecomplaint">
+        <form  method="post" action="/softwarecomplainet">
             <h1>Softwares Complaints</h1>
-            <label for="softwares">Software's</label>
+
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+                <div class="alert alert-success">{{ success }}</div>
+            {% endif %}
+            
+            <label for="softwares">Software's Name</label>
             <input type="text" name="softwares" id="softwares" placeholder="Enter Software Name" required>
     
             <label for="remarks">Description:</label>

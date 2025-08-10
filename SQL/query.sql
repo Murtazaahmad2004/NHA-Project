@@ -67,9 +67,11 @@ CREATE TABLE store_items (
 CREATE TABLE uploding (
 	id INT AUTO_INCREMENT PRIMARY KEY,
     particulars varchar(255),
-    res_person int,
-    month text,
-    months text,
+    reserve_person int,
+    previous_month text,
+    previous_month_quantity text,
+    current_month text,
+    current_month_quantity text,
     hoursspend int
 );
 
@@ -79,4 +81,54 @@ CREATE TABLE software_form (
     no_of_software_under_development int,
     no_of_team_member int,
     working_hours_during_month int
+);
+
+CREATE TABLE core_software (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    core_software varchar(255),
+    modules int
+);
+
+CREATE TABLE software_complaints (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    software_name varchar(255),
+    description text,
+    total_complaints int,
+    resolved int
+);
+
+CREATE TABLE meetings (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    sections varchar(255),
+    meetings int,
+    internal int,
+    external int,
+    hours_spend int,
+    remarks varchar(255)
+);
+
+CREATE TABLE network (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    item varchar(255),
+    down_item int,
+    up_time_percentage decimal(5, 2),
+    remarks varchar(255)
+);
+
+CREATE TABLE pmis (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    toatl_packages int,
+    monthly_progress int,
+    progress_percentage decimal(5, 2),
+    drone_video int,
+    drone_video_percentage decimal(5, 2)
+);
+
+CREATE TABLE summarize (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    procurement_activities varchar(255),
+    current_month varchar(255),
+    available_hours int,
+    working_strength int,
+    hours_worked int
 );
