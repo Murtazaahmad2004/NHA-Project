@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Edit Software Complaints</title>
+</head>
+<body>
+    <div class="container5">
+        <form  method="post" action="{{ url_for('edit_softwarecomplainet_list', id=record['id']) }}">
+            <h1>Edit Software Complaints</h1>
+
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+                <div class="alert alert-success">{{ success }}</div>
+            {% endif %}
+            
+            <label for="softwares">Software's Name</label>
+            <input type="text" name="softwares" id="softwares" value="{{ record['software_name']}}"  required>
+    
+            <label for="remarks">Description:</label>
+            <textarea id="remarks" name="remarks" required>{{ record['description'] }}</textarea>
+
+            <label for="totalcomplaints"> Total Complaints</label>
+            <input type="number" id="totalcomplaints" name="totalcomplaints" value="{{ record['total_complaints']}}"  required>
+    
+            <label for="resolved">Resolved</label>
+            <input type="number" id="resolved" name="resolved" value="{{ record['resolved']}}"  required>
+     
+            <button type="submit" class="btn4 btn-primary">Update</button>
+            <a href="{{ url_for('softwarecomplainet_list') }}" class="btn3 btn-danger">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

@@ -5,17 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Summarise Report</title>
+    <title>Summarize Data Form</title>
 </head>
 <body>
     <div class="container">
         <form method="post" action="/summarisereport">
-            <h1>Summarise Report</h1>
+            <h1>Summarize Data Form</h1>
+
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+                <div class="alert alert-success">{{ success }}</div>
+            {% endif %}
+            
             <label for="procurement">Procurement Activities:</label>
             <input type="text" name="procurement" id="procurement" placeholder="Enter Procurement Activities Name" required>
        
-            <label for="current_month">Current Month::</label>
+            <label for="current_month">Current Month:</label>
             <input type="month" name="current_month" id="current_month" required>
+
             <label for="availablehours">Available Hours Current Month:</label>
             <input type="number" name="availablehours" id="availablehours" placeholder="Enter Available Hours Current Month" required>
        

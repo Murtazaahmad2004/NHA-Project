@@ -1480,9 +1480,7 @@ def softwareform_list():
 
         records = cursor.fetchall()
 
-        total_working_hours = sum(
-            int(r['working_hours_during_month']) for r in records if r['working_hours_during_month']
-        )
+        total_working_hours = sum(int(r['working_hours_during_month']) for r in records if r['working_hours_during_month'])
 
     except Exception as e:
         print("Error fetching software items:", e)
@@ -1756,97 +1754,787 @@ def softwarecomplainet():
 # Software complaints List
 @app.route('/softwarecomplainet_list', methods=['GET', 'POST'])
 def softwarecomplainet_list():
-    return render_template('softwarecomplainet_list.html')
+    records = []
+    softwarecomplainet_list = []
+    filter_software_name = request.args.get('software_name', default='')
+    grand_total_complaints = 0
+    total_resolved_complaints = 0
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT DISTINCT software_name FROM software_complaints")
+        softwarecomplainet_list = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching software items:", e)
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        if filter_software_name:
+            cursor.execute("SELECT * FROM software_complaints WHERE software_name = %s", (filter_software_name,))
+        else:
+            cursor.execute("SELECT * FROM software_complaints")
+
+        records = cursor.fetchall()
+
+        if records:
+            grand_total_complaints = sum(int(r['total_complaints']) for r in records if r ['total_complaints'])
+            total_resolved_complaints = sum(int(r['resolved']) for r in records if r ['resolved'])
+        else:
+            grand_total_complaints = 0
+            total_resolved_complaints = 0
+    except Exception as e:
+        print("Error fetching software items:", e)
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return render_template(
+        'softwarecomplainet_list.html', 
+        records=records, 
+        softwarecomplainet_list=softwarecomplainet_list,
+        grand_total_complaints=grand_total_complaints, 
+        total_resolved_complaints=total_resolved_complaints,
+        filter_software_name=filter_software_name
+    )
 
 # Software complaints delete
-@app.route('/delete_softwarecomplainet/<int:id>', methods=['GET', 'POST'])
+@app.route('/delete_softwarecomplainet/<int:id>', methods=['POST'])
 def delete_softwarecomplainet(id):
-    return render_template('softwarecomplainet_list.html')
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM software_complaints WHERE id = %s", (id,))
+        conn.commit()
+        flash("✅ Software data deleted successfully.", 'success')
+    except Exception as e:
+        flash("❌ Error deleting item.", 'danger')
+        print("Delete error:", e)
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('softwarecomplainet_list'))
 
 # Software complaints edit
 @app.route('/edit_softwarecomplainet_list/<int:id>', methods=['GET', 'POST'])
 def edit_softwarecomplainet_list(id):
-    return render_template('edit_softwarecomplainet_list.html')
+    success = None
+    error = None
+
+    if request.method == 'POST':
+        softwares = request.form.get('softwares')
+        remarks = request.form.get('remarks')
+        totalcomplaints = request.form.get('totalcomplaints')
+        resolved = request.form.get('resolved')
+
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE software_complaints SET
+                    software_name = %s, 
+                    description = %s, 
+                    total_complaints = %s, 
+                    resolved = %s
+                WHERE id = %s
+            """,(
+                softwares, 
+                remarks,
+                totalcomplaints,
+                resolved,
+                id
+            ))
+            conn.commit()
+            success = "✅ software data updated successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+        return redirect(url_for('softwarecomplainet_list', error=error, success=success))
+
+    # GET method
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM software_complaints WHERE id = %s", (id,))
+        record = cursor.fetchone()
+    except Exception as e:
+        flash("❌ Error update core software item.", 'danger')
+        print("Fetch error:", e)
+        record = []
+    finally:
+        cursor.close()
+        conn.close()
+    return render_template('edit_softwarecomplainet_list.html', record=record)
 
 # Meetings Route
 @app.route('/meetingform', methods=['GET', 'POST'])
 def meetingform():
-    return render_template('meetingform.html')
+    success = None
+    error = None
+
+    if request.method == 'POST':
+        sections = request.form.get('sections')
+        meetings = request.form.get('meeting')
+        internal = request.form.get('internal')
+        external = request.form.get('external')
+        hoursspend = request.form.get('hoursspend')
+        remarks = request.form.get('remarks')
+
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("""
+                INSERT INTO meetings (
+                    sections,
+                    meetings,
+                    internal,
+                    external,
+                    hours_spend,
+                    remarks
+                ) VALUES (%s, %s, %s, %s, %s, %s)
+            """,(
+                sections,
+                meetings,
+                internal,
+                external,
+                hoursspend,
+                remarks
+            ))
+            conn.commit()
+            success = "✅ meetings data inserted successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+    return render_template('meetingform.html', success=success, error=error)
 
 # Meetings List
 @app.route('/meetingform_list', methods=['GET', 'POST'])
 def meetingform_list():
-    return render_template('meetingform_list.html')
+    selected_section = request.args.get('sections', default='')
+    sections_list = []
+    records = []
+    total_meetings = total_internal = total_external = total_hours_spend = 0
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT DISTINCT sections FROM meetings")
+        sections_list = cursor.fetchall()
+
+        # Fetch filtered meetings
+        if selected_section:
+            cursor.execute("SELECT * FROM meetings WHERE sections = %s", (selected_section,))
+        else:
+            cursor.execute("SELECT * FROM meetings")
+        records = cursor.fetchall()
+
+        if records:
+            total_meetings = sum(int(r['meetings']) for r in records if r ['meetings'])
+            total_internal = sum(int(r['internal']) for r in records if r ['internal'])
+            total_external = sum(int(r['external']) for r in records if r ['external'])
+            total_hours_spend = sum(int(r['hours_spend']) for r in records if r ['hours_spend'])
+        else:
+            total_meetings = 0
+            total_internal = 0
+            total_external = 0
+            total_hours_spend = 0
+    except Exception as e:
+        print("Error fetching meetings data:", e)
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return render_template(
+        'meetingform_list.html',
+        records=sections_list,
+        filter_sections=records,
+        selected_section=selected_section,
+        total_meetings =total_meetings,
+        total_internal =total_internal,
+        total_external =total_external,
+        total_hours_spend=total_hours_spend
+    )
 
 # Meetings delete
+
 @app.route('/delete_meetingform_list/<int:id>', methods=['GET', 'POST'])
 def delete_meetingform_list(id):
-    return render_template('meetingform_list.html')
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM meetings WHERE id = %s", (id,))
+        conn.commit()
+        flash("✅ Meetings deleted successfully.", 'success')
+    except Exception as e:
+        flash("❌ Error deleting meetings.", 'danger')
+        print("Delete error:", e)
+    finally:
+        cursor.close()
+        conn.close()
+
+    return redirect(url_for('meetingform_list'))
 
 # Meetings edit
 @app.route('/edit_meetingform_list/<int:id>', methods=['GET', 'POST'])
 def edit_meetingform_list(id):
-    return render_template('edit_meetingform_list.html')
+    success = None
+    error = None
+
+    if request.method == 'POST':
+        sections = request.form.get('sections')
+        meetings = request.form.get('meeting')
+        internal = request.form.get('internal')
+        external = request.form.get('external')
+        hoursspend = request.form.get('hoursspend')
+        remarks = request.form.get('remarks')
+        
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE meetings SET
+                    sections = %s,
+                    meetings = %s,
+                    internal = %s,
+                    external = %s,
+                    hours_spend = %s,
+                    remarks = %s
+                WHERE id = %s
+            """,(
+                sections,
+                meetings,
+                internal,
+                external,
+                hoursspend,
+                remarks,
+                id
+            ))
+            conn.commit()
+            success = "✅meetings data updated successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+        return redirect(url_for('meetingform_list', error=error, success=success))
+
+    # GET method
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM meetings WHERE id = %s", (id,))
+        record = cursor.fetchone()
+    except Exception as e:
+        flash("❌ Error update meetings item.", 'danger')
+        print("Fetch error:", e)
+        record = None
+    finally:
+        cursor.close()
+        conn.close()
+    return render_template('edit_meetingform_list.html', record=record)
 
 # Network route
 @app.route('/networkform', methods=['GET', 'POST'])
 def networkform():
-    return render_template('networkform.html')
+    success = None
+    error = None
+
+    if request.method == 'POST':
+        item = request.form.get('item')
+        downitem = request.form.get('downitem')
+        uptime = request.form.get('uptime')
+        remarks = request.form.get('remarks')
+        
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("""
+                INSERT INTO network (
+                    item, 
+                    down_time,
+                    up_time_percentage,  
+                    remarks
+                ) VALUES (%s, %s, %s, %s)
+            """,(
+                item,
+                downitem,
+                uptime,
+                remarks
+            ))
+            conn.commit()
+            success = "✅ network data inserted successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+    return render_template('networkform.html', success=success, error=error)
 
 # Network List
 @app.route('/networkform_list', methods=['GET', 'POST'])
 def networkform_list():
-    return render_template('networkform_list.html')
+    selected_item = request.args.get('item', default='')  # filter value from query params
+    network_list = []  # for dropdown values
+    records = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # Get dropdown values
+        cursor.execute("SELECT DISTINCT item FROM network")
+        network_list = cursor.fetchall()
+
+        # Get table records
+        if selected_item:
+            cursor.execute("SELECT * FROM network WHERE item = %s", (selected_item,))
+        else:
+            cursor.execute("SELECT * FROM network")
+
+        records = cursor.fetchall()
+
+    except Exception as e:
+        print("Error fetching network items:", e)
+        records = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return render_template(
+        'networkform_list.html',
+        records=records,
+        network_list=network_list,
+        selected_item=selected_item
+    )
 
 # Network delete
 @app.route('/delete_networkform_list/<int:id>', methods=['GET', 'POST'])
 def delete_networkform_list(id):
-    return render_template('networkform_list.html')
-
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM network WHERE id = %s", (id,))
+        conn.commit()
+        flash("✅ network deleted successfully.", 'success')
+    except Exception as e:
+        flash("❌ Error deleting item.", 'danger')
+        print("Delete error:", e)
+    finally:
+        cursor.close()
+        conn.close()
+        return redirect(url_for('networkform_list'))
+    
 # Network edit
 @app.route('/edit_networkform_list/<int:id>', methods=['GET', 'POST'])
 def edit_networkform_list(id):
-    return render_template('edit_networkform_list.html')
+    success = None
+    error = None
+
+    if request.method == 'POST':
+        item = request.form.get('item')
+        downitem = request.form.get('downitem')
+        uptime = request.form.get('uptime')
+        remarks = request.form.get('remarks')
+        
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE network SET
+                    item = %s, 
+                    down_time = %s,
+                    up_time_percentage = %s,  
+                    remarks = %s
+                WHERE id = %s
+            """,(
+                item,
+                downitem,
+                uptime,
+                remarks,
+                id
+            ))
+            conn.commit()
+            success = "✅ meetings data updated successfully."
+        except Exception as e:
+            error = f"❌ Failed to update data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+        return redirect(url_for('networkform_list', error=error, success=success))
+
+    # GET method
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM network WHERE id = %s", (id,))
+        record = cursor.fetchone()
+    except Exception as e:
+        flash("❌ Error update network item.", 'danger')
+        print("Fetch error:", e)
+        record = None
+    finally:
+        cursor.close()
+        conn.close()
+    return render_template('edit_networkform_list.html', record=record)
 
 # PMIS Route
 @app.route('/pmisreport', methods=['GET', 'POST'])
 def pmisreport():
-    return render_template('pmisreport.html')
+    success = None
+    error = None
+    progress_percentage = 0
+    drone_video_percentage = 0
+    total_packages = monthly_progress = drone_video = 0
+    records = []
+
+    if request.method == 'POST':
+        total_packages = int(request.form.get('totalpackages'))
+        monthly_progress = int(request.form.get('monthlyprogress'))
+        drone_video = int(request.form.get('dronevideo'))
+
+        # Calculate percentages after getting form data
+        progress_percentage = int(monthly_progress / total_packages * 100) if total_packages > 0 else 0
+        drone_video_percentage = int(drone_video / total_packages * 100) if total_packages > 0 else 0
+
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("""
+                INSERT INTO pmis (
+                    total_packages,
+                    monthly_progress,
+                    drone_video,
+                    progress_percentage,
+                    drone_video_percentage
+                ) VALUES (%s, %s, %s, %s, %s)
+            """, (
+                total_packages,
+                monthly_progress,
+                drone_video,
+                progress_percentage,
+                drone_video_percentage
+            ))
+            conn.commit()
+            success = "✅ PMIS data inserted successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+    # Fetch existing data for display
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM pmis")
+        records = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching pmis items:", e)
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return render_template(
+        'pmisreport.html',
+        success=success,
+        error=error,
+        drone_video_percentage=drone_video_percentage,
+        progress_percentage=progress_percentage,
+        records=records
+    )
 
 # PMIS List
 @app.route('/pmisreport_list', methods=['GET', 'POST'])
 def pmisreport_list():
-    return render_template('pmisreport_list.html')
+    records = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM pmis")
+        records = cursor.fetchall()
+
+        # Calculate percentages for each record with 2 decimal places
+        for r in records:
+            total_packages = r['total_packages'] or 0
+            monthly_progress = r['monthly_progress'] or 0
+            drone_video = r['drone_video'] or 0
+
+            r['progress_percentage'] = round((monthly_progress / total_packages * 100)) if total_packages > 0 else 0
+            r['drone_video_percentage'] = round((drone_video / total_packages * 100)) if total_packages > 0 else 0
+
+    except Exception as e:
+        print("Error fetching pmis items:", e)
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return render_template(
+        'pmisreport_list.html',
+        records=records
+    )
 
 # PMIS delete
 @app.route('/delete_pmisreport_list/<int:id>', methods=['GET', 'POST'])
 def delete_pmisreport_list(id):
-    return render_template('pmisreport_list.html')
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM pmis WHERE id = %s", (id,))
+        conn.commit()
+        flash("✅ pmis data deleted successfully.", 'success')
+    except Exception as e:
+        flash("❌ Error deleting item.", 'danger')
+        print("Delete error:", e)
+    finally:
+        cursor.close()
+        conn.close()
+    return redirect(url_for('pmisreport_list'))
 
 # PMIS edit
 @app.route('/edit_pmisreport_list/<int:id>', methods=['GET', 'POST'])
 def edit_pmisreport_list(id):
-    return render_template('edit_pmisreport_list.html')
+    success = None
+    error = None
+
+    if request.method == 'POST':
+        total_packages = request.form.get('totalpackages')
+        monthly_progress = request.form.get('monthlyprogress')
+        drone_video = request.form.get('dronevideo')
+        
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE pmis SET
+                    total_packages = %s,
+                    monthly_progress = %s,
+                    drone_video = %s
+                WHERE id = %s
+            """,(
+                total_packages, 
+                monthly_progress,
+                drone_video,
+                id
+            ))
+            conn.commit()
+            success = "✅ pmis data inserted successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+        return redirect(url_for('pmisreport_list', error=error, success=success))
+
+    # GET method
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM pmis WHERE id = %s", (id,))
+        record = cursor.fetchone()
+    except Exception as e:
+        flash("❌ Error update pmis item.", 'danger')
+        print("Fetch error:", e)
+        record = None
+    finally:
+        cursor.close()
+        conn.close()
+    return render_template('edit_pmisreport_list.html', record=record)
 
 # Summarize Route
 @app.route('/summarisereport', methods=['GET', 'POST'])
 def summarisereport():
-    return render_template('summarisereport.html')
+    success = None
+    error = None
+
+    if request.method == 'POST':
+        procurement = request.form.get('procurement')
+        current_month = request.form.get('current_month')
+        available_hours = request.form.get('availablehours')
+        working_strength = request.form.get('workingstrength')
+        hours_worked = request.form.get('hoursworked')
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("""
+                INSERT INTO summarize (
+                    procurement_activities,
+                    current_month,
+                    available_hours,
+                    working_strength,
+                    hours_worked
+                ) VALUES (%s, %s, %s, %s, %s)
+            """,(
+                procurement,
+                current_month,
+                available_hours,
+                working_strength,
+                hours_worked
+            ))
+            conn.commit()
+            success = "✅ summarize data inserted successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+    return render_template('summarisereport.html' , success=success, error=error)
 
 # Summarize List
 @app.route('/summarisereport_list', methods=['GET', 'POST'])
 def summarisereport_list():
-    return render_template('summarisereport_list.html')
+    records = []
+    procurement_list = []
+    filter_procurement_activities = request.args.get('procurement_activities', default='')
+    total_available_hours = total_working_strength = total_hours_worked = 0
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT DISTINCT procurement_activities FROM summarize")
+        procurement_list = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching procurement activities:", e)
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        if filter_procurement_activities:
+            cursor.execute("SELECT * FROM summarize WHERE procurement_activities = %s", (filter_procurement_activities,))
+        else:
+            cursor.execute("SELECT * FROM summarize")
+
+        records = cursor.fetchall()
+
+        if records:
+            total_available_hours = sum(int(r['available_hours']) for r in records if r['available_hours'])
+            total_working_strength = sum(int(r['working_strength']) for r in records if r['working_strength'])
+            total_hours_worked = sum(int(r['hours_worked']) for r in records if r['hours_worked'])
+    except Exception as e:
+        print("Error fetching summarize items:", e)
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    return render_template(
+        'summarisereport_list.html',
+        total_available_hours=total_available_hours,
+        total_working_strength=total_working_strength,
+        total_hours_worked=total_hours_worked,
+        procurement_list=procurement_list,  # for dropdown
+        records=records  # for table
+    )
 
 # Summarize delete
 @app.route('/delete_summarisereport_list/<int:id>', methods=['GET', 'POST'])
 def delete_summarisereport_list(id):
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM summarize WHERE id = %s", (id,))
+        conn.commit()
+        flash("✅ summarize deleted successfully.", 'success')
+    except Exception as e:
+        flash("❌ Error deleting item.", 'danger')
+        print("Delete error:", e)
+    finally:
+        cursor.close()
+        conn.close()
     return render_template('summarisereport_list.html')
 
 # Summarize edit
 @app.route('/edit_summarisereport_list/<int:id>', methods=['GET', 'POST'])
 def edit_summarisereport_list(id):
-    return render_template('edit_summarisereport_list.html')
+    success = None
+    error = None
+
+    if request.method == 'POST':
+        procurement = request.form.get('procurement')
+        current_month = request.form.get('current_month')
+        available_hours = request.form.get('availablehours')
+        working_strength = request.form.get('workingstrength')
+        hours_worked = request.form.get('hoursworked')
+        
+        try:
+            conn = mysql.connector.connect(**db_config)
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE summarize SET
+                    procurement_activities = %s, 
+                    current_month = %s, 
+                    available_hours = %s,
+                    working_strength = %s, 
+                    hours_worked = %s 
+                WHERE id = %s
+            """,(
+                procurement, 
+                current_month,
+                available_hours,
+                working_strength,
+                hours_worked,
+                id
+            ))
+            conn.commit()
+            success = "✅ summarize data inserted successfully."
+        except Exception as e:
+            error = f"❌ Failed to insert data: {e}"
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+        return redirect(url_for('summarisereport_list', error=error, success=success))
+
+    # GET method
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM summarize WHERE id = %s", (id,))
+        record = cursor.fetchone()
+    except Exception as e:
+        flash("❌ Error update summarize item.", 'danger')
+        print("Fetch error:", e)
+        record = None
+    finally:
+        cursor.close()
+        conn.close()
+    return render_template('edit_summarisereport_list.html', record=record)
 
 if __name__ == '__main__':
     app.run(debug=True)

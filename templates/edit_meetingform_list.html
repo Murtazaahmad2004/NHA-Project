@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Edit Meetings Data</title>
+</head>
+<body>
+    <div class="container5">
+        <form method="post" action="{{ url_for('edit_meetingform_list', id=record['id']) }}">
+            <h1>Edit Meetings Data</h1>
+
+             <!-- Messages -->
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+                <div class="alert alert-success">{{ success }}</div>
+            {% endif %}
+            
+            <label for="sections">Sections:</label>
+            <input type="text" id="sections" name="sections" value="{{record['sections']}}" required>
+
+            <label for="meeting">Meetings:</label>
+            <input type="number" id="meeting" name="meeting" value="{{record['meetings']}}" required>
+
+            <label for="internal">Internal:</label>
+            <input type="number" id="internal" name="internal" value="{{record['internal']}}" required>
+
+            <label for="external">External:</label>
+            <input type="number" id="external" name="external" value="{{record['external']}}" required>
+
+            <label for="hoursspend">Hours Spend:</label>
+            <input type="number" id="hoursspend" name="hoursspend" value="{{record['hours_spend']}}" required>
+
+            <label for="remarks">Remarks:</label>
+            <textarea name="remarks" id="remarks" required>{{record['remarks']}}</textarea>
+
+            <button type="submit" class="btn4 btn-primary">Update</button>
+            <a href="{{ url_for('meetingform_list') }}" class="btn3 btn-danger">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

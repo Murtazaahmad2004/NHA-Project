@@ -12,12 +12,12 @@ CREATE TABLE item (
 CREATE TABLE budget (
     id INT AUTO_INCREMENT PRIMARY KEY,
     financial_year_id INT,
-    total_budget DECIMAL(15, 2),
+    total_budget INT,
     budget_month VARCHAR(20),
-    budget_used DECIMAL(15, 2),
-    budget_used_upto_june DECIMAL(15, 2),
+    budget_used INT,
+    budget_used_upto_june INT,
     reporting_month_last_day DATE,
-    remaining_budget DECIMAL(15, 2),
+    remaining_budget INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (financial_year_id) REFERENCES financial_year(id)
 );
@@ -26,7 +26,7 @@ CREATE TABLE procurement (
     id INT AUTO_INCREMENT PRIMARY KEY,
     item_name VARCHAR(255),
     units INT,
-    expenditure DECIMAL(15, 2)
+    expenditure INT
 );
 
 CREATE TABLE repair_maintenance (
@@ -34,12 +34,12 @@ CREATE TABLE repair_maintenance (
     item_name VARCHAR(255),
     unit_in_house INT,
     units_externals INT,
-    hours_spend_in_house DECIMAL(10, 2),
-    days_externals DECIMAL(10, 2),
-    expenditure DECIMAL(15, 2),
-    item_total DECIMAL(15, 2),
-    percentage_of_an_item DECIMAL(5, 2),
-    avg_cost_per_unit DECIMAL(10, 2),
+    hours_spend_in_house INT,
+    days_externals INT,
+    expenditure INT,
+    item_total INT,
+    percentage_of_an_item INT,
+    avg_cost_per_unit INT,
     total_unit_repaired_in_house INT,
     total_unit_repaired_external INT
 );
@@ -110,18 +110,18 @@ CREATE TABLE meetings (
 CREATE TABLE network (
 	id INT AUTO_INCREMENT PRIMARY KEY,
     item varchar(255),
-    down_item int,
-    up_time_percentage decimal(5, 2),
+    down_time int,
+    up_time_percentage INT,
     remarks varchar(255)
 );
 
 CREATE TABLE pmis (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-    toatl_packages int,
+    total_packages int,
     monthly_progress int,
-    progress_percentage decimal(5, 2),
+    progress_percentage INT,
     drone_video int,
-    drone_video_percentage decimal(5, 2)
+    drone_video_percentage INT
 );
 
 CREATE TABLE summarize (

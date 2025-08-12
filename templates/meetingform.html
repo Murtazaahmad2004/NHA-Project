@@ -5,28 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Meetings Data</title>
+    <title>Meeting Data Form</title>
 </head>
 <body>
     <div class="container5">
-        <form method="post" action="/meetinfform">
-            <h1>Meetings Data</h1>
-            <label for="sections">Sections</label>
+        <form method="post" action="/meetingform">
+            <h1>Meeting Data Form</h1>
+
+             <!-- Messages -->
+            {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            {% if success %}
+                <div class="alert alert-success">{{ success }}</div>
+            {% endif %}
+            
+            <label for="sections">Sections:</label>
             <input type="text" id="sections" name="sections" placeholder="Enter Section" required>
 
-            <label for="Meetings">Meetings</label>
-            <input type="number" id="Meeting" name="Meeting" placeholder="Enter Meeting " required>
+            <label for="meeting">Meetings:</label>
+            <input type="number" id="meeting" name="meeting" placeholder="Enter Meeting " required>
 
-            <label for="internal">Internal</label>
+            <label for="internal">Internal:</label>
             <input type="number" id="internal" name="internal" placeholder="Enter Internal " required>
 
-            <label for="external">External</label>
+            <label for="external">External:</label>
             <input type="number" id="external" name="external" placeholder="Enter External " required>
 
-            <label for="hoursspend">Hours Spend</label>
+            <label for="hoursspend">Hours Spend:</label>
             <input type="number" id="hoursspend" name="hoursspend" placeholder="Enter Hours Spend " required>
 
-            <label for="remarks">Remarks</label>
+            <label for="remarks">Remarks:</label>
             <textarea name="remarks" id="remarks" placeholder="Enter Remarks" required></textarea>
 
             <button type="submit" class="btn btn-primary">Submit</button>
