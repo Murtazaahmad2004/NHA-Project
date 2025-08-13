@@ -75,5 +75,10 @@
         </tr>
         {% endfor %}
     </table>
+    <br>
+    <a href="/export_procurement_item{% if selected_item %}?item_name={{ selected_item }}{% endif %}" 
+        class="btn btn-success export-btn">
+        <i class="fas fa-file-csv"></i> Export to CSV
+    </a>
 </body>
 </html>

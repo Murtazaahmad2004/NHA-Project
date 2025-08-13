@@ -68,5 +68,10 @@
         </tr>
         {% endfor %}
     </table>
+    <br>
+    <a href="/export_financial_year_csv{% if selected_year %}?financialyear={{ selected_year }}{% endif %}" 
+        class="btn btn-success export-btn">
+        <i class="fas fa-file-csv"></i> Export to CSV
+    </a>
 </body>
 </html>

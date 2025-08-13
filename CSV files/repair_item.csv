@@ -1,0 +1,2 @@
+item_name,unit_in_house,units_externals,hours_spend_in_house,days_externals,expenditure,item_total,percentage_of_an_item,avg_cost_per_unit,total_unit_repaired_in_house,total_unit_repaired_external
+Desktops,15,9,10,8,70000,24,100,7778,11,9

@@ -367,6 +367,11 @@ h2 {
     background-color: #dc3545
 }
 
+.export-btn {
+    width: 200px;
+    text-align: center;
+}
+
 .btnn {
     margin-bottom: 12px;
     margin-left: 92%;

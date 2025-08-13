@@ -1,7 +1,8 @@
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, Response, flash, redirect, render_template, request, url_for
 import mysql.connector
 from flask_cors import CORS
 import calendar
+import csv
 
 app = Flask(__name__)
 CORS(app)
@@ -99,6 +100,51 @@ def financial_year_list():
         conn.close()
     return render_template('financial_year_list.html', records=records, financialyear=financialyear, financial_years=financial_years)
 
+# Route for create financial_year CSV
+@app.route('/export_financial_year_csv')
+def export_financial_year_csv():
+    financialyear = request.args.get('financialyear')
+    
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # Fetch financial_years just for reference (optional)
+        cursor.execute("SELECT financial_year FROM financial_year ORDER BY financial_year DESC")
+        financial_years = cursor.fetchall()
+
+        # Fetch records filtered by financial year
+        if financialyear:
+            cursor.execute("SELECT * FROM financial_year WHERE financial_year LIKE %s", (financialyear,))
+        else:
+            cursor.execute("SELECT * FROM financial_year ORDER BY id DESC")
+        records = cursor.fetchall()
+        
+    except Exception as e:
+        print("Error fetching records:", e)
+        records = []
+        financial_years = []
+    finally:
+        cursor.close()
+        conn.close()
+
+    # Prepare CSV data
+    si = []
+    header = ["id", "financial_year"]
+    si.append(header)
+    for r in records:
+        si.append([r['id'], r['financial_year']])
+
+    output = ""
+    for row in si:
+        output += ",".join(map(str, row)) + "\n"
+    
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=financial_year.csv"}
+    )
+   
 # Route to delete a financial year record
 @app.route('/delete_financial_year/<int:id>', methods=['POST'])
 def delete_financial_year(id):
@@ -239,6 +285,59 @@ def show_budget_list():
         records=records,
         financial_years=financial_years,
         selected_year=selected_year
+    )
+
+# Route for create budget list CSV
+@app.route('/export_budget_csv')
+def export_budget_csv():
+    selected_year = request.args.get('financialyear')
+    
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # Fetch all financial years for dropdown from 'financial_year' table
+        cursor.execute("SELECT financial_year FROM financial_year ORDER BY financial_year DESC")
+        financial_years = cursor.fetchall()  # this gives list of dicts with 'financial_year'
+
+        # Fetch budget records filtered by selected financial year
+        if selected_year:
+            cursor.execute("SELECT * FROM budget WHERE financial_year = %s ORDER BY id DESC", (selected_year,))
+        else:
+            cursor.execute("SELECT * FROM budget ORDER BY id DESC")
+
+        records = cursor.fetchall()
+
+    except Exception as e:
+        print("Error:", e)
+        records = []
+        financial_years = []
+
+    finally:
+        cursor.close()
+        conn.close()
+
+    si = []
+    header = ["ID", "Financial Year", "Total Budget", "Budget Month", "Budget Used",
+              "Budget Used Upto June", "Reporting Month Last Day", "Remaining Budget"]
+
+    si.append(header)
+    for r in records:
+        si.append([
+            r['id'], r['financial_year'], r['total_budget'], r['budget_month'],
+            r['budget_used'], r['budget_used_upto_june'], r['reporting_month_last_day'],
+            r['remaining_budget']
+        ])
+
+    # Convert to CSV string
+    output = ""
+    for row in si:
+        output += ",".join(map(str, row)) + "\n"
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=budget_data.csv"}
     )
 
 # Route to delete a budget record
@@ -383,7 +482,71 @@ def item_list():
         
     conn.close()
 
-    return render_template("item_list.html", records=records, items_name=items_name, items=items, quantity=quantity, total_quantity=total_quantity, percentage_of_item=percentage_of_item)
+    return render_template(
+        "item_list.html", 
+        records=records, 
+        items_name=items_name, 
+        items=items, 
+        quantity=quantity, 
+        total_quantity=total_quantity, 
+        percentage_of_item=percentage_of_item
+    )
+
+# Rpoute for create csv head/item
+@app.route('/export_item_list')
+def export_item_list():
+    records = []
+    total_quantity = 0
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # Always get all items
+        cursor.execute("SELECT * FROM item")
+        records = cursor.fetchall()
+
+        # Calculate total quantity and percentage
+        if records:
+            total_quantity = sum(int(r['quantity']) for r in records if r['quantity'])
+            for r in records:
+                qty = int(r['quantity']) if r['quantity'] else 0
+                r['percentage_of_item'] = round((qty / total_quantity) * 100) if total_quantity > 0 else 0
+        else:
+            total_quantity = 0
+
+    except Exception as e:
+        print("Error fetching items:", e)
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    # Prepare CSV data
+    csv_data = []
+    header = ["id", "items_name", "quantity", "percentage_of_item"]
+    csv_data.append(header)
+
+    for r in records:
+        csv_data.append([
+            r.get('id', ''),
+            r.get('items_name', ''),
+            r.get('quantity', 0),
+            r.get('percentage_of_item', 0)
+        ])
+
+    # Convert list to CSV string
+    output = ""
+    for row in csv_data:
+        output += ",".join(map(str, row)) + "\n"
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=item_list.csv"}
+    )
 
 # Route to delete an item
 @app.route('/delete_item/<int:id>', methods=['POST'])
@@ -524,6 +687,50 @@ def procurement_item_list():
 
     return render_template('procurement_item_list.html', records=records, item_name=item_name, items=items)
 
+# Route create csv Procurement
+@app.route('/export_procurement_item')
+def export_procurement_item():
+    item_name = request.args.get('item_name', default='')
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # Fetch procurement records filtered by item_name
+        if item_name:
+            cursor.execute("SELECT item_name, units, expenditure FROM procurement WHERE item_name LIKE %s", ('%' + item_name + '%',))
+        else:
+            cursor.execute("SELECT item_name, units, expenditure FROM procurement")
+
+        records = cursor.fetchall()
+
+    except Exception as e:
+        print("Error fetching records:", e)
+        records = []
+
+    finally:
+        cursor.close()
+        conn.close()
+
+    # Prepare CSV data
+    csv_data = []
+    header = ["item_name", "units", "expenditure"]
+    csv_data.append(header)
+
+    for r in records:
+        csv_data.append([r['item_name'], r['units'], r['expenditure']])
+
+    # Convert list to CSV string
+    output = ""
+    for row in csv_data:
+        output += ",".join(map(str, row)) + "\n"
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=procurement_item.csv"}
+    )
+    
 # Route to delete a procrument item
 @app.route('/delete_procrument/<int:id>', methods=['POST'])
 def delete_procrument(id):
@@ -747,6 +954,88 @@ def repair_maintenance_list():
         items=items
     )
 
+# Route create CSV Repair and Maintenance
+@app.route('/export_repair_maintenance_list')
+def export_repair_maintenance_list():
+    items_name = request.args.get('items_name', default='')
+
+    records = []
+    total_items = total_expenditure = unit_in_house = units_externals = 0
+    hours_spend_in_house = days_externals = avg_cost_per_unit = percenteage_inhouse_unit = percenteage_external_unit = 0
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT id, item_name FROM item")
+        items = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching items:", e)
+        items = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # ✅ Filter by item_name if given
+        if items_name:
+            cursor.execute("SELECT * FROM repair_maintenance WHERE item_name LIKE %s", ('%' + items_name + '%',))
+        else:
+            cursor.execute("SELECT * FROM repair_maintenance")
+
+        records = cursor.fetchall()
+
+        if records:  # Avoid division by zero if no records
+            total_items = sum(int(r['item_total']) for r in records if r['item_total'])
+            total_expenditure = sum(int(r['expenditure']) for r in records if r['expenditure'])
+            unit_in_house = sum(int(r['unit_in_house']) for r in records if r['unit_in_house'])
+            units_externals = sum(int(r['units_externals']) for r in records if r['units_externals'])
+            hours_spend_in_house = sum(int(r['hours_spend_in_house']) for r in records if r['hours_spend_in_house'])
+            days_externals = sum(int(r['days_externals']) for r in records if r['days_externals'])
+
+            avg_cost_per_unit = total_expenditure / units_externals if units_externals > 0 else 0
+            percenteage_inhouse_unit = (unit_in_house / total_items * 100) if total_items > 0 else 0
+            percenteage_external_unit = (units_externals / total_items * 100) if total_items > 0 else 0
+
+            for r in records:
+                expenditure = float(r['expenditure']) if r['expenditure'] else 0
+                r['percentage_of_an_item'] = round((expenditure / total_expenditure) * 100) if total_expenditure > 0 else 0
+        else:
+            # Default values if no matching record
+            avg_cost_per_unit = 0
+            percenteage_inhouse_unit = 0
+            percenteage_external_unit = 0
+
+    except Exception as e:
+        print("Error fetching repair and maintenance items:", e)
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+    # Prepare CSV data
+    csv_data = []
+    header = ["item_name", "unit_in_house", "units_externals", "hours_spend_in_house", 
+            "days_externals", "expenditure", "item_total", "percentage_of_an_item", 
+            "avg_cost_per_unit", "total_unit_repaired_in_house", "total_unit_repaired_external"]
+    csv_data.append(header)
+
+    for r in records:
+        csv_data.append([r['item_name'], r['unit_in_house'], r['units_externals'], r['hours_spend_in_house'], r['days_externals'], 
+                         r['expenditure'], r['item_total'], r['percentage_of_an_item'], r['avg_cost_per_unit'], 
+                         r['total_unit_repaired_in_house'], r['total_unit_repaired_external']])
+
+    # Convert list to CSV string
+    output = ""
+    for row in csv_data:
+        output += ",".join(map(str, row)) + "\n"
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=repair_item.csv"}
+    )
+
 # Route to delete a repair maintenance item
 @app.route('/delete_repair_maintenance/<int:id>', methods=['POST'])
 def delete_repair_maintenance(id):
@@ -937,6 +1226,62 @@ def complaints_list():
             conn.close()
 
     return render_template('complaints_list.html', records=records, total_calls_netork=total_calls_netork, total_calls_it=total_calls_it)
+
+# Route for create csv Complaints
+@app.route('/export_complaints_list')
+def export_complaints_list():
+    records = []
+    total_calls_netork = total_calls_it = grand_total_calls = 0
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+    except Exception as e:
+        print("error", e)
+    
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM complaints")
+        records = cursor.fetchall()
+
+        if records:
+            total_calls_netork = sum(int(r['network_resolved']) for r in records if r['network_pending'])
+            total_calls_it = sum(int(r['it_resolved']) for r in records if r['it_pending'])
+            grand_total_calls = sum(int(r['total_calls_netork']) for r in records if r['total_calls_it'])
+        else:
+            total_calls_netork
+            total_calls_it
+            grand_total_calls
+
+    except Exception as e:
+        print("Error fetching complaints records:", e)
+    finally:
+        if 'cursor' in locals():
+            cursor.close()
+        if 'conn' in locals():
+            conn.close()
+
+    # Prepare CSV data
+    csv_data = []
+    header = ["network_resolved_complaints", "network_pending_complaints", "total_calls_network", "it_resolved_complaints", 
+            "it_pending_complaints", "total_calls_it", "total_hours_spend", "grand_total_calls"]
+    csv_data.append(header)
+
+    for r in records:
+        csv_data.append([r['network_resolved_complaints'], r['network_pending_complaints'], r['total_calls_network'], r['it_resolved_complaints'], r['it_pending_complaints'], 
+                         r['total_calls_it'], r['total_hours_spend'], r['grand_total_calls']])
+
+    # Convert list to CSV string
+    output = ""
+    for row in csv_data:
+        output += ",".join(map(str, row)) + "\n"
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=complaints_list.csv"}
+    )
 
 # Route to delete a complaints
 @app.route('/delete_complaints_form/<int:id>', methods=['POST'])
@@ -1129,6 +1474,60 @@ def store_item_list():
             conn.close()
 
     return render_template("store_item_list.html", records=records, item_name=item_name, items=items)
+
+# Route create csv store item
+@app.route('/export_store_item_list')
+def export_store_item_list():
+    item_name = request.args.get('item_name', default='')
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # Fetch items from item table
+        cursor.execute("SELECT id, items_name FROM item")
+        items = cursor.fetchall()
+
+        # Filter store_items based on selected item_name
+        if item_name:
+            cursor.execute("SELECT * FROM store_items WHERE items_name LIKE %s", ('%' + item_name + '%',))
+        else:
+            cursor.execute("SELECT * FROM store_items")
+
+        records = cursor.fetchall()
+
+    except Exception as e:
+        print("Error:", e)
+        items = []
+        records = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+    
+    # Prepare CSV data
+    csv_data = []
+    header = ["id", "items_name", "pending_dmands", "select_month", "demands_of_current_month", 
+              "selected_month", "issued_of_current_month", "total_hours_spend"]
+    csv_data.append(header)
+
+    for r in records:
+        csv_data.append([
+            r['id'], r['items_name'], r['pending_dmands'], r['select_month'], r['demands_of_current_month'], 
+            r['selected_month'], r['issued_of_current_month'], r['total_hours_spend']
+        ])
+
+    # Convert list to CSV string
+    output = ""
+    for row in csv_data:
+        output += ",".join(map(str, row)) + "\n"
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=store_item.csv"}
+    )
 
 # Route to delete a complaints
 @app.route('/delete_store_item_list/<int:id>', methods=['POST'])
@@ -1333,6 +1732,70 @@ def uploding_list():
         total_hours_spend=total_hours_spend
     )
 
+# Route create csv uploding list
+@app.route('/export_uploding_list')
+def export_uploding_list():
+    previous_month = request.args.get('previous_month', default='')
+    conn = None
+    cursor = None
+    records = []
+    total_previous_month_quantity = 0
+    total_current_month_quantity = 0
+    total_hours_spend = 0
+    months = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # For dropdown
+        cursor.execute("SELECT DISTINCT previous_month FROM uploding")
+        months = cursor.fetchall()
+
+        # Filtered or full list
+        if previous_month:
+            cursor.execute("SELECT * FROM uploding WHERE previous_month = %s", (previous_month,))
+        else:
+            cursor.execute("SELECT * FROM uploding")
+            records = cursor.fetchall()
+
+        # Totals
+        total_previous_month_quantity = sum(int(r['previous_month_quantity']) for r in records if r['previous_month_quantity'])
+        total_current_month_quantity = sum(int(r['current_month_quantity']) for r in records if r['current_month_quantity'])
+        total_hours_spend = sum(int(r['hoursspend']) for r in records if r['hoursspend'])
+
+    except Exception as e:
+        print("Error fetching uploading items:", e)
+        records = []
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+            
+    # Prepare CSV data
+    csv_data = []
+    header = ["id", "particulars", "reserve_person", "previous_month", "previous_month_quantity", 
+              "current_month", "current_month_quantity", "hoursspend"]
+    csv_data.append(header)
+
+    for r in records:
+        csv_data.append([
+            r['id'], r['particulars'], r['reserve_person'], r['previous_month'], r['previous_month_quantity'], 
+            r['current_month'], r['current_month_quantity'], r['hoursspend'],
+        ])
+
+    # Convert list to CSV string
+    output = ""
+    for row in csv_data:
+        output += ",".join(map(str, row)) + "\n"
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=uploading_list.csv"}
+    )
 # Route to delete uploading item
 @app.route('/delete_uploding_item/<int:id>', methods=['POST'])
 def delete_uploading_item(id):
@@ -1499,6 +1962,61 @@ def softwareform_list():
         total_working_hours=total_working_hours
     )
 
+# Route create csv Software form
+@app.route('/export_softwareform_list')
+def export_softwareform_list():
+    filter_activities = request.args.get('activities', default='')
+    records = []
+    total_working_hours = 0
+    activities_list = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # Get distinct activity names for dropdown
+        cursor.execute("SELECT DISTINCT activities FROM software_form")
+        activities_list = cursor.fetchall()
+
+        # Fetch records based on filter
+        if filter_activities:
+            cursor.execute("SELECT * FROM software_form WHERE activities = %s", (filter_activities,))
+        else:
+            cursor.execute("SELECT * FROM software_form")
+
+        records = cursor.fetchall()
+
+        total_working_hours = sum(int(r['working_hours_during_month']) for r in records if r['working_hours_during_month'])
+
+    except Exception as e:
+        print("Error fetching software items:", e)
+        records = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    # Prepare CSV data
+    csv_data = []
+    header = ["id", "activities", "no_of_software_under_development", "no_of_team_member", "working_hours_during_month"]
+    csv_data.append(header)
+
+    for r in records:
+        csv_data.append([
+            r['id'], r['activities'], r['no_of_software_under_development'], r['no_of_team_member'], r['working_hours_during_month']])
+
+    # Convert list to CSV string
+    output = ""
+    for row in csv_data:
+        output += ",".join(map(str, row)) + "\n"
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=software_form.csv"}
+    )
+
 # Route to delete software item
 @app.route('/delete_softwareform_list/<int:id>', methods=['POST'])
 def delete_softwareform_list(id):
@@ -1644,6 +2162,53 @@ def core_software_form_list():
         filter_core_software=filter_core_software,
         core_software_list=core_software_list
         )
+
+# Route create csv Core Software 
+@app.route('/export_core_software_form_list')
+def export_core_software_form_list():
+    filter_core_software = request.args.get('core_software', default='')
+    records = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT DISTINCT core_software FROM core_software")
+        core_software_list = cursor.fetchall()
+
+        if filter_core_software:
+            cursor.execute("SELECT * FROM core_software WHERE core_software = %s", (filter_core_software,))
+        else:
+            cursor.execute("SELECT * FROM core_software")
+
+        records = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching software items:", e)
+        records = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    # Prepare CSV data
+    csv_data = []
+    header = ["id", "core_software", "modules"]
+    csv_data.append(header)
+
+    for r in records:
+        csv_data.append([
+            r['id'], r['core_software'], r['modules']])
+
+    # Convert list to CSV string
+    output = ""
+    for row in csv_data:
+        output += ",".join(map(str, row)) + "\n"
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=core_software.csv"}
+    )
 
 # Core Software Form delete
 @app.route('/delete_core_software_form_list/<int:id>', methods=['GET', 'POST'])
@@ -1802,6 +2367,65 @@ def softwarecomplainet_list():
         filter_software_name=filter_software_name
     )
 
+# Route create csv Software complaints
+@app.route('/export_softwarecomplainet_list')
+def export_softwarecomplainet_list():
+    records = []
+    filter_software_name = request.args.get('software_name', default='')
+    grand_total_complaints = 0
+    total_resolved_complaints = 0
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        if filter_software_name:
+            cursor.execute("SELECT * FROM software_complaints WHERE software_name = %s", (filter_software_name,))
+        else:
+            cursor.execute("SELECT * FROM software_complaints")
+
+        records = cursor.fetchall()
+
+        if records:
+            grand_total_complaints = sum(int(r['total_complaints']) for r in records if r['total_complaints'])
+            total_resolved_complaints = sum(int(r['resolved']) for r in records if r['resolved'])
+        else:
+            grand_total_complaints = 0
+            total_resolved_complaints = 0
+
+    except Exception as e:
+        print("Error fetching software items:", e)
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    # Prepare CSV data
+    csv_data = []
+    header = ["id", "software_name", "description", "total_complaints", "resolved"]
+    csv_data.append(header)
+
+    for r in records:
+        csv_data.append([
+            r.get('id', ''),
+            r.get('software_name', ''),
+            r.get('description', '').replace('\n', ' ').replace('\r', ' '),
+            r.get('total_complaints', 0),
+            r.get('resolved', 0)
+        ])
+
+    # Convert to CSV string
+    output = "\ufeff"  # UTF-8 BOM for Excel
+    for row in csv_data:
+        output += ",".join(f'"{str(col)}"' for col in row) + "\n"
+
+    return Response(
+        output,
+        mimetype="text/csv; charset=utf-8",
+        headers={"Content-Disposition": "attachment; filename=software_complaints.csv"}
+    )
+ 
 # Software complaints delete
 @app.route('/delete_softwarecomplainet/<int:id>', methods=['POST'])
 def delete_softwarecomplainet(id):
@@ -1970,8 +2594,66 @@ def meetingform_list():
         total_hours_spend=total_hours_spend
     )
 
-# Meetings delete
+# Route create csv Meetings List
+@app.route('/export_meetingform_list')
+def export_meetingform_list():
+    selected_section = request.args.get('sections', default='')
+    sections_list = []
+    records = []
+    total_meetings = total_internal = total_external = total_hours_spend = 0
 
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT DISTINCT sections FROM meetings")
+        sections_list = cursor.fetchall()
+
+        # Fetch filtered meetings
+        if selected_section:
+            cursor.execute("SELECT * FROM meetings WHERE sections = %s", (selected_section,))
+        else:
+            cursor.execute("SELECT * FROM meetings")
+        records = cursor.fetchall()
+
+        if records:
+            total_meetings = sum(int(r['meetings']) for r in records if r ['meetings'])
+            total_internal = sum(int(r['internal']) for r in records if r ['internal'])
+            total_external = sum(int(r['external']) for r in records if r ['external'])
+            total_hours_spend = sum(int(r['hours_spend']) for r in records if r ['hours_spend'])
+        else:
+            total_meetings = 0
+            total_internal = 0
+            total_external = 0
+            total_hours_spend = 0
+    except Exception as e:
+        print("Error fetching meetings data:", e)
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    # Prepare CSV data
+    csv_data = []
+    header = ["id", "sections", "meetings", "internal", "external", "hours_spend", "remarks"]
+    csv_data.append(header)
+
+    for r in records:
+        csv_data.append([
+            r['id'], r['sections'], r['meetings'], r['internal'], r['external'], r['hours_spend'], r['remarks']])
+
+    # Convert list to CSV string
+    output = ""
+    for row in csv_data:
+        output += ",".join(map(str, row)) + "\n"
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=meetings_list.csv"}
+    )
+
+# Meetings delete
 @app.route('/delete_meetingform_list/<int:id>', methods=['GET', 'POST'])
 def delete_meetingform_list(id):
     try:
@@ -2092,8 +2774,8 @@ def networkform():
 # Network List
 @app.route('/networkform_list', methods=['GET', 'POST'])
 def networkform_list():
-    selected_item = request.args.get('item', default='')  # filter value from query params
-    network_list = []  # for dropdown values
+    selected_item = request.args.get('item', default='')
+    network_list = []
     records = []
 
     try:
@@ -2126,6 +2808,58 @@ def networkform_list():
         records=records,
         network_list=network_list,
         selected_item=selected_item
+    )
+
+# Route create csv Network List
+@app.route('/export_networkform_list')
+def export_networkform_list():
+    selected_item = request.args.get('item', default='')
+    network_list = []
+    records = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        # Get dropdown values
+        cursor.execute("SELECT DISTINCT item FROM network")
+        network_list = cursor.fetchall()
+
+        # Get table records
+        if selected_item:
+            cursor.execute("SELECT * FROM network WHERE item = %s", (selected_item,))
+        else:
+            cursor.execute("SELECT * FROM network")
+
+        records = cursor.fetchall()
+
+    except Exception as e:
+        print("Error fetching network items:", e)
+        records = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    # Prepare CSV data
+    csv_data = []
+    header = ["id", "item", "down_time", "up_time_percentage", "remarks"]
+    csv_data.append(header)
+
+    for r in records:
+        csv_data.append([
+            r['id'], r['item'], r['down_time'], r['up_time_percentage'], r['remarks']])
+
+    # Convert list to CSV string
+    output = ""
+    for row in csv_data:
+        output += ",".join(map(str, row)) + "\n"
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=network_list.csv"}
     )
 
 # Network delete
@@ -2303,6 +3037,54 @@ def pmisreport_list():
         records=records
     )
 
+# Route create csv PMIS List
+@app.route('/export_pmisreport_list', methods=['GET', 'POST'])
+def export_pmisreport_list():
+    records = []
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM pmis")
+        records = cursor.fetchall()
+
+        # Calculate percentages for each record with 2 decimal places
+        for r in records:
+            total_packages = r['total_packages'] or 0
+            monthly_progress = r['monthly_progress'] or 0
+            drone_video = r['drone_video'] or 0
+
+            r['progress_percentage'] = round((monthly_progress / total_packages * 100)) if total_packages > 0 else 0
+            r['drone_video_percentage'] = round((drone_video / total_packages * 100)) if total_packages > 0 else 0
+
+    except Exception as e:
+        print("Error fetching pmis items:", e)
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    # Prepare CSV data
+    csv_data = []
+    header = ["id", "total_packages", "monthly_progress", "progress_percentage", "drone_video", "drone_video_percentage"]
+    csv_data.append(header)
+
+    for r in records:
+        csv_data.append([
+            r['id'], r['total_packages'], r['monthly_progress'], r['progress_percentage'], r['drone_video'], r['drone_video_percentage']])
+
+    # Convert list to CSV string
+    output = ""
+    for row in csv_data:
+        output += ",".join(map(str, row)) + "\n"
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=pmis_list.csv"}
+    )
+
 # PMIS delete
 @app.route('/delete_pmisreport_list/<int:id>', methods=['GET', 'POST'])
 def delete_pmisreport_list(id):
@@ -2461,6 +3243,64 @@ def summarisereport_list():
         records=records  # for table
     )
 
+# Route create csv ummarize List
+@app.route('/export_summarisereport_list', methods=['GET', 'POST'])
+def export_summarisereport_list():
+    records = []
+    procurement_list = []
+    filter_procurement_activities = request.args.get('procurement_activities', default='')
+    total_available_hours = total_working_strength = total_hours_worked = 0
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT DISTINCT procurement_activities FROM summarize")
+        procurement_list = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching procurement activities:", e)
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+
+        if filter_procurement_activities:
+            cursor.execute("SELECT * FROM summarize WHERE procurement_activities = %s", (filter_procurement_activities,))
+        else:
+            cursor.execute("SELECT * FROM summarize")
+
+        records = cursor.fetchall()
+
+        if records:
+            total_available_hours = sum(int(r['available_hours']) for r in records if r['available_hours'])
+            total_working_strength = sum(int(r['working_strength']) for r in records if r['working_strength'])
+            total_hours_worked = sum(int(r['hours_worked']) for r in records if r['hours_worked'])
+    except Exception as e:
+        print("Error fetching summarize items:", e)
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+    # Prepare CSV data
+    csv_data = []
+    header = ["id", "procurement_activities", "current_month", "available_hours", "working_strength", "hours_worked"]
+    csv_data.append(header)
+
+    for r in records:
+        csv_data.append([
+            r['id'], r['procurement_activities'], r['current_month'], r['available_hours'], r['working_strength'], r['hours_worked']])
+
+    # Convert list to CSV string
+    output = ""
+    for row in csv_data:
+        output += ",".join(map(str, row)) + "\n"
+
+    return Response(
+        output,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=summarize_list.csv"}
+    )
 # Summarize delete
 @app.route('/delete_summarisereport_list/<int:id>', methods=['GET', 'POST'])
 def delete_summarisereport_list(id):

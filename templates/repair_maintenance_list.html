@@ -109,5 +109,10 @@
         </tr>
     </tbody>
 </table>
+<br>
+<a href="/export_repair_maintenance_list{% if selected_item %}?item_name={{ selected_item }}{% endif %}" 
+    class="btn btn-success export-btn">
+    <i class="fas fa-file-csv"></i> Export to CSV
+</a>
 </body>
 </html>
