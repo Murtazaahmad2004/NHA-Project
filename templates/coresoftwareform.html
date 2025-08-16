@@ -1,31 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Core Software Form</title>
-</head>
-<body>
-    <div class="container">
-            {% if error %}
-                <div class="alert alert-danger">{{ error }}</div>
-            {% endif %}
-            {% if success %}
-                <div class="alert alert-success">{{ success }}</div>
-            {% endif %}
-            
-        <form method="post" action="/coresoftwareform">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <title>Core Software Form</title>
+   </head>
+   <body>
+      <div class="container">
+         {% if error %}
+         <div class="alert alert-danger">{{ error }}</div>
+         {% endif %}
+         {% if success %}
+         <div class="alert alert-success">{{ success }}</div>
+         {% endif %}
+         <form method="post" action="/coresoftwareform">
             <h1>Core Software Form</h1>
             <label for="coresoftware">Core Software:</label>
             <input type="text" id="coresoftware" name="coresoftware" placeholder="Core Software Name" required>
-
             <label for="module">Module:</label>
             <input type="number" id="module" name="module" placeholder="Enter Module" required>
-
             <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
-</body>
+         </form>
+      </div>
+   </body>
 </html>

@@ -1,53 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store Items Form</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-<div class="container">
-    <h1>Store Items Form</h1>
-
-    {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
-    {% endif %}
-    {% if success %}
-        <div class="alert alert-success">{{ success }}</div>
-    {% endif %}
-
-    <form method="post" action="/store_item">
-
-        <label for="Items_Name">Select Item:</label>
-        <select id="Items_Name" name="Items_Name" class="form-control" required>
-            <option value="">Select an Item</option>
-            {% for item in items %}
-                <option value="{{ item['items_name'] }}">{{ item['items_name'] }}</option>
-            {% endfor %}
-        </select>
-
-        <label for="pending_demands">Pending Demands:</label>
-        <input type="text" id="pending_demands" name="pending_demands" class="form-control" placeholder="Pending Demands" required>
-
-        <label for="select_month">Select Month:</label>
-        <input type="month" id="select_month" name="select_month" class="form-control" placeholder="Select Month" required>
-
-        <label for="demands_curnt_month">Demands of Current Month:</label>
-        <input type="text" id="demands_curnt_month" name="demands_curnt_month" class="form-control" placeholder="Demands of Current Month" required>
-
-        <label for="selected_month">Selected Month:</label>
-        <input type="month" id="selected_month" name="selected_month" class="form-control" placeholder="Selected Month" required>
-
-        <label for="issued_cunt_month">Issued of Current Month:</label>
-        <input type="text" id="issued_cunt_month" name="issued_cunt_month" class="form-control" placeholder="Issued of Current Month" required>
-
-        <label for="total_hours_spend">Total Hours Spend:</label>
-        <input type="number" id="total_hours_spend" name="total_hours_spend" class="form-control" placeholder="Total Hours Spend" required>
-
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-</div>
-</body>
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Store Items Form</title>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+   </head>
+   <body>
+      <div class="container">
+         <h1>Store Items Form</h1>
+         {% if error %}
+         <div class="alert alert-danger">{{ error }}</div>
+         {% endif %}
+         {% if success %}
+         <div class="alert alert-success">{{ success }}</div>
+         {% endif %}
+         <form method="post" action="/store_item">
+            <label for="Items_Name">Item Name:</label>
+            <input type="text" id="Items_Name" name="Items_Name" class="form-control" placeholder="Enter Item Name">
+            <label for="pending_demands">Pending Demands:</label>
+            <input type="text" id="pending_demands" name="pending_demands" class="form-control" placeholder="Pending Demands" required>
+            <label for="previous_month">Previous Month:</label>
+            <input type="month" id="previous_month" name="previous_month" class="form-control" placeholder="Selected Month" required>
+            <label for="demands_previous_month">Demands of Previous Month:</label>
+            <input type="text" id="demands_previous_month" name="demands_previous_month" class="form-control" placeholder="Demands of Previous Month" required>
+            <label for="issued_previous_month">Issued of Previous Month:</label>
+            <input type="text" id="issued_previous_month" name="issued_previous_month" class="form-control" placeholder="Issued of Previous Month" required>
+            <label for="current_month">Current Month:</label>
+            <input type="month" id="current_month" name="current_month" class="form-control" placeholder="Select Month" required>
+            <label for="demands_curnt_month">Demands of Current Month:</label>
+            <input type="text" id="demands_curnt_month" name="demands_curnt_month" class="form-control" placeholder="Demands of Current Month" required>
+            <label for="issued_curnt_month">Issued of Current Month:</label>
+            <input type="text" id="issued_curnt_month" name="issued_curnt_month" class="form-control" placeholder="issued of Current Month" required>
+            <label for="total_hours_spend">Total Hours Spend:</label>
+            <input type="number" id="total_hours_spend" name="total_hours_spend" class="form-control" placeholder="Total Hours Spend" required>
+            <button type="submit" class="btn btn-primary">Submit</button>
+         </form>
+      </div>
+   </body>
 </html>

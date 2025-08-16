@@ -1,36 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>PMIS Data Form</title>
-</head>
-<body>
-    <div class="container">
-        <form method="post" action="/pmisreport">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <title>PMIS Data Form</title>
+   </head>
+   <body>
+      <div class="container">
+         <form method="post" action="/pmisreport">
             <h1>PMIS Data Form</h1>
-            
             {% if error %}
-                <div class="alert alert-danger">{{ error }}</div>
+            <div class="alert alert-danger">{{ error }}</div>
             {% endif %}
             {% if success %}
-                <div class="alert alert-success">{{ success }}</div>
+            <div class="alert alert-success">{{ success }}</div>
             {% endif %}
-
             <label for="totalpackages">Total Packages:</label>
             <input type="number" id="totalpackages" name="totalpackages" placeholder="Enter Total Packages" required>
-          
             <label for="monthlyprogress">Monthly Progress:</label>
             <input type="number" name="monthlyprogress" id="monthlyprogress" placeholder="Enter Monthly Progress" required>
-          
             <label for="dronevideo">Drone Video:</label>
             <input type="number" name="dronevideo" id="dronevideo" placeholder="Enter Drone Video" required>
-          
             <button type="submit" class="btn btn-primary">Submit</button>
-
-        </form>
-    </div>
-</body>
+         </form>
+      </div>
+   </body>
 </html>

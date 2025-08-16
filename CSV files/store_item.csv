@@ -1,2 +1,3 @@
-id,items_name,pending_dmands,select_month,demands_of_current_month,selected_month,issued_of_current_month,total_hours_spend
-2,Tonners,96,2025-05,24,2025-05,29,35
+id,items_name,pending_dmands,previous_month,demands_of_previous_month,issued_of_previous_month,current_month,demands_of_current_month,issued_of_current_month,total_hours_spend
+3,Network Cables,96,2025-06,26,70,2025-07,24,20,77
+4,Tonnores,10,2024-06,5,5,2024-07,2,5,45

@@ -1,5 +1,7 @@
 id,items_name,quantity,percentage_of_item
-26,LCDs,10,25
-27,Servers,10,25
-28,Tonners,10,25
-29,Network Cable,10,25
+26,LEDs,10,10
+27,Servers,10,10
+28,Tonners,10,10
+29,Network Cable,10,10
+32,Mobiles,20,20
+36,PCs,40,40

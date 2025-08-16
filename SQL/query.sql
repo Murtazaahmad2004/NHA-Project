@@ -57,9 +57,11 @@ CREATE TABLE store_items (
 	id INT AUTO_INCREMENT PRIMARY KEY,
     items_name varchar(255),
     pending_dmands varchar(255),
-    select_month int,
-    demands_of_current_month int,
-    selected_month int,
+    previous_month TEXT, 
+    demands_of_previous_month int,
+    issued_of_previous_month int, 
+    current_month TEXT,
+    demands_of_current_month int, 
     issued_of_current_month int,
     total_hours_spend int
 ); 

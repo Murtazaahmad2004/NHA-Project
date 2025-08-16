@@ -1,33 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Item Form</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='main.js') }}" defer></script>
-</head>
-<body>
-    <div class="container">
-        <h1>Edit Item Form</h1>
-        <form method="post" action="{{ url_for('edit_item', id=record['id']) }}">
-
-            <select name="itemname" id="itemname" class="form-control">
-                {% for item in items %}
-                    <option value="{{ item['items_name'] }}"
-                        {% if item['items_name'] == record['items_name'] %}selected{% endif %}>
-                        {{ item['items_name'] }}
-                    </option>
-                {% endfor %}
-            </select>
-            
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Edit Item Form</title>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+   </head>
+   <body>
+      <div class="container">
+         <h1>Edit Item Form</h1>
+         <form method="post" action="{{ url_for('edit_item', id=record['id']) }}">
+            <label for="itemname">Item Name:</label>
+            <input type="text" id="itemname" name="itemname" value="{{ record['items_name']}}" placeholder="Enter Item Name" required>
             <input type="number" id="quantity" name="quantity" value="{{ record['quantity']}}" required>
-
             <button type="submit" class="btn4 btn-primary">Update</button>
             <a href="{{ url_for('item_list') }}" class="btn3 btn-danger">Cancel</a>
-        </form>
-        <br>
-    </div>
-</body>
+         </form>
+         <br>
+      </div>
+   </body>
 </html>

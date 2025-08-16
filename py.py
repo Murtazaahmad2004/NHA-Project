@@ -1,3 +1,4 @@
+import datetime
 from flask import Flask, Response, flash, redirect, render_template, request, url_for
 import mysql.connector
 from flask_cors import CORS
@@ -629,17 +630,6 @@ def edit_item(id):
 def procrument_form():
     error = None
     success = None
-    items = []
-
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT id, items_name FROM item")
-        items = cursor.fetchall()
-        cursor.close()
-    except Exception as e:
-        error = f"Error fetching items: {e}"
-        return render_template('procrument_form.html', items=[], error=error, success=success)
 
     if request.method == 'POST':
         item = request.form.get('item')
@@ -661,7 +651,7 @@ def procrument_form():
             cursor.close()
             conn.close()
 
-    return render_template('procrument_form.html', items=items, error=error, success=success)
+    return render_template('procrument_form.html', error=error, success=success)
 
 # Procurement item list route
 @app.route('/procurement_item_list')
@@ -814,17 +804,6 @@ def edit_procrument(id):
 def repair_form():
     error = None
     success = None
-    items = []
-
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT id, items_name FROM item")
-        items = cursor.fetchall()
-        cursor.close()
-    except Exception as e:
-        error = f"Error fetching items: {e}"
-        return render_template('repair_maintenance.html', items=[], error=error, success=success)
 
     if request.method == 'POST':
         itemlist = request.form.get('itemlist')
@@ -855,7 +834,7 @@ def repair_form():
             total_unit_repaired_external = unit
         except ValueError:
             error = "⚠️ Invalid numeric values."
-            return render_template('repair_maintenance.html', items=items, error=error, success=success)
+            return render_template('repair_maintenance.html', error=error, success=success)
 
         try:
             cursor.execute("""
@@ -877,7 +856,7 @@ def repair_form():
             cursor.close()
             conn.close()
 
-    return render_template('repair_maintenance.html', items=items, error=error, success=success)
+    return render_template('repair_maintenance.html', error=error, success=success)
 
 # Repair and Maintenance item list route
 @app.route('/repair_maintenance_list')
@@ -1118,14 +1097,6 @@ def edit__repair_maintenance(id):
 def complaints_form():
     error = None
     success = None
-
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
-        cursor.close()
-    except Exception as e:
-        error = f"Not Found: {e}"
-        return render_template('complaints_form.html', error=error, success=success)
 
     if request.method == 'POST':
         # Get form data
@@ -1388,26 +1359,23 @@ def edit_complaints_form(id):
 def store_item():
     success = None
     error = None
-    items = []
-    
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT id, items_name FROM item")
-        items = cursor.fetchall()
-        cursor.close()
-    except Exception as e:
-        error = f"Error fetching items: {e}"
-        return render_template('store_item.html', items=[], error=error, success=success)
     
     if request.method == 'POST':
         Items_Name = request.form.get('Items_Name')
         pending_demands = request.form.get('pending_demands')
-        select_month = request.form.get('select_month')
+        previous_month = request.form.get('previous_month')
+        demands_previous_month = request.form.get('demands_previous_month')
+        issued_previous_month = request.form.get('issued_previous_month')
+        current_month = request.form.get('current_month')
         demands_curnt_month = request.form.get('demands_curnt_month')
-        selected_month = request.form.get('selected_month')
-        issued_cunt_month = request.form.get('issued_cunt_month')
+        issued_curnt_month = request.form.get('issued_curnt_month')
         total_hours_spend = request.form.get('total_hours_spend')
+
+        # Convert month input to MySQL DATE format
+        # if previous_month:
+        #     previous_month += "-01"
+        # if current_month:
+        #     current_month += "-01"
 
         try:
             conn = mysql.connector.connect(**db_config)
@@ -1416,19 +1384,23 @@ def store_item():
                 INSERT INTO store_items (
                     items_name, 
                     pending_dmands, 
-                    select_month, 
+                    previous_month, 
+                    demands_of_previous_month,
+                    issued_of_previous_month, 
+                    current_month,
                     demands_of_current_month, 
-                    selected_month, 
                     issued_of_current_month, 
                     total_hours_spend
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """,(
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
                 Items_Name,
                 pending_demands,
-                select_month,
+                previous_month,
+                demands_previous_month,
+                issued_previous_month,
+                current_month,
                 demands_curnt_month,
-                selected_month,
-                issued_cunt_month,
+                issued_curnt_month,
                 total_hours_spend
             ))
             conn.commit()
@@ -1440,7 +1412,7 @@ def store_item():
                 cursor.close()
             if conn:
                 conn.close()
-    return render_template('store_item.html', items=items, success=success, error=error)
+    return render_template('store_item.html', success=success, error=error)
 
 # store item list route
 @app.route('/store_item_list', methods=['GET'])
@@ -1452,7 +1424,7 @@ def store_item_list():
         cursor = conn.cursor(dictionary=True)
 
         # Fetch items from item table
-        cursor.execute("SELECT id, items_name FROM item")
+        cursor.execute("SELECT id, items_name FROM store_items")
         items = cursor.fetchall()
 
         # Filter store_items based on selected item_name
@@ -1508,14 +1480,14 @@ def export_store_item_list():
     
     # Prepare CSV data
     csv_data = []
-    header = ["id", "items_name", "pending_dmands", "select_month", "demands_of_current_month", 
-              "selected_month", "issued_of_current_month", "total_hours_spend"]
+    header = ["id", "items_name", "pending_dmands", "previous_month", "demands_of_previous_month", 
+              "issued_of_previous_month", "current_month", "demands_of_current_month", "issued_of_current_month", "total_hours_spend"]
     csv_data.append(header)
 
     for r in records:
         csv_data.append([
-            r['id'], r['items_name'], r['pending_dmands'], r['select_month'], r['demands_of_current_month'], 
-            r['selected_month'], r['issued_of_current_month'], r['total_hours_spend']
+            r['id'], r['items_name'], r['pending_dmands'], r['previous_month'], r['demands_of_previous_month'], 
+            r['issued_of_previous_month'], r['current_month'], r['demands_of_current_month'], r['issued_of_current_month'], r['total_hours_spend']
         ])
 
     # Convert list to CSV string
@@ -1553,6 +1525,7 @@ def edit_store_item_list(id):
     success = None
     items = []
 
+    # Fetch item list for dropdown (if needed)
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
@@ -1562,54 +1535,65 @@ def edit_store_item_list(id):
     except Exception as e:
         error = f"Error fetching items: {e}"
         return render_template('edit_store_item_list.html', items=[], error=error, success=success)
-    
+
     if request.method == 'POST':
+        # Get form data
         Items_Name = request.form.get('Items_Name')
         pending_demands = request.form.get('pending_demands')
-        select_month = request.form.get('select_month')
+        previous_month = request.form.get('previous_month')  # e.g., 2025-08
+        demands_previous_month = request.form.get('demands_previous_month')
+        issued_previous_month = request.form.get('issued_previous_month')
+        current_month = request.form.get('current_month')    # e.g., 2025-09
         demands_curnt_month = request.form.get('demands_curnt_month')
-        selected_month = request.form.get('selected_month')
-        issued_cunt_month = request.form.get('issued_cunt_month')
+        issued_curnt_month = request.form.get('issued_curnt_month')
         total_hours_spend = request.form.get('total_hours_spend')
-        
+
         try:
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
+
+            # ✅ Save YYYY-MM directly to VARCHAR(7) columns
             cursor.execute("""
                 UPDATE store_items SET
-                   items_name = %s, 
-                    pending_dmands = %s, 
-                    select_month = %s, 
-                    demands_of_current_month = %s, 
-                    selected_month = %s, 
-                    issued_of_current_month = %s, 
+                    items_name = %s,
+                    pending_dmands = %s,
+                    previous_month = %s,
+                    demands_of_previous_month = %s,
+                    issued_of_previous_month = %s,
+                    current_month = %s,
+                    demands_of_current_month = %s,
+                    issued_of_current_month = %s,
                     total_hours_spend = %s
                 WHERE id = %s
             """, (
                 Items_Name,
                 pending_demands,
-                select_month,
+                previous_month,
+                demands_previous_month,
+                issued_previous_month,
+                current_month,
                 demands_curnt_month,
-                selected_month,
-                issued_cunt_month,
+                issued_curnt_month,
                 total_hours_spend,
                 id
             ))
+
             conn.commit()
-            success = "✅ Store items data updated successfully."
+            success = "✅ Store item updated successfully."
+
         except Exception as e:
             error = f"❌ Failed to update data: {e}"
+
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
 
-        # ✅ Return back to the list view or confirmation page
-        return redirect(url_for('store_item_list', error=error, success=success))  # or render_template with success message
+        return redirect(url_for('store_item_list', error=error, success=success))
 
     else:
-        # ✅ GET request: fetch existing data for the form
+        # GET request: fetch record for editing
         try:
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor(dictionary=True)
@@ -1618,12 +1602,19 @@ def edit_store_item_list(id):
 
             if record is None:
                 flash("❌ Record not found!", 'danger')
-                return redirect(url_for('edit_store_item_list'))
+                return redirect(url_for('store_item_list'))
+
+            # ✅ Convert DATE or DATETIME to YYYY-MM for input type="month"
+            if isinstance(record['previous_month'], datetime.date):
+                record['previous_month'] = record['previous_month'].strftime('%Y-%m')
+            if isinstance(record['current_month'], datetime.date):
+                record['current_month'] = record['current_month'].strftime('%Y-%m')
 
         except Exception as e:
-            flash("❌ Error loading complaint record.", 'danger')
+            flash("❌ Error loading record.", 'danger')
             print("Fetch error:", e)
-            return redirect(url_for('edit_store_item_list'))
+            return redirect(url_for('store_item_list'))
+
         finally:
             if cursor:
                 cursor.close()
@@ -1685,7 +1676,6 @@ def uploding_form():
 def uploding_list():
     previous_month = request.args.get('previous_month', default='')
     conn = None
-    cursor = None
     records = []
     total_previous_month_quantity = 0
     total_current_month_quantity = 0
@@ -1694,31 +1684,38 @@ def uploding_list():
 
     try:
         conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor(dictionary=True)
 
-        # For dropdown
-        cursor.execute("SELECT DISTINCT previous_month FROM uploding")
-        months = cursor.fetchall()
+        # Cursor for dropdown
+        cursor1 = conn.cursor(dictionary=True)
+        cursor1.execute("SELECT DISTINCT previous_month FROM uploding")
+        months = cursor1.fetchall()
+        cursor1.close()
 
-        # Filtered or full list
+        # Cursor for records
+        cursor2 = conn.cursor(dictionary=True)
         if previous_month:
-            cursor.execute("SELECT * FROM uploding WHERE previous_month = %s", (previous_month,))
+            cursor2.execute("SELECT * FROM uploding WHERE previous_month = %s", (previous_month,))
         else:
-            cursor.execute("SELECT * FROM uploding")
-            records = cursor.fetchall()
+            cursor2.execute("SELECT * FROM uploding")
+        records = cursor2.fetchall()
+        cursor2.close()
 
         # Totals
-        total_previous_month_quantity = sum(int(r['previous_month_quantity']) for r in records if r['previous_month_quantity'])
-        total_current_month_quantity = sum(int(r['current_month_quantity']) for r in records if r['current_month_quantity'])
-        total_hours_spend = sum(int(r['hoursspend']) for r in records if r['hoursspend'])
+        total_previous_month_quantity = sum(
+            int(r['previous_month_quantity']) for r in records if r['previous_month_quantity']
+        )
+        total_current_month_quantity = sum(
+            int(r['current_month_quantity']) for r in records if r['current_month_quantity']
+        )
+        total_hours_spend = sum(
+            int(r['hoursspend']) for r in records if r['hoursspend']
+        )
 
     except Exception as e:
         print("Error fetching uploading items:", e)
         records = []
 
     finally:
-        if cursor:
-            cursor.close()
         if conn:
             conn.close()
 

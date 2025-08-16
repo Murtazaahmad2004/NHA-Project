@@ -1,47 +1,38 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Edit Repair Maintenance Form</title>
-</head>
-<body>
-    <div class="container">
-        <h1>Edit Repair Maintenance Form</h1>
-
-        <!-- Display messages -->
-        {% if success %}
-            <div class="alert alert-success">{{ success }}</div>
-        {% endif %}
-        {% if error %}
-            <div class="alert alert-danger">{{ error }}</div>
-        {% endif %}
-
-        <form method="post" action="{{ url_for('edit__repair_maintenance', id=record['id']) }}">
-
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <title>Edit Repair Maintenance Form</title>
+   </head>
+   <body>
+      <div class="container">
+         <h1>Edit Repair Maintenance Form</h1>
+         <!-- Display messages -->
+         {% if success %}
+         <div class="alert alert-success">{{ success }}</div>
+         {% endif %}
+         {% if error %}
+         <div class="alert alert-danger">{{ error }}</div>
+         {% endif %}
+         <form method="post" action="{{ url_for('edit__repair_maintenance', id=record['id']) }}">
             <label for="itemlist">Items</label>
             <input type="text" id="itemlist" name="itemlist" value="{{ record['item_name'] }}" placeholder="Enter Item Name" required>
-
             <label for="units">Units In-House:</label>
             <input type="number" id="units" name="units" value="{{ record['unit_in_house'] }}" placeholder="Enter units" required>
-
             <label for="hoursspend">Hours Spend (In-House):</label>
             <input type="number" id="hoursspend" name="hoursspend" value="{{ record['hours_spend_in_house'] }}" placeholder="Enter Hours Spend" required>
-            
             <label for="unit">Units Externals:</label>
             <input type="number" id="unit" name="unit" value="{{ record['units_externals'] }}" placeholder="Enter Units" required>
-
             <label for="days">Days (Externals):</label>
             <input type="number" id="days" name="days" value="{{ record['days_externals'] }}" placeholder="Enter Spend Days" required>
-
             <label for="expenditure">Expenditure:</label>
             <input type="number" id="expenditure" name="expenditure" value="{{ record['expenditure'] }}" placeholder="Enter Expenditure" required>
-
             <button type="submit" class="btn4 btn-primary">Update</button>
             <a href="{{ url_for('repair_maintenance_list') }}" class="btn3 btn-danger">Cancel</a>
-        </form>
-    </div>
-</body>
+         </form>
+      </div>
+   </body>
 </html>

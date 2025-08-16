@@ -1,2 +1,5 @@
 id,item,down_time,up_time_percentage,remarks
 1,Internet Up time,0,100,nill
+3,Network Downtime,0,100,nill
+4,Website Downtime,10,90,nill
+5,Server Downtime,20,80,nill

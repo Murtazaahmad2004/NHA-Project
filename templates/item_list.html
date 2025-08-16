@@ -1,87 +1,89 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='main.js') }}" defer></script>
-    <title>Items Data</title>
-</head>
-<body>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-            {{ message }}
-        </div>
-        {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <h2>Items Records</h2>
-
-    <div class="items_name">
-        <form method="GET" action="/item_list">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <meta http-equiv="Pragma" content="no-cache" />
+      <meta http-equiv="Expires" content="0" />
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+      <title>Items Data</title>
+   </head>
+   <body>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">
+         {{ message }}
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+      <h2>Items Records</h2>
+      <div class="items_name">
+         <form method="GET" action="/item_list">
             <label for="items_name">Filter by Item Name:</label>
             <select id="items_name" name="items_name" class="form-control" required>
-                <option value="">Select item Name</option>
-                {% for record in records %}
-                    <option value="{{ record['items_name'] }}" {% if selected_item == record['items_name'] %}selected{% endif %}>
-                        {{ record['items_name'] }}
-                    </option>
-                {% endfor %}
+               <option value="">Select item Name</option>
+               {% for record in records %}
+               <option value="{{ record['items_name'] }}" {% if selected_item == record['items_name'] %}selected{% endif %}>
+               {{ record['items_name'] }}
+               </option>
+               {% endfor %}
             </select>
             <button type="submit" class="btn1 btn-primary">Filter</button>
-        </form>
-    </div>
-
-    <button class="btnn btn-primary"><a href="/head_form">Add New Item</a></button>
-
-    <table class="table2" border="1">
-        <tr>
-            <th>S. #</th>
-            <th>Item Name</th>
-            <th>Quantity</th>
-            <th>Percentage of an Item (%)</th>
-            <th>Actions</th>
-        </tr>
-        {% for record in records %}
-        <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ record['items_name'] }}</td>
-            <td>{{ record['quantity']}}</td>
-            <td>{{ record['percentage_of_item']}}%</td>
-             <td>
-                <div class="action-buttons">
-                    <a href="/edit_item/{{ record['id'] }}" class="icon-button edit" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <form action="{{ url_for('delete_item', id=record['id']) }}" method="POST" onsubmit="return confirmDelete();">
+         </form>
+      </div>
+      <button class="btnn btn-primary"><a href="/head_form">Add New Item</a></button>
+      <table id="budgetTable" class="table2" border="1">
+         <thead>
+            <tr>
+               <th>S. #</th>
+               <th>Item Name</th>
+               <th>Quantity</th>
+               <th>Percentage of an Item (%)</th>
+               <th>Actions</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for record in records %}
+            <tr>
+               <td>{{ loop.index }}</td>
+               <td>{{ record['items_name'] }}</td>
+               <td>{{ record['quantity']}}</td>
+               <td>{{ record['percentage_of_item']}}%</td>
+               <td>
+                  <div class="action-buttons">
+                     <a href="/edit_item/{{ record['id'] }}" class="icon-button edit" title="Edit">
+                     <i class="fas fa-edit"></i>
+                     </a>
+                     <form action="{{ url_for('delete_item', id=record['id']) }}" method="POST" onsubmit="return confirmDelete();">
                         <button type="submit" class="icon-button delete" title="Delete">
-                            <i class="fas fa-trash-alt"></i>
+                        <i class="fas fa-trash-alt"></i>
                         </button>
-                    </form>
-                </div>
-            </td>
-        </tr>
-        {% else %}
-        <tr>
-            <td colspan="3">No records found.</td>
-        </tr>
-        {% endfor %}
-        <tr>
-            <td colspan="2"><strong>Total Quantity</strong></td>
-            <td colspan="1"><strong>{{ total_quantity }}</strong></td>
-        </tr>
-    </table>
-    <br>
-    <a href="/export_item_list" class="btn btn-success export-btn">
-        <i class="fas fa-file-csv"></i> Export to CSV
-    </a>
-</body>
+                     </form>
+                  </div>
+               </td>
+            </tr>
+            {% else %}
+            <tr>
+               <td colspan="3">No records found.</td>
+            </tr>
+            {% endfor %}
+            <tr>
+               <td colspan="2"><strong>Total Quantity</strong></td>
+               <td colspan="1"><strong>{{ total_quantity }}</strong></td>
+            </tr>
+         </tbody>
+      </table>
+      <!-- Include Pagination -->
+      {% include "pagination.html" %}
+      <br>
+      <a href="/export_item_list" class="btn btn-success export-btn">
+      <i class="fas fa-file-csv"></i> Export to CSV
+      </a>
+   </body>
 </html>

@@ -1,84 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='main.js') }}" defer></script>
-    <title>Complaints Data</title>
-</head>
-<body>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-            {{ message }}
-        </div>
-        {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <h2>Complaints Records</h2>
-    <h1><p>MIS Section has provided Network & IT related Support and resolved Complaints in the month of June, 2025: </p></h1>
-
-    <button class="btnn btn-primary"><a href="/complaints_form">Add New Complaint</a></button>
-
-<table class="table3" border="1">
-    <thead>
-        <tr>
-            <th rowspan="2">S. #</th>
-            <th colspan="3">Network Related Issues</th>
-            <th colspan="3">IT Related Issues</th>
-            <th rowspan="2">Total Hours Spent</th>
-            <th rowspan="2">Grand Total Calls</th>
-            <th rowspan="2">Action</th>
-        </tr>
-        <tr>
-            <th>Total Calls</th>
-            <th>Resolved</th>
-            <th>Pending</th>
-            <th>Total Calls</th>
-            <th>Resolved</th>
-            <th>Pending</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for record in records %}
-        <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ record.total_calls_network }}</td>
-            <td>{{ record.network_resolved_complaints }}</td>
-            <td>{{ record.network_pending_complaints }}</td>
-            <td>{{ record.total_calls_it }}</td>
-            <td>{{ record.it_resolved_complaints }}</td>
-            <td>{{ record.it_pending_complaints }}</td>
-            <td>{{ record.total_hours_spend }}</td>
-            <td>{{ record.grand_total_calls }}</td>
-            <td>
-                <div class="action-buttons">
-                    <a href="/edit_complaints_form/{{ record['id'] }}" class="icon-button edit" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <form action="/delete_complaints_form/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <meta http-equiv="Pragma" content="no-cache" />
+      <meta http-equiv="Expires" content="0" />
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+      <title>Complaints Data</title>
+   </head>
+   <body>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">
+         {{ message }}
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+      <h2>Complaints Records</h2>
+      <h1>
+         <p>MIS Section has provided Network & IT related Support and resolved Complaints in the month of June, 2025: </p>
+      </h1>
+      <button class="btnn btn-primary"><a href="/complaints_form">Add New Complaint</a></button>
+      <table id="budgetTable" class="table3" border="1">
+         <thead>
+            <tr>
+               <th rowspan="2">S. #</th>
+               <th colspan="3">Network Related Issues</th>
+               <th colspan="3">IT Related Issues</th>
+               <th rowspan="2">Total Hours Spent</th>
+               <th rowspan="2">Grand Total Calls</th>
+               <th rowspan="2">Action</th>
+            </tr>
+            <tr>
+               <th>Total Calls</th>
+               <th>Resolved</th>
+               <th>Pending</th>
+               <th>Total Calls</th>
+               <th>Resolved</th>
+               <th>Pending</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for record in records %}
+            <tr>
+               <td>{{ loop.index }}</td>
+               <td>{{ record.total_calls_network }}</td>
+               <td>{{ record.network_resolved_complaints }}</td>
+               <td>{{ record.network_pending_complaints }}</td>
+               <td>{{ record.total_calls_it }}</td>
+               <td>{{ record.it_resolved_complaints }}</td>
+               <td>{{ record.it_pending_complaints }}</td>
+               <td>{{ record.total_hours_spend }}</td>
+               <td>{{ record.grand_total_calls }}</td>
+               <td>
+                  <div class="action-buttons">
+                     <a href="/edit_complaints_form/{{ record['id'] }}" class="icon-button edit" title="Edit">
+                     <i class="fas fa-edit"></i>
+                     </a>
+                     <form action="/delete_complaints_form/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
                         <button type="submit" class="icon-button delete" title="Delete">
-                            <i class="fas fa-trash-alt"></i>
+                        <i class="fas fa-trash-alt"></i>
                         </button>
-                    </form>
-                </div>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
-<br>
-    <a href="/export_complaints_list" 
-        class="btn btn-success export-btn">
-        <i class="fas fa-file-csv"></i> Export to CSV
-    </a>
-</body>
+                     </form>
+                  </div>
+               </td>
+            </tr>
+            {% endfor %}
+         </tbody>
+      </table>
+      <!-- Include Pagination -->
+      {% include "pagination.html" %}
+      <br>
+      <a href="/export_complaints_list" 
+         class="btn btn-success export-btn">
+      <i class="fas fa-file-csv"></i> Export to CSV
+      </a>
+   </body>
 </html>

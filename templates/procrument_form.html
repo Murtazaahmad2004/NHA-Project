@@ -1,41 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">  
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Procurent Form</title>
-</head>
-<body>
-    <div class="container">
-        <h1>Procurent Form</h1>
-
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <title>Procurement Form</title>
+   </head>
+   <body>
+      <div class="container">
+         <h1>Procurement Form</h1>
          <!-- Display messages -->
-    {% if success %}
-        <div class="alert alert-success">{{ success }}</div>
-    {% endif %}
-    {% if error %}
-        <div class="alert alert-danger">{{ error }}</div>
-    {% endif %}
-
-    <form method="POST" action="/procrument_form">
-        <label for="item">Select Item:</label>
-        <select id="item" name="item" class="form-control" required>
-            <option value="">Select an Item</option>
-            {% for item in items %}
-                <option value="{{ item['items_name'] }}">{{ item['items_name'] }}</option>
-            {% endfor %}
-        </select>
-
-        <label for="units">Units:</label>
-        <input type="text" id="units" name="units" class="form-control" placeholder="Enter units" required>
-
-        <label for="expenditure">Expenditure:</label>
-        <input type="number" id="expenditure" name="expenditure" class="form-control" placeholder="Enter expenditure" required>
-
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-    </div>
-</body>
+         {% if success %}
+         <div class="alert alert-success">{{ success }}</div>
+         {% endif %}
+         {% if error %}
+         <div class="alert alert-danger">{{ error }}</div>
+         {% endif %}
+         <form method="POST" action="/procrument_form">
+            <label for="item">Item Name:</label>
+            <input type="text" id="item" name="item" class="form-control" placeholder="Enter Item Name">
+            <label for="units">Units:</label>
+            <input type="text" id="units" name="units" class="form-control" placeholder="Enter units" required>
+            <label for="expenditure">Expenditure:</label>
+            <input type="number" id="expenditure" name="expenditure" class="form-control" placeholder="Enter expenditure" required>
+            <button type="submit" class="btn btn-primary">Submit</button>
+         </form>
+      </div>
+   </body>
 </html>

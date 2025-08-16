@@ -1,47 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complaints Form</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-<div class="container">
-    <h1>Complaints Form</h1>
-
-        {% if error %}
-            <div class="alert alert-danger">{{ error }}</div>
-        {% endif %}
-        {% if success %}
-            <div class="alert alert-success">{{ success }}</div>
-        {% endif %}
-
-    <form method="post" action="/complaints_form">
-        <div class="network">
-            <label for="network_related">Network Related Issue:</label>
-        </div>
-
-        <label for="network_resolved">Network Resolved Complaints:</label>
-        <input type="text" id="network_resolved" name="network_resolved" class="form-control" placeholder="Network Resolved Complaints" required>
-
-        <label for="network_pending">Network Pending Complaints:</label>
-        <input type="text" id="network_pending" name="network_pending" class="form-control" placeholder="Network Pending Complaints" required>
-
-        <div class="network">
-            <label for="it_related">IT Related Issue:</label>
-        </div>
-        <label for="it_resolved">IT Resolved Complaints:</label>
-        <input type="text" id="it_resolved" name="it_resolved" class="form-control" placeholder="IT Resolved Complaints" required>
-
-        <label for="it_pending">IT Pending Complaints:</label>
-        <input type="text" id="it_pending" name="it_pending" class="form-control" placeholder="IT Pending Complaints" required>
-
-        <label for="hours_spend">Total Hours Spend:</label>
-        <input type="number" id="hours_spend" name="hours_spend" class="form-control" placeholder="Hours Spend" required>
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-</div>
-</body>
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Complaints Form</title>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+   </head>
+   <body>
+      <div class="container">
+         <h1>Complaints Form</h1>
+         {% if error %}
+         <div class="alert alert-danger">{{ error }}</div>
+         {% endif %}
+         {% if success %}
+         <div class="alert alert-success">{{ success }}</div>
+         {% endif %}
+         <form method="post" action="/complaints_form">
+            <div class="network">
+               <label for="network_related">Network Related Issue:</label>
+            </div>
+            <label for="network_resolved">Network Resolved Complaints:</label>
+            <input type="text" id="network_resolved" name="network_resolved" class="form-control" placeholder="Network Resolved Complaints" required>
+            <label for="network_pending">Network Pending Complaints:</label>
+            <input type="text" id="network_pending" name="network_pending" class="form-control" placeholder="Network Pending Complaints" required>
+            <div class="network">
+               <label for="it_related">IT Related Issue:</label>
+            </div>
+            <label for="it_resolved">IT Resolved Complaints:</label>
+            <input type="text" id="it_resolved" name="it_resolved" class="form-control" placeholder="IT Resolved Complaints" required>
+            <label for="it_pending">IT Pending Complaints:</label>
+            <input type="text" id="it_pending" name="it_pending" class="form-control" placeholder="IT Pending Complaints" required>
+            <label for="hours_spend">Total Hours Spend:</label>
+            <input type="number" id="hours_spend" name="hours_spend" class="form-control" placeholder="Hours Spend" required>
+            <button type="submit" class="btn btn-primary">Submit</button>
+         </form>
+      </div>
+   </body>
 </html>

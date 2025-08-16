@@ -1,3 +1,5 @@
 ﻿"id","software_name","description","total_complaints","resolved"
-"3","Land","•	Route assigned to project Karakoram Highway (N-35)   •	Route assigned to project  Khushal Guar Project (N-80)","2","2"
-"7","HRMIS","•	17x user credential updated fro salary slip and ICP Chart as per user requirements   •	7x Permission name change of all dashboards as per direction of Director MIS.","7","7"
+"3","Land","Route assigned to project Karakoram Highway (N-35), Route assigned to project  Khushal Guar Project (N-80)","2","2"
+"7","HRMIS","17x user credential updated fro salary slip and ICP Chart as per user requirements, 7x Permission name change of all dashboards as per direction of Director MIS.","7","7"
+"8","PMIS","Script updated for the month of June consolidated monthly report.","8","8"
+"9","Server Backup","Database Server, Application Server, Recruiment Server, NHFIS Server","2","2"

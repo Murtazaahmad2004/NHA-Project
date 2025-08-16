@@ -536,3 +536,15 @@ h2 {
 .action-buttons form {
     margin: 0;
 }
+
+.pagination { margin-top: 15px; }
+.pagination button {
+    padding: 5px 10px;
+    margin: 2px;
+    cursor: pointer;
+}
+
+.active {
+    background-color: #007bff;
+    color: white;
+}

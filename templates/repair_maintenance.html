@@ -1,51 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Repair Maintenance Form</title>
-</head>
-<body>
-    <div class="container">
-        <h1>Repair Maintenance Form</h1>
-
-        <!-- Display messages -->
-        {% if success %}
-            <div class="alert alert-success">{{ success }}</div>
-        {% endif %}
-        {% if error %}
-            <div class="alert alert-danger">{{ error }}</div>
-        {% endif %}
-
-        <form method="post" action="/repair_maintenance">
-
-            <label for="itemlist">Items</label>
-            <select name="itemlist" id="itemlist">
-                <option value="">Select an Item</option>
-                {% for item in items %}
-                    <option value="{{ item['items_name'] }}">{{ item['items_name'] }}</option>
-                {% endfor %}
-            </select>
-
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <title>Repair Maintenance Form</title>
+   </head>
+   <body>
+      <div class="container">
+         <h1>Repair Maintenance Form</h1>
+         <!-- Display messages -->
+         {% if success %}
+         <div class="alert alert-success">{{ success }}</div>
+         {% endif %}
+         {% if error %}
+         <div class="alert alert-danger">{{ error }}</div>
+         {% endif %}
+         <form method="post" action="/repair_maintenance">
+            <label for="itemlist">Items Name</label>
+            <input type="text" id="itemlist" name="itemlist" class="form-control" placeholder="Enter Item Name">
             <label for="units">Units In-House:</label>
             <input type="number" id="units" name="units" placeholder="Enter units" required>
-
             <label for="hoursspend">Hours Spend (In-House):</label>
             <input type="number" id="hoursspend" name="hoursspend" placeholder="Enter Hours Spend" required>
-            
             <label for="unit">Units Externals:</label>
             <input type="number" id="unit" name="unit" placeholder="Enter Units" required>
-
             <label for="days">Days (Externals):</label>
             <input type="number" id="days" name="days" placeholder="Enter Spend Days" required>
-
             <label for="expenditure">Expenditure:</label>
             <input type="number" id="expenditure" name="expenditure" placeholder="Enter Expenditure" required>
-
             <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
-</body>
+         </form>
+      </div>
+   </body>
 </html>

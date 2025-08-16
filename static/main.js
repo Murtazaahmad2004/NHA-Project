@@ -99,3 +99,89 @@ row.style.display = (index >= start_index && index < end_index) ? '' : 'none';
 }
 
 DisplayRecords();
+
+const data = [];
+    for (let i = 1; i <= 50; i++) {
+    data.push(`Item ${i}`);
+}
+
+let currentPage = 1;
+const rowsPerPage = 5;
+
+function displayList(items, wrapper, rowsPerPage, page) {
+    wrapper.innerHTML = "";
+    page--;
+
+    let start = rowsPerPage * page;
+    let end = start + rowsPerPage;
+    let paginatedItems = items.slice(start, end);
+
+for (let i = 0; i < paginatedItems.length; i++) {
+    let item = paginatedItems[i];
+    let li = document.createElement("li");
+    li.innerText = item;
+    wrapper.appendChild(li);
+}
+}
+
+function setupTablePagination(tableId, paginationId, rowsPerPage) {
+    const table = document.getElementById(tableId);
+    const tbody = table.querySelector("tbody");
+    const rows = tbody.querySelectorAll("tr");
+    const pagination = document.getElementById(paginationId);
+
+    let currentPage = 1;
+    const totalPages = Math.ceil(rows.length / rowsPerPage);
+
+    function displayPage(page) {
+        currentPage = page;
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+
+        rows.forEach((row, index) => {
+            row.style.display = (index >= start && index < end) ? "" : "none";
+        });
+
+        renderPagination();
+    }
+
+    function renderPagination() {
+        pagination.innerHTML = "";
+
+        for (let i = 1; i <= totalPages; i++) {
+            const li = document.createElement("li");
+            if (i === currentPage) li.classList.add("active");
+
+            const a = document.createElement("a");
+            a.href = "#";
+            a.textContent = i;
+            a.addEventListener("click", function (e) {
+                e.preventDefault();
+                displayPage(i);
+            });
+
+            li.appendChild(a);
+            pagination.appendChild(li);
+        }
+    }
+
+    displayPage(1);
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+});

@@ -1,38 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Network Data Form</title>
-</head>
-<body>
-    <div class="container5">
-        <form method="post" action="/networkform">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <title>Network Data Form</title>
+   </head>
+   <body>
+      <div class="container5">
+         <form method="post" action="/networkform">
             <h1>Network Data Form</h1>
-
             {% if error %}
-                <div class="alert alert-danger">{{ error }}</div>
+            <div class="alert alert-danger">{{ error }}</div>
             {% endif %}
             {% if success %}
-                <div class="alert alert-success">{{ success }}</div>
+            <div class="alert alert-success">{{ success }}</div>
             {% endif %}
-            
             <label for="item">Item:</label>
             <input type="text" id="item" name="item" placeholder="Enter Item Name " required>
-
             <label for="downitem">Down Time:</label>
             <input type="number" name="downitem" id="downitem" placeholder="Enter Down Time" required>
-
             <label for="uptime">UpTime Percentage:</label>
             <input type="number" name="uptime" id="uptime" placeholder="Enter UpTime Percentage" required>
-
             <label for="remarks">Remarks:</label>
             <textarea name="remarks" id="remarks" placeholder="Enter Remarks" required></textarea>
-
             <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
-</body>
+         </form>
+      </div>
+   </body>
 </html>

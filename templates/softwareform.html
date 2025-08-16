@@ -1,38 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Software Activities Form</title>
-</head>
-<body>
-    <div class="container">
-        <form method="post" action="/softwareform">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <title>Software Activities Form</title>
+   </head>
+   <body>
+      <div class="container">
+         <form method="post" action="/softwareform">
             <h1>Software Activities Form</h1>
-
             {% if error %}
-                <div class="alert alert-danger">{{ error }}</div>
+            <div class="alert alert-danger">{{ error }}</div>
             {% endif %}
             {% if success %}
-                <div class="alert alert-success">{{ success }}</div>
+            <div class="alert alert-success">{{ success }}</div>
             {% endif %}
-            
             <label for="activities">Activities:</label>
             <input type="text" id="activities" name="activities" placeholder="Enter Activity Name" required>
-           
             <label for="no_of_software">No.of Software's Under Development::</label>
             <input type="number" id="no_of_software" name="no_of_software" placeholder="Enter No.of Software Under Development" required>
-           
             <label for="no_of_team_member">No.of Team Member::</label>
             <input type="number" id="no_of_team_member" name="no_of_team_member" placeholder="Enter No.of Team Member" required>
-           
             <label for="working_hours">Working Hours During the Month::</label>
             <input type="number" id="working_hours" name="working_hours" placeholder="Enter Working Hours During the Month" required>
-           
             <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
-</body>
+         </form>
+      </div>
+   </body>
 </html>

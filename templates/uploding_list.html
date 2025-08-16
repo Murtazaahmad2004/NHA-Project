@@ -1,100 +1,100 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='main.js') }}" defer></script>
-    <title>Uploading Tenders Data</title>
-</head>
-<body>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-            {{ message }}
-        </div>
-        {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <h2>Uploading Tenders Records</h2>
-    <h1><p>MIS Section has uploaded the following on NHA & PPRA Websites in the month of June, 2025: </p></h1>
-
-    <div class="financial_year">
-       <form method="GET" action="/uploding_list">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <meta http-equiv="Pragma" content="no-cache" />
+      <meta http-equiv="Expires" content="0" />
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+      <title>Uploading Tenders Data</title>
+   </head>
+   <body>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">
+         {{ message }}
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+      <h2>Uploading Tenders Records</h2>
+      <h1>
+         <p>MIS Section has uploaded the following on NHA & PPRA Websites in the month of June, 2025: </p>
+      </h1>
+      <div class="financial_year">
+         <form method="GET" action="/uploding_list">
             <label for="previous_month">Filter by Month:</label>
             <select id="previous_month" name="previous_month" class="form-control">
-                <option value="">Month</option>
-                {% for month in months %}
-                    <option value="{{ month['previous_month'] }}" {% if previous_month == month['previous_month'] %}selected{% endif %}>
-                        {{ month['previous_month'] }}
-                    </option>
-                {% endfor %}
+               <option value="">Month</option>
+               {% for month in months %}
+               <option value="{{ month['previous_month'] }}" {% if previous_month == month['previous_month'] %}selected{% endif %}>
+               {{ month['previous_month'] }}
+               </option>
+               {% endfor %}
             </select>
             <button type="submit" class="btn1 btn-primary">Filter</button>
-        </form>
-    </div>
-
-    <button class="btnn btn-primary"><a href="/uploding_form">Add New Upload Detail</a></button>
-
-<table class="table3" border="1">
-    <thead>
-        <tr>
-            <th colspan="1">S. #</th>
-            <th colspan="1">Particulars</th>
-            <th colspan="1">Reserve Person</th>
-            <th colspan="1">Previous Month</th>
-            <th colspan="1">Previous Month Quantity</th>
-            <th colspan="1">Current Month</th>
-            <th colspan="1">Current Month Quantity</th>
-            <th colspan="1">Total Hours Spent</th>
-            <th colspan="1">Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for record in records %}
-        <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ record['particulars']}}</td>
-            <td>{{ record['reserve_person']}}</td>
-            <td>{{ record['previous_month']}}</td>
-            <td>{{ record['previous_month_quantity']}}</td>
-            <td>{{ record['current_month']}}</td>
-            <td>{{ record['current_month_quantity']}}</td>
-            <td>{{ record['hoursspend']}}</td>
-            <td>
-                <div class="action-buttons">
-                    <a href="/edit_uploading_item/{{ record['id'] }}" class="icon-button edit" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <form action="/delete_uploding_item/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
+         </form>
+      </div>
+      <button class="btnn btn-primary"><a href="/uploding_form">Add New Upload Detail</a></button>
+      <table id="budgetTable" class="table3" border="1">
+         <thead>
+            <tr>
+               <th colspan="1">S. #</th>
+               <th colspan="1">Particulars</th>
+               <th colspan="1">Reserve Person</th>
+               <th colspan="1">Previous Month</th>
+               <th colspan="1">Previous Month Quantity</th>
+               <th colspan="1">Current Month</th>
+               <th colspan="1">Current Month Quantity</th>
+               <th colspan="1">Total Hours Spent</th>
+               <th colspan="1">Action</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for record in records %}
+            <tr>
+               <td>{{ loop.index }}</td>
+               <td>{{ record['particulars']}}</td>
+               <td>{{ record['reserve_person']}}</td>
+               <td>{{ record['previous_month']}}</td>
+               <td>{{ record['previous_month_quantity']}}</td>
+               <td>{{ record['current_month']}}</td>
+               <td>{{ record['current_month_quantity']}}</td>
+               <td>{{ record['hoursspend']}}</td>
+               <td>
+                  <div class="action-buttons">
+                     <a href="/edit_uploading_item/{{ record['id'] }}" class="icon-button edit" title="Edit">
+                     <i class="fas fa-edit"></i>
+                     </a>
+                     <form action="/delete_uploding_item/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
                         <button type="submit" class="icon-button delete" title="Delete">
-                            <i class="fas fa-trash-alt"></i>
+                        <i class="fas fa-trash-alt"></i>
                         </button>
-                    </form>
-                </div>
-            </td>
-        </tr>
-        {% endfor %}
-        <tr>
-            <td colspan="2"><strong>Total</strong></td>
-            <td colspan="2"></td>
-            <td colspan="1"><strong>{{total_previous_month_quantity}}</strong></td>
-            <td colspan="1"></td>
-            <td colspan="1"><strong>{{total_current_month_quantity}}</strong></td>
-            <td colspan="1"><strong>{{total_hours_spend}} Hours</strong></td>
-        </tr>
-    </tbody>
-</table>
-<br>
-    <a href="/export_uploding_list" class="btn btn-success export-btn">
-        <i class="fas fa-file-csv"></i> Export to CSV
-    </a>
-</body>
+                     </form>
+                  </div>
+               </td>
+            </tr>
+            {% endfor %}
+            <tr>
+               <td colspan="2"><strong>Total</strong></td>
+               <td colspan="2"></td>
+               <td colspan="1"><strong>{{total_previous_month_quantity}}</strong></td>
+               <td colspan="1"></td>
+               <td colspan="1"><strong>{{total_current_month_quantity}}</strong></td>
+               <td colspan="1"><strong>{{total_hours_spend}} Hours</strong></td>
+            </tr>
+         </tbody>
+      </table>
+      <!-- Include Pagination -->
+      {% include "pagination.html" %}
+      <br>
+      <a href="/export_uploding_list" class="btn btn-success export-btn">
+      <i class="fas fa-file-csv"></i> Export to CSV
+      </a>
+   </body>
 </html>

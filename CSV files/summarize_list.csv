@@ -1,3 +1,5 @@
 id,procurement_activities,current_month,available_hours,working_strength,hours_worked
 1,Network,2025-07,136,3,112
 3,IT Support,2025-08,135,5,45
+4,Uploading,2025-07,164,5,112
+5,Repair,2025-03,122,6,67

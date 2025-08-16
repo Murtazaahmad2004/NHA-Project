@@ -1,89 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="{{ url_for('static', filename='main.js') }}" defer></script>
-    <title>Summarize Data</title>
-</head>
-<body>
-    {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">
-            {{ message }}
-        </div>
-        {% endfor %}
-    {% endif %}
-    {% endwith %}
-
-    <h2>Summarize Records</h2>
-
-    <div class="items_name">
-        <form method="GET" action="/summarisereport_list">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <meta http-equiv="Pragma" content="no-cache" />
+      <meta http-equiv="Expires" content="0" />
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+      <title>Summarize Data</title>
+   </head>
+   <body>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">
+         {{ message }}
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endwith %}
+      <h2>Summarize Records</h2>
+      <div class="items_name">
+         <form method="GET" action="/summarisereport_list">
             <label for="procurement_activities">Filter by Procurement:</label>
             <select id="procurement_activities" name="procurement_activities" class="form-control" required>
-                <option value="">Select Procurement</option>
-                {% for record in procurement_list %}
-                    <option value="{{ record['procurement_activities'] }}" {% if summarisereport_list == record['procurement_activities'] %}selected{% endif %}>
-                        {{ record['procurement_activities'] }}
-                    </option>
-                {% endfor %}
+               <option value="">Select Procurement</option>
+               {% for record in procurement_list %}
+               <option value="{{ record['procurement_activities'] }}" {% if summarisereport_list == record['procurement_activities'] %}selected{% endif %}>
+               {{ record['procurement_activities'] }}
+               </option>
+               {% endfor %}
             </select>
             <button type="submit" class="btn1 btn-primary">Filter</button>
-        </form>
-    </div>
-
-    <button class="btnn btn-primary"><a href="/summarisereport">Add New Summarize Data</a></button>
-
-    <table class="table3" border="1">
-        <tr>
-            <th>S. #</th>
-            <th>Procurement Activities</th>
-            <th>Current Month</th>
-            <th>Available Hours</th>
-            <th>Working Strength</th>
-            <th>Hours Worked</th>
-            <th>Actions</th>
-        </tr>
-        {% for record in records %}
-        <tr>
-            <td>{{ loop.index }}</td>
-            <td>{{ record['procurement_activities']}}</td>
-            <td>{{ record['current_month']}}</td>
-            <td>{{ record['available_hours']}}</td>
-            <td>{{ record['working_strength']}}</td>
-            <td>{{ record['hours_worked']}}</td>
-             <td>
-                <div class="action-buttons">
-                    <a href="/edit_summarisereport_list/{{ record['id'] }}" class="icon-button edit" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <form action="/delete_summarisereport_list/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
+         </form>
+      </div>
+      <button class="btnn btn-primary"><a href="/summarisereport">Add New Summarize Data</a></button>
+      <table id="budgetTable" class="table3" border="1">
+         <thead>
+            <tr>
+               <th>S. #</th>
+               <th>Procurement Activities</th>
+               <th>Current Month</th>
+               <th>Available Hours</th>
+               <th>Working Strength</th>
+               <th>Hours Worked</th>
+               <th>Actions</th>
+            </tr>
+         </thead>
+         <tbody>
+            {% for record in records %}
+            <tr>
+               <td>{{ loop.index }}</td>
+               <td>{{ record['procurement_activities']}}</td>
+               <td>{{ record['current_month']}}</td>
+               <td>{{ record['available_hours']}}</td>
+               <td>{{ record['working_strength']}}</td>
+               <td>{{ record['hours_worked']}}</td>
+               <td>
+                  <div class="action-buttons">
+                     <a href="/edit_summarisereport_list/{{ record['id'] }}" class="icon-button edit" title="Edit">
+                     <i class="fas fa-edit"></i>
+                     </a>
+                     <form action="/delete_summarisereport_list/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
                         <button type="submit" class="icon-button delete" title="Delete">
-                            <i class="fas fa-trash-alt"></i>
+                        <i class="fas fa-trash-alt"></i>
                         </button>
-                    </form>
-                </div>
-            </td>
-        </tr>
-        {% endfor %}
-        <tr>
-            <td colspan="3"><strong>Total</strong></td>
-            <td colspan="1"><strong>{{ total_available_hours }}</strong></td>
-            <td colspan="1"><strong>{{ total_working_strength }}</strong></td>
-            <td colspan="1"><strong>{{ total_hours_worked }}</strong></td>
-        </tr>
-    </table>
-    <br>
-    <a href="/export_summarisereport_list" class="btn btn-success export-btn">
-        <i class="fas fa-file-csv"></i> Export to CSV
-    </a>
-</body>
+                     </form>
+                  </div>
+               </td>
+            </tr>
+            {% endfor %}
+            <tr>
+               <td colspan="3"><strong>Total</strong></td>
+               <td colspan="1"><strong>{{ total_available_hours }}</strong></td>
+               <td colspan="1"><strong>{{ total_working_strength }}</strong></td>
+               <td colspan="1"><strong>{{ total_hours_worked }}</strong></td>
+            </tr>
+         </tbody>
+      </table>
+      <!-- Include Pagination -->
+      {% include "pagination.html" %}
+      <br>
+      <a href="/export_summarisereport_list" class="btn btn-success export-btn">
+      <i class="fas fa-file-csv"></i> Export to CSV
+      </a>
+   </body>
 </html>
