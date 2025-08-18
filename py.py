@@ -17,9 +17,14 @@ db_config = {
     'database': 'nha_db'
 }
 
-# home page route
+# home route
 @app.route('/')
 def home():
+    return render_template('home.html')
+
+# home page route
+@app.route('/home')
+def home_page():
     return render_template('home.html')
 
 # Route to submission financial year 
