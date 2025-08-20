@@ -4,86 +4,100 @@
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
       <meta http-equiv="Pragma" content="no-cache" />
       <meta http-equiv="Expires" content="0" />
+
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
       <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
       <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+
       <title>Software Data</title>
    </head>
    <body>
+      <!-- Flash Messages -->
       {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-      {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">
-         {{ message }}
-      </div>
-      {% endfor %}
+         {% for category, message in messages %}
+         <div class="alert alert-{{ category }}">
+            {{ message }}
+         </div>
+         {% endfor %}
       {% endif %}
       {% endwith %}
+
+      <!-- Page Title -->
       <h2>Software Records</h2>
-      <h1>
-         <p>Software Development Report By Director (MIS-I)</p>
-      </h1>
-      <div class="financial_year">
-         <form method="get" action="/softwareform_list">
-            <label for="activities">Filter by Activity:</label>
-            <select name="activities" id="activities">
-               <option value="">Activities</option>
-               {% for activity in activities %}
-               <option value="{{ activity['activities'] }}" {% if activity['activities'] == selected_activity %}selected{% endif %}>
+      <p class="subtitle">Software Development Report By Director (MIS-I)</p>
+
+      <!-- Filter Section -->
+      <form method="get" action="/softwareform_list" class="financialyear">
+         <label for="activities">Filter by Activity:</label>
+         <select name="activities" id="activities" class="form-control">
+            <option value="">Activities</option>
+            {% for activity in activities %}
+            <option value="{{ activity['activities'] }}" {% if activity['activities'] == selected_activity %}selected{% endif %}>
                {{ activity['activities'] }}
-               </option>
-               {% endfor %}
-            </select>
-            <button type="submit" class="btn1 btn-primary">Filter</button>
-         </form>
+            </option>
+            {% endfor %}
+         </select>
+         <button type="submit" class="btn btn-primary">Filter</button>
+      </form>
+
+      <!-- Navigation Buttons -->
+      <div class="mb-3">
+         <a href="/home" class="btn btn-danger">Back To Home Page</a>
+         <a href="/softwareform" class="btn btn-success">Add New Software</a>
       </div>
-      <button class="btnn btn-primary"><a href="/home">Back To Home Page</a></button>
-      <button class="btnn btn-primary"><a href="/softwareform">Add New Software</a></button>
-      <table id="budgetTable" class="table3" border="1">
+
+      <!-- Records Table -->
+      <table id="budgetTable" class="table3 table table-bordered">
          <thead>
             <tr>
-               <th rowspan="1">S. #</th>
-               <th rowspan="1">Activities</th>
-               <th colspan="1">No.of Software's <br> Under <br> Development</th>
-               <th colspan="1">No.of Team <br> Member</th>
-               <th rowspan="1">Working Hours <br> During the <br> Month</th>
-               <th rowspan="1">Action</th>
+               <th>S. #</th>
+               <th>Activities</th>
+               <th>No. of Software's <br> Under Development</th>
+               <th>No. of Team Member</th>
+               <th>Working Hours <br> During the Month</th>
+               <th>Action</th>
             </tr>
          </thead>
          <tbody>
             {% for record in records %}
             <tr>
                <td>{{ loop.index }}</td>
-               <td>{{ record['activities']}}</td>
-               <td>{{ record['no_of_software_under_development']}}</td>
-               <td>{{ record['no_of_team_member']}}</td>
-               <td>{{ record['working_hours_during_month']}}</td>
+               <td>{{ record['activities'] }}</td>
+               <td>{{ record['no_of_software_under_development'] }}</td>
+               <td>{{ record['no_of_team_member'] }}</td>
+               <td>{{ record['working_hours_during_month'] }}</td>
                <td>
                   <div class="action-buttons">
                      <a href="/edit_softwareform_list/{{ record['id'] }}" class="icon-button edit" title="Edit">
-                     <i class="fas fa-edit"></i>
+                        <i class="fas fa-edit"></i>
                      </a>
                      <form action="/delete_softwareform_list/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
                         <button type="submit" class="icon-button delete" title="Delete">
-                        <i class="fas fa-trash-alt"></i>
+                           <i class="fas fa-trash-alt"></i>
                         </button>
                      </form>
                   </div>
                </td>
             </tr>
             {% endfor %}
-            <td colspan="4"><strong>Total</strong></td>
-            <td colspan="1"><strong>{{total_working_hours}}</strong></td>
+            <tr>
+               <td colspan="4"><strong>Total</strong></td>
+               <td><strong>{{ total_working_hours }}</strong></td>
+               <td></td>
+            </tr>
          </tbody>
       </table>
-      <!-- Include Pagination -->
+
+      <!-- Pagination -->
       {% include "pagination.html" %}
-      <br>
+
+      <!-- Export Button -->
       <a href="/export_softwareform_list" class="btn btn-success export-btn">
-      <i class="fas fa-file-csv"></i> Export to CSV
+         <i class="fas fa-file-csv"></i> Export to CSV
       </a>
    </body>
 </html>

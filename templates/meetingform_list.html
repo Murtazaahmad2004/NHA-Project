@@ -1,96 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-      <meta http-equiv="Pragma" content="no-cache" />
-      <meta http-equiv="Expires" content="0" />
-      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-      <script src="{{ url_for('static', filename='main.js') }}" defer></script>
-      <title>Meetings Data</title>
-   </head>
-   <body>
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Meetings Data</title>
+
+  <!-- External CSS & Fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+</head>
+<body>
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
       {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">
-         {{ message }}
-      </div>
+        <div class="alert alert-{{ category }}">{{ message }}</div>
       {% endfor %}
-      {% endif %}
-      {% endwith %}
-      <h2>Meetings Records</h2>
-      <div class="items_name">
-         <form method="GET" action="/meetingform_list">
-            <label for="sections">Filter by Section:</label>
-            <select id="sections" name="sections" class="form-control" required>
-               <option value="">Select Section</option>
-               {% for record in records %}
-               <option value="{{ record['sections'] }}" {% if selected_section == record['sections'] %}selected{% endif %}>
-               {{ record['sections'] }}
-               </option>
-               {% endfor %}
-            </select>
-            <button type="submit" class="btn1 btn-primary">Filter</button>
-         </form>
-      </div>
-      <button class="btnn btn-primary"><a href="/home">Back To Home Page</a></button>
-      <button class="btnn btn-primary"><a href="/meetingform">Add New Meeting Data</a></button>
-      <table id="budgetTable" class="table3" border="1">
-         <thead>
-            <tr>
-               <th>S. #</th>
-               <th>Sections</th>
-               <th>Meetings</th>
-               <th>Internal</th>
-               <th>External</th>
-               <th>Hours Spend</th>
-               <th>Remarks</th>
-               <th>Actions</th>
-            </tr>
-         </thead>
-         <tbody>
-            {% for record in filter_sections %}
-            <tr>
-               <td>{{ loop.index }}</td>
-               <td>{{ record['sections']}}</td>
-               <td>{{ record['meetings']}}</td>
-               <td>{{ record['internal']}}</td>
-               <td>{{ record['external']}}</td>
-               <td>{{ record['hours_spend']}}</td>
-               <td>{{ record['remarks']}}</td>
-               <td>
-                  <div class="action-buttons">
-                     <a href="/edit_meetingform_list/{{ record['id'] }}" class="icon-button edit" title="Edit">
-                     <i class="fas fa-edit"></i>
-                     </a>
-                     <form action="/delete_meetingform_list/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
-                        <button type="submit" class="icon-button delete" title="Delete">
-                        <i class="fas fa-trash-alt"></i>
-                        </button>
-                     </form>
-                  </div>
-               </td>
-            </tr>
-            {% else %}
-            {% endfor %}
-            <tr>
-               <td colspan="2"><strong>Total</strong></td>
-               <td colspan="1"><strong>{{ total_meetings }}</strong></td>
-               <td colspan="1"><strong>{{ total_internal }}</strong></td>
-               <td colspan="1"><strong>{{ total_external }}</strong></td>
-               <td colspan="1"><strong>{{ total_hours_spend }}</strong></td>
-            </tr>
-         </tbody>
-      </table>
-      <!-- Include Pagination -->
-      {% include "pagination.html" %}
-      <br>
-      <a href="/export_meetingform_list" class="btn btn-success export-btn">
-      <i class="fas fa-file-csv"></i> Export to CSV
-      </a>
-   </body>
+    {% endif %}
+  {% endwith %}
+
+  <h2>Meetings Records</h2>
+
+  <!-- Filter Form -->
+  <form method="GET" action="/meetingform_list" class="financialyear">
+    <label for="sections">Filter by Section:</label>
+    <select id="sections" name="sections" class="form-control" required>
+      <option value="">Select Section</option>
+      {% for record in records %}
+        <option value="{{ record['sections'] }}" {% if selected_section == record['sections'] %}selected{% endif %}>
+          {{ record['sections'] }}
+        </option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="btn btn-primary">Filter</button>
+  </form>
+
+  <!-- Navigation Buttons -->
+   <div class="mb-3">
+      <a href="/home" class="btn btn-danger">Back To Home Page</a>
+      <a href="/head_form" class="btn btn-success">Add New Item</a>
+   </div>
+
+  <!-- Data Table -->
+  <table id="budgetTable" class="table table-bordered table-striped">
+    <thead>
+      <tr>
+        <th>S. #</th>
+        <th>Sections</th>
+        <th>Meetings</th>
+        <th>Internal</th>
+        <th>External</th>
+        <th>Hours Spend</th>
+        <th>Remarks</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for record in filter_sections %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ record['sections']}}</td>
+        <td>{{ record['meetings']}}</td>
+        <td>{{ record['internal']}}</td>
+        <td>{{ record['external']}}</td>
+        <td>{{ record['hours_spend']}}</td>
+        <td>{{ record['remarks']}}</td>
+        <td>
+            <div class="action-buttons">
+               <a href="/edit_meetingform_list/{{ record['id'] }}" class="icon-button edit" title="Edit">
+                  <i class="fas fa-edit"></i>
+               </a>
+               <form action="/delete_meetingform_list/{{ record['id'] }}" method="POST" 
+                     onsubmit="return confirmDelete();">
+                  <button type="submit" class="icon-button delete" title="Delete">
+                  <i class="fas fa-trash-alt"></i>
+                  </button>
+               </form>
+            </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="8" style="text-align:center;">No records found</td>
+      </tr>
+      {% endfor %}
+
+      <!-- Total Row -->
+      <tr>
+        <td colspan="2"><strong>Total</strong></td>
+        <td><strong>{{ total_meetings }}</strong></td>
+        <td><strong>{{ total_internal }}</strong></td>
+        <td><strong>{{ total_external }}</strong></td>
+        <td><strong>{{ total_hours_spend }}</strong></td>
+        <td colspan="2"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  {% include "pagination.html" %}
+
+  <br>
+
+  <!-- Export Button -->
+  <a href="/export_meetingform_list" class="btn btn-success export-btn">
+    <i class="fas fa-file-csv"></i> Export to CSV
+  </a>
+</body>
 </html>

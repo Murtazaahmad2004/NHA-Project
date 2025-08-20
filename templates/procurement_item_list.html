@@ -1,89 +1,103 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-      <meta http-equiv="Pragma" content="no-cache" />
-      <meta http-equiv="Expires" content="0" />
-      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-      <script src="{{ url_for('static', filename='main.js') }}" defer></script>
-      <title>Procrument Data</title>
-   </head>
-   <body>
-      {% with messages = get_flashed_messages(with_categories=true) %}
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+   <meta http-equiv="Pragma" content="no-cache" />
+   <meta http-equiv="Expires" content="0" />
+
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+   <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+   <title>Procurement Data</title>
+</head>
+<body>
+
+   <!-- Flash Messages -->
+   {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-      {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">
-         {{ message }}
-      </div>
-      {% endfor %}
+         {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+         {% endfor %}
       {% endif %}
-      {% endwith %}
-      <h2>Procrument Records</h2>
-      <h2>
-         <p>Procurements - Report by AD (MIS) Detail of Head wise expense for the month of June, 2025:</p>
-      </h2>
-      <div class="item_name">
-         <form method="GET" action="/procurement_item_list">
-            <label for="item_name">Filter by Item Name:</label>
-            <select id="item_name" name="item_name" class="form-control" required>
-               <option value="">Select item Name</option>
-               {% for record in records %}
-               <option value="{{ record['item_name'] }}" {% if selected_item == record['item_name'] %}selected{% endif %}>
-               {{ record['item_name'] }}
-               </option>
-               {% endfor %}
-            </select>
-            <button type="submit" class="btn1 btn-primary">Filter</button>
-         </form>
-      </div><button class="btnn btn-primary"><a href="/home">Back To Home Page</a></button>
-      <button class="btnn btn-primary"><a href="/procrument_form">Add New Procrument Data</a></button>
-      <table id="budgetTable" class="table3" border="1">
-         <thead>
-            <tr>
-               <th>S. #</th>
-               <th>Item Name</th>
-               <th>Units</th>
-               <th>Expenditure</th>
-               <th>Actions</th>
-            </tr>
-         </thead>
-         <tbody>
+   {% endwith %}
+
+   <!-- Page Heading -->
+   <h2>Procurement Records</h2>
+   <p><strong>Procurements - Report by AD (MIS):</strong> Detail of Head wise expense for the month of June, 2025</p>
+
+   <!-- Filter Form -->
+   <div class="financialyear">
+      <form method="GET" action="/procurement_item_list">
+         <label for="item_name">Filter by Item Name:</label>
+         <select id="item_name" name="item_name" class="form-control" required>
+            <option value="">Select Item Name</option>
             {% for record in records %}
-            <tr>
-               <td>{{ loop.index }}</td>
-               <td>{{ record['item_name'] }}</td>
-               <td>{{ record['units'] }}</td>
-               <td>{{ record['expenditure'] }}</td>
-               <td>
-                  <div class="action-buttons">
-                     <a href="/edit_procrument/{{ record['id'] }}" class="icon-button edit" title="Edit">
-                     <i class="fas fa-edit"></i>
-                     </a>
-                     <form action="/delete_procrument/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
-                        <button type="submit" class="icon-button delete" title="Delete">
-                        <i class="fas fa-trash-alt"></i>
-                        </button>
-                     </form>
-                  </div>
-               </td>
-            </tr>
-            {% else %}
-            <tr>
-               <td colspan="3">No records found.</td>
-            </tr>
+               <option value="{{ record['item_name'] }}" {% if selected_item == record['item_name'] %}selected{% endif %}>
+                  {{ record['item_name'] }}
+               </option>
             {% endfor %}
-         </tbody>
-      </table>
-      <!-- Include Pagination -->
-      {% include "pagination.html" %}
-      <br>
-      <a href="/export_procurement_item{% if selected_item %}?item_name={{ selected_item }}{% endif %}" 
-         class="btn btn-success export-btn">
+         </select>
+         <button type="submit" class="btn btn-primary btn-block">Filter</button>
+      </form>
+   </div>
+
+   <!-- Action Buttons -->
+   <div class="page-actions">
+      <a href="/home" class="btn btn-danger">Back To Home Page</a>
+      <a href="/procrument_form" class="btn btn-success">Add New Procurement Data</a>
+   </div>
+
+   <!-- Data Table -->
+   <table id="budgetTable" class="table3 table table-bordered">
+      <thead>
+         <tr>
+            <th>S. #</th>
+            <th>Item Name</th>
+            <th>Units</th>
+            <th>Expenditure</th>
+            <th>Actions</th>
+         </tr>
+      </thead>
+      <tbody>
+         {% for record in records %}
+         <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ record['item_name'] }}</td>
+            <td>{{ record['units'] }}</td>
+            <td>{{ record['expenditure'] }}</td>
+            <td>
+               <div class="action-buttons">
+                  <a href="/edit_procrument/{{ record['id'] }}" class="icon-button edit" title="Edit">
+                     <i class="fas fa-edit"></i>
+                  </a>
+                  <form action="/delete_procrument/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
+                     <button type="submit" class="icon-button delete" title="Delete">
+                        <i class="fas fa-trash-alt"></i>
+                     </button>
+                  </form>
+               </div>
+            </td>
+         </tr>
+         {% else %}
+         <tr>
+            <td colspan="5">No records found.</td>
+         </tr>
+         {% endfor %}
+      </tbody>
+   </table>
+
+   <!-- Pagination -->
+   {% include "pagination.html" %}
+
+   <!-- Export Button -->
+   <br>
+   <a href="/export_procurement_item{% if selected_item %}?item_name={{ selected_item }}{% endif %}" 
+      class="btn btn-success export-btn">
       <i class="fas fa-file-csv"></i> Export to CSV
-      </a>
-   </body>
+   </a>
+</body>
 </html>

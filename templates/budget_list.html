@@ -1,95 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-      <meta http-equiv="Pragma" content="no-cache" />
-      <meta http-equiv="Expires" content="0" />
-      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-      <script src="{{ url_for('static', filename='main.js') }}" defer></script>
-      <title>Budget Data</title>
-   </head>
-   <body>
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  
+  <!-- Font Awesome & Bootstrap -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+  
+  <title>Budget Data</title>
+</head>
+<body>
+  <!-- Flash Messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
       {% for category, message in messages %}
-      <div class="alert alert-{{ category }}">
-         {{ message }}
-      </div>
+        <div class="alert alert-{{ category }}">
+          {{ message }}
+        </div>
       {% endfor %}
-      {% endif %}
-      {% endwith %}
-      <h2>Budget Records</h2>
-      <div class="financial_year">
-         <form method="GET" action="/budget_list">
-            <label for="financialyear">Filter by Financial Year:</label>
-            <select id="financialyear" name="financialyear" class="form-control" required>
-               <option value="">Financial Year</option>
-               {% for fy in financial_years %}
-               <option value="{{ fy['financial_year'] }}" {% if selected_year == fy['financial_year'] %}selected{% endif %}>
-               {{ fy['financial_year'] }}
-               </option>
-               {% endfor %}
-            </select>
-            <button type="submit" class="btn1 btn-primary">Filter</button>
-         </form>
-      </div>
-      <button class="btnn btn-primary"><a href="/home">Back To Home Page</a></button>
-      <button class="btn2 btn-primary"><a href="/form">Add New Record</a></button>
-      <table id="budgetTable" class="table3" border="1">
-         <thead>
-            <tr>
-               <th>S. #</th>
-               <th>Financial Year</th>
-               <th>Total Budget</th>
-               <th>Budget Month</th>
-               <th>Budget Used</th>
-               <th>Budget Used Upto June</th>
-               <th>Reporting Month Last Day</th>
-               <th>Remaining Budget</th>
-               <th>Actions</th>
-            </tr>
-         </thead>
-         <tbody>
-            {% for record in records %}
-            <tr>
-               <td>{{ loop.index }}</td>
-               <td>{{ record['financial_year'] }}</td>
-               <td>{{ record['total_budget'] }}</td>
-               <td>{{ record['budget_month'] }}</td>
-               <td>{{ record['budget_used'] }}</td>
-               <td>{{ record['budget_used_upto_june'] }}</td>
-               <td>{{ record['reporting_month_last_day'] }}</td>
-               <td>{{ record['remaining_budget'] }}</td>
-               <td>
-                  <div class="action-buttons">
-                     <a href="/edit_form/{{ record['id'] }}" class="icon-button edit" title="Edit">
-                     <i class="fas fa-edit"></i>
-                     </a>
-                     <form action="/delete/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
-                        <button type="submit" class="icon-button delete" title="Delete">
-                        <i class="fas fa-trash-alt"></i>
-                        </button>
-                     </form>
-                  </div>
-               </td>
-            </tr>
-            {% else %}
-            <tr>
-               <td colspan="10">No records found.</td>
-            </tr>
-            {% endfor %}
-         </tbody>
-      </table>
-      <!-- Include Pagination -->
-      {% include "pagination.html" %}
-      <br>
-      <a href="/export_budget_csv{% if selected_year %}?financialyear={{ selected_year }}{% endif %}" 
-         class="btn btn-success export-btn">
+    {% endif %}
+  {% endwith %}
+
+  <h2>Budget Records</h2>
+
+  <!-- Filter Form -->
+  <div class="financialyear">
+    <form method="GET" action="/budget_list">
+      <label for="financialyear">Filter by Financial Year:</label>
+      <select id="financialyear" name="financialyear" class="form-control" required>
+        <option value="">Financial Year</option>
+        {% for fy in financial_years %}
+          <option value="{{ fy['financial_year'] }}" {% if selected_year == fy['financial_year'] %}selected{% endif %}>
+            {{ fy['financial_year'] }}
+          </option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="text-center mb-3">
+    <a href="/home" class="btn btn-danger">Back To Home Page</a>
+    <a href="/form" class="btn btn-success">Add New Record</a>
+  </div>
+
+  <!-- Records Table -->
+  <table id="budgetTable" class="table table-bordered table-hover">
+    <thead>
+      <tr>
+        <th>S. #</th>
+        <th>Financial Year</th>
+        <th>Total Budget</th>
+        <th>Budget Month</th>
+        <th>Budget Used</th>
+        <th>Budget Used Upto June</th>
+        <th>Reporting Month Last Day</th>
+        <th>Remaining Budget</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for record in records %}
+      <tr>
+        <td>{{ loop.index }}</td>
+        <td>{{ record['financial_year'] }}</td>
+        <td>{{ record['total_budget'] }}</td>
+        <td>{{ record['budget_month'] }}</td>
+        <td>{{ record['budget_used'] }}</td>
+        <td>{{ record['budget_used_upto_june'] }}</td>
+        <td>{{ record['reporting_month_last_day'] }}</td>
+        <td>{{ record['remaining_budget'] }}</td>
+        <td>
+          <div class="action-buttons">
+            <a href="/edit_form/{{ record['id'] }}" class="icon-button edit" title="Edit">
+              <i class="fas fa-edit"></i>
+            </a>
+            <form action="/delete/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
+              <button type="submit" class="icon-button delete" title="Delete">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% else %}
+      <tr>
+        <td colspan="9">No records found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  {% include "pagination.html" %}
+
+  <!-- Export Button -->
+  <div class="text-center">
+    <a href="/export_budget_csv{% if selected_year %}?financialyear={{ selected_year }}{% endif %}" 
+       class="btn btn-success export-btn">
       <i class="fas fa-file-csv"></i> Export to CSV
-      </a>
-   </body>
+    </a>
+  </div>
+</body>
 </html>

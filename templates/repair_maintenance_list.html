@@ -1,118 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-      <meta http-equiv="Pragma" content="no-cache" />
-      <meta http-equiv="Expires" content="0" />
-      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-      <script src="{{ url_for('static', filename='main.js') }}" defer></script>
-      <title>Repair Maintenance Data</title>
-   </head>
-   <body>
-      {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+   <meta http-equiv="Pragma" content="no-cache" />
+   <meta http-equiv="Expires" content="0" />
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+   <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+   <title>Repair Maintenance Data</title>
+</head>
+<body>
+   {% with messages = get_flashed_messages(with_categories=true) %}
+   {% if messages %}
       {% for category, message in messages %}
       <div class="alert alert-{{ category }}">
          {{ message }}
       </div>
       {% endfor %}
-      {% endif %}
-      {% endwith %}
-      <h2>Repair Maintenance Records</h2>
-      <h1>
-         <p>MIS Section has Repair/ Maintenance items in the month of June, 2025: </p>
-      </h1>
-      <div class="items_name">
-         <form method="GET" action="/repair_maintenance_list">
-            <label for="items_name">Filter by Item Name:</label>
-            <select id="items_name" name="items_name" class="form-control" required>
-               <option value="">Select item Name</option>
-               {% for record in records %}
-               <option value="{{ record['item_name'] }}" {% if selected_item == record['item_name'] %}selected{% endif %}>
-               {{ record['item_name'] }}
-               </option>
-               {% endfor %}
-            </select>
-            <button type="submit" class="btn1 btn-primary">Filter</button>
-         </form>
-      </div>
-      <button class="btnn btn-primary"><a href="/home">Back To Home Page</a></button>
-      <button class="btnn btn-primary"><a href="/repair_maintenance">Add New Repair Maintenance Data</a></button>
-      <table id="budgetTable" class="table3" border="1">
-         <thead>
-            <tr>
-               <th rowspan="2">S. #</th>
-               <th rowspan="2">Items</th>
-               <th rowspan="2">Total Items</th>
-               <th colspan="2">In House</th>
-               <th colspan="2">External</th>
-               <th rowspan="2">Expenditures on <br> External Repairs in Rs.</th>
-               <th rowspan="2">Percentage of an Item (%)</th>
-               <th rowspan="2">Actions</th>
-            </tr>
-            <tr>
-               <th>Units</th>
-               <th>Hours Spent</th>
-               <th>Units</th>
-               <th>Days</th>
-            </tr>
-         </thead>
-         <tbody>
-            {% for record in records %}
-            <tr>
-               <td>{{ loop.index }}</td>
-               <td>{{ record.item_name }}</td>
-               <td>{{ record.item_total }}</td>
-               <td>{{ record.unit_in_house }}</td>
-               <td>{{ record.hours_spend_in_house }}</td>
-               <td>{{ record.units_externals }}</td>
-               <td>{{ record.days_externals }}</td>
-               <td>{{ record.expenditure }}</td>
-               <td>{{ record.percentage_of_an_item }} %</td>
-               <td>
-                  <div class="action-buttons">
-                     <a href="/edit_repair_maintenance/{{ record['id'] }}" class="icon-button edit" title="Edit">
+   {% endif %}
+   {% endwith %}
+
+   <h2>Repair Maintenance Records</h2>
+   <p><strong>MIS Section has Repair/Maintenance items in the month of June, 2025:</strong></p>
+
+   <form method="GET" action="/repair_maintenance_list" class="financialyear">
+      <label for="items_name">Filter by Item Name:</label>
+      <select id="items_name" name="items_name" class="form-control" required>
+         <option value="">Select item Name</option>
+         {% for record in records %}
+         <option value="{{ record['item_name'] }}" {% if selected_item == record['item_name'] %}selected{% endif %}>
+            {{ record['item_name'] }}
+         </option>
+         {% endfor %}
+      </select>
+      <button type="submit" class="btn btn-primary">Filter</button>
+   </form>
+
+   <div class="btn-group" style="margin-top:10px;">
+      <a href="/home" class="btn btn-danger">Back To Home Page</a>
+      <a href="/repair_maintenance" class="btn btn-success">Add New Repair Maintenance Data</a>
+   </div>
+
+   <table id="budgetTable" class="table table-bordered table-striped table-hover">
+      <thead>
+         <tr>
+            <th rowspan="2">S. #</th>
+            <th rowspan="2">Items</th>
+            <th rowspan="2">Total Items</th>
+            <th colspan="2">In House</th>
+            <th colspan="2">External</th>
+            <th rowspan="2">Expenditures on External Repairs (Rs.)</th>
+            <th rowspan="2">Percentage of an Item (%)</th>
+            <th rowspan="2">Actions</th>
+         </tr>
+         <tr>
+            <th>Units</th>
+            <th>Hours Spent</th>
+            <th>Units</th>
+            <th>Days</th>
+         </tr>
+      </thead>
+      <tbody>
+         {% for record in records %}
+         <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ record.item_name }}</td>
+            <td>{{ record.item_total }}</td>
+            <td>{{ record.unit_in_house }}</td>
+            <td>{{ record.hours_spend_in_house }}</td>
+            <td>{{ record.units_externals }}</td>
+            <td>{{ record.days_externals }}</td>
+            <td>{{ record.expenditure }}</td>
+            <td>{{ record.percentage_of_an_item }} %</td>
+            <td>
+               <div class="action-buttons">
+                  <a href="/edit_repair_maintenance/{{ record['id'] }}" class="icon-button edit" title="Edit">
                      <i class="fas fa-edit"></i>
-                     </a>
-                     <form action="/delete_repair_maintenance/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
-                        <button type="submit" class="icon-button delete" title="Delete">
+                  </a>
+                  <form action="/delete_repair_maintenance/{{ record['id'] }}" method="POST" onsubmit="return confirmDelete();">
+                     <button type="submit" class="icon-button delete" title="Delete">
                         <i class="fas fa-trash-alt"></i>
-                        </button>
-                     </form>
-                  </div>
-               </td>
-            </tr>
-            {% endfor %}
-            <!-- Total Row -->
-            <tr>
-               <td colspan="2"><strong>Total</strong></td>
-               <td><strong>{{ total_items }}</strong></td>
-               <td><strong>{{ unit_in_house }} <br> ({{ percenteage_inhouse_unit | int }}%)</strong></td>
-               <td><strong>{{ hours_spend_in_house }}</strong></td>
-               <td><strong>{{ units_externals }} <br> ({{ percenteage_external_unit | int }}%)</strong></td>
-               <td><strong>{{ days_externals }}</strong></td>
-               <td><strong>{{ total_expenditure }}</strong></td>
-               <td colspan="3"></td>
-               <!-- For Percentage, Delete, Edit -->
-            </tr>
-            <!-- Average Cost Row -->
-            <tr>
-               <td colspan="7"><strong>Avg./ Unit</strong></td>
-               <td><strong>{{ avg_cost_per_unit | int }}</strong></td>
-               <td colspan="3"></td>
-            </tr>
-         </tbody>
-      </table>
-      <!-- Include Pagination -->
-      {% include "pagination.html" %}
-      <br>
-      <a href="/export_repair_maintenance_list{% if selected_item %}?item_name={{ selected_item }}{% endif %}" 
-         class="btn btn-success export-btn">
+                     </button>
+                  </form>
+               </div>
+            </td>
+         </tr>
+         {% endfor %}
+
+         <!-- Total Row -->
+         <tr class="info">
+            <td colspan="2"><strong>Total</strong></td>
+            <td><strong>{{ total_items }}</strong></td>
+            <td><strong>{{ unit_in_house }} ({{ percenteage_inhouse_unit | int }}%)</strong></td>
+            <td><strong>{{ hours_spend_in_house }}</strong></td>
+            <td><strong>{{ units_externals }} ({{ percenteage_external_unit | int }}%)</strong></td>
+            <td><strong>{{ days_externals }}</strong></td>
+            <td><strong>{{ total_expenditure }}</strong></td>
+            <td colspan="2"></td>
+         </tr>
+
+         <!-- Average Cost Row -->
+         <tr class="warning">
+            <td colspan="7"><strong>Avg./ Unit</strong></td>
+            <td><strong>{{ avg_cost_per_unit | int }}</strong></td>
+            <td colspan="2"></td>
+         </tr>
+      </tbody>
+   </table>
+
+   {% include "pagination.html" %}
+
+   <a href="/export_repair_maintenance_list{% if selected_item %}?item_name={{ selected_item }}{% endif %}" 
+      class="btn btn-success export-btn">
       <i class="fas fa-file-csv"></i> Export to CSV
-      </a>
-   </body>
+   </a>
+</body>
 </html>

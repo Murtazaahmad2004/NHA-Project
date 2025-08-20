@@ -169,19 +169,19 @@ function setupTablePagination(tableId, paginationId, rowsPerPage) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
-    setupTablePagination("budgetTable", "pagination", 3); // 3 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
+    setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
 });
