@@ -8,7 +8,7 @@
       <title>Summarize Data Form</title>
    </head>
    <body>
-      <div class="container">
+      <div class="container1">
          <form method="post" action="/summarisereport">
             <h1>Summarize Data Form</h1>
             {% if error %}
@@ -17,16 +17,26 @@
             {% if success %}
             <div class="alert alert-success">{{ success }}</div>
             {% endif %}
-            <label for="procurement">Procurement Activities:</label>
-            <input type="text" name="procurement" id="procurement" placeholder="Enter Procurement Activities Name" required>
-            <label for="current_month">Current Month:</label>
-            <input type="month" name="current_month" id="current_month" required>
-            <label for="availablehours">Available Hours Current Month:</label>
-            <input type="number" name="availablehours" id="availablehours" placeholder="Enter Available Hours Current Month" required>
-            <label for="workingstrength">Working Strength:</label>
-            <input type="number" name="workingstrength" id="workingstrength" placeholder="Enter Working Strength" required>
-            <label for="hoursworked">Hours Worked:</label>
-            <input type="number" name="hoursworked" id="hoursworked" placeholder="Enter Hours Worked " required>
+            <div class="form-group">
+               <label for="procurement">Procurement Activities:</label>
+               <input type="text" name="procurement" id="procurement" class="form-control" placeholder="Enter Procurement Activities Name" required>
+            </div>
+            <div class="form-group">
+               <label for="current_month">Current Month:</label><br>
+               <input type="month" name="current_month" id="current_month" class="form-control" required>
+            </div>  
+            <div class="form-group">
+               <label for="availablehours">Available Hours Current Month:</label>
+               <input type="number" name="availablehours" id="availablehours" class="form-control" placeholder="Enter Available Hours Current Month" required>
+            </div>
+            <div class="form-group">
+               <label for="workingstrength">Working Strength:</label>
+               <input type="number" name="workingstrength" id="workingstrength" class="form-control" placeholder="Enter Working Strength" required>
+            </div>
+            <div class="form-group">
+               <label for="hoursworked">Hours Worked:</label>
+               <input type="number" name="hoursworked" id="hoursworked" class="form-control" placeholder="Enter Hours Worked " required>
+            </div>
             <button type="submit" class="btn btn-primary">Submit</button>
          </form>
       </div>

@@ -8,7 +8,7 @@
       <title>Software Complaints Form</title>
    </head>
    <body>
-      <div class="container5">
+      <div class="container1">
          <form  method="post" action="/softwarecomplainet">
             <h1>Software Complaints Form</h1>
             {% if error %}
@@ -17,14 +17,22 @@
             {% if success %}
             <div class="alert alert-success">{{ success }}</div>
             {% endif %}
-            <label for="softwares">Software's Name:</label>
-            <input type="text" name="softwares" id="softwares" placeholder="Enter Software Name" required>
-            <label for="remarks">Description:</label>
-            <textarea id="remarks" name="remarks" placeholder="Description" required></textarea>
-            <label for="totalcomplaints"> Total Complaints:</label>
-            <input type="number" id="totalcomplaints" name="totalcomplaints" placeholder="Enter Total Complaints" required>
-            <label for="resolved">Resolved:</label>
-            <input type="number" id="resolved" name="resolved" placeholder="Enter Resolved" required>
+            <div class="form-group">
+               <label for="softwares">Software's Name:</label>
+               <input type="text" name="softwares" id="softwares" class="form-control" placeholder="Enter Software Name" required>
+            </div>
+            <div class="form-group">
+               <label for="remarks">Description:</label>
+               <textarea id="remarks" name="remarks" class="form-control" placeholder="Description" required></textarea>
+            </div>
+            <div class="form-group">
+               <label for="totalcomplaints"> Total Complaints:</label>
+               <input type="number" id="totalcomplaints" name="totalcomplaints" class="form-control" placeholder="Enter Total Complaints" required>
+            </div>
+            <div class="form-group">
+               <label for="resolved">Resolved:</label>
+               <input type="number" id="resolved" name="resolved" class="form-control" placeholder="Enter Resolved" required>
+            </div>
             <button type="submit" class="btn btn-primary">Submit</button>
          </form>
       </div>

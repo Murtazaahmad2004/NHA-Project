@@ -8,7 +8,7 @@
       <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
    </head>
    <body>
-      <div class="container">
+      <div class="container2">
          <h1>Edit Store Items Form</h1>
          {% if error %}
          <div class="alert alert-danger">{{ error }}</div>
@@ -17,30 +17,44 @@
          <div class="alert alert-success">{{ success }}</div>
          {% endif %}
          <form method="post" action="{{ url_for('edit_store_item_list', id=record['id']) }}">
-            <label for="Items_Name">Item Name:</label>
-            <input type="text" id="Items_Name" name="Items_Name" class="form-control"  value="{{ record['items_name']}}" placeholder="Enter Item Name">
-            <label for="pending_demands">Pending Demands:</label>
-            <input type="text" id="pending_demands" name="pending_demands" class="form-control" value="{{ record['pending_dmands']}}" placeholder="Pending Demands" required>
-
-            <label for="previous_month">Previous Month:</label>
-            <input type="month" id="previous_month" name="previous_month" class="form-control" value="{{ record['previous_month']}}" placeholder="Selected Month" required>
-
-            <label for="demands_previous_month">Demands of Previous Month:</label>
-            <input type="text" id="demands_previous_month" name="demands_previous_month" value="{{ record['demands_of_previous_month']}}" class="form-control" placeholder="Demands of Previous Month" required>
-            <label for="issued_previous_month">Issued of Previous Month:</label>
-            <input type="text" id="issued_previous_month" name="issued_previous_month" value="{{ record['issued_of_previous_month']}}" class="form-control" placeholder="Issued of Previous Month" required>
-            
-            <label for="current_month">Current Month:</label>
-            <input type="month" id="current_month" name="current_month" class="form-control" value="{{ record['current_month']}}" placeholder="Select Month" required>
-
-            <label for="demands_curnt_month">Demands of Current Month:</label>
-            <input type="text" id="demands_curnt_month" name="demands_curnt_month" class="form-control" value="{{ record['demands_of_current_month']}}" placeholder="Demands of Current Month" required>
-            <label for="issued_curnt_month">Issued of Current Month:</label>
-            <input type="text" id="issued_curnt_month" name="issued_curnt_month" class="form-control" value="{{ record['issued_of_current_month']}}" placeholder="issued of Current Month" required>
-            <label for="total_hours_spend">Total Hours Spend:</label>
-            <input type="number" id="total_hours_spend" name="total_hours_spend" class="form-control" value="{{ record['total_hours_spend']}}" placeholder="Total Hours Spend" required>
-            <button type="submit" class="btn4 btn-primary">Update</button>
-            <a href="{{ url_for('store_item_list') }}" class="btn3 btn-danger">Cancel</a>
+            <div class="form-group">
+               <label for="Items_Name">Item Name:</label>
+               <input type="text" id="Items_Name" name="Items_Name" class="form-control"  value="{{ record['items_name']}}" placeholder="Enter Item Name">
+            </div>
+            <div class="form-group">
+               <label for="pending_demands">Pending Demands:</label>
+               <input type="text" id="pending_demands" name="pending_demands" class="form-control" value="{{ record['pending_dmands']}}" placeholder="Pending Demands" required>
+            </div>
+            <div class="form-group">
+               <label for="previous_month">Previous Month:</label>
+               <input type="month" id="previous_month" name="previous_month" class="form-control" value="{{ record['previous_month']}}" placeholder="Selected Month" required>
+            </div>
+            <div class="form-group">
+               <label for="demands_previous_month">Demands of Previous Month:</label>
+               <input type="text" id="demands_previous_month" name="demands_previous_month" value="{{ record['demands_of_previous_month']}}" class="form-control" placeholder="Demands of Previous Month" required>
+            </div>
+            <div class="form-group">
+               <label for="issued_previous_month">Issued of Previous Month:</label>
+               <input type="text" id="issued_previous_month" name="issued_previous_month" value="{{ record['issued_of_previous_month']}}" class="form-control" placeholder="Issued of Previous Month" required>
+            </div>
+            <div class="form-group">
+               <label for="current_month">Current Month:</label>
+               <input type="month" id="current_month" name="current_month" class="form-control" value="{{ record['current_month']}}" placeholder="Select Month" required>
+            </div>
+            <div class="form-group">
+               <label for="demands_curnt_month">Demands of Current Month:</label>
+               <input type="text" id="demands_curnt_month" name="demands_curnt_month" class="form-control" value="{{ record['demands_of_current_month']}}" placeholder="Demands of Current Month" required>
+            </div>
+            <div class="form-group">
+               <label for="issued_curnt_month">Issued of Current Month:</label>
+               <input type="text" id="issued_curnt_month" name="issued_curnt_month" class="form-control" value="{{ record['issued_of_current_month']}}" placeholder="issued of Current Month" required>
+            </div>
+            <div class="form-group">
+               <label for="total_hours_spend">Total Hours Spend:</label>
+               <input type="number" id="total_hours_spend" name="total_hours_spend" class="form-control" value="{{ record['total_hours_spend']}}" placeholder="Total Hours Spend" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="{{ url_for('store_item_list') }}" class="btn btn-danger">Cancel</a>
          </form>
       </div>
    </body>

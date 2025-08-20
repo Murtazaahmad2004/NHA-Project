@@ -8,7 +8,7 @@
       <title>Procurement Form</title>
    </head>
    <body>
-      <div class="container">
+      <div class="container1">
          <h1>Procurement Form</h1>
          <!-- Display messages -->
          {% if success %}
@@ -18,12 +18,18 @@
          <div class="alert alert-danger">{{ error }}</div>
          {% endif %}
          <form method="POST" action="/procrument_form">
-            <label for="item">Item Name:</label>
-            <input type="text" id="item" name="item" class="form-control" placeholder="Enter Item Name">
-            <label for="units">Units:</label>
-            <input type="text" id="units" name="units" class="form-control" placeholder="Enter units" required>
-            <label for="expenditure">Expenditure:</label>
-            <input type="number" id="expenditure" name="expenditure" class="form-control" placeholder="Enter expenditure" required>
+            <div class="form-group">
+               <label for="item">Item Name:</label>
+               <input type="text" id="item" name="item" class="form-control" placeholder="Enter Item Name">
+            </div>
+            <div class="form-group">
+               <label for="units">Units:</label>
+               <input type="text" id="units" name="units" class="form-control" placeholder="Enter units" required>
+            </div>
+            <div class="form-group">
+               <label for="expenditure">Expenditure:</label>
+               <input type="number" id="expenditure" name="expenditure" class="form-control" placeholder="Enter expenditure" required>
+            </div>
             <button type="submit" class="btn btn-primary">Submit</button>
          </form>
       </div>

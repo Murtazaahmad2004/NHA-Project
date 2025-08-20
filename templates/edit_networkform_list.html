@@ -8,19 +8,27 @@
       <title>Networks</title>
    </head>
    <body>
-      <div class="container5">
+      <div class="container1">
          <form method="post" action="{{ url_for('edit_networkform_list', id=record['id']) }}">
             <h1>Network Form</h1>
-            <label for="item">Item:</label>
-            <input type="text" id="item" name="item" value="{{ record['item']}}" required>
-            <label for="downitem">Down Time:</label>
-            <input type="number" name="downitem" id="downitem" value="{{ record['down_time']}}" required>
-            <label for="uptime">UpTime Percentage:</label>
-            <input type="number" name="uptime" id="uptime" value="{{ record['up_time_percentage']}}" required>
-            <label for="remarks">Remarks:</label>
-            <textarea name="remarks" id="remarks" required>{{ record['remarks']}}</textarea>
-            <button type="submit" class="btn4 btn-primary">Update</button>
-            <a href="{{ url_for('networkform_list') }}" class="btn3 btn-danger">Cancel</a>
+            <div class="form-group">
+               <label for="item">Item:</label>
+               <input type="text" id="item" name="item" class="form-control" value="{{ record['item']}}" required>
+            </div>
+            <div class="form-group">
+               <label for="downitem">Down Time:</label>
+               <input type="number" name="downitem" id="downitem" class="form-control" value="{{ record['down_time']}}" required>
+            </div>
+            <div class="form-group">
+               <label for="uptime">UpTime Percentage:</label>
+               <input type="number" name="uptime" id="uptime" class="form-control" value="{{ record['up_time_percentage']}}" required>
+            </div>
+            <div class="form-group">
+               <label for="remarks">Remarks:</label><br>
+               <textarea name="remarks" id="remarks" required>{{ record['remarks']}}</textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="{{ url_for('networkform_list') }}" class="btn btn-danger">Cancel</a>
          </form>
       </div>
    </body>

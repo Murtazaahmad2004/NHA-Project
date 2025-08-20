@@ -8,7 +8,7 @@
       <title>Edit Tender Details</title>
    </head>
    <body>
-      <div class="container">
+      <div class="container1">
          <h1>Edit Tender Details</h1>
          {% if error %}
          <div class="alert alert-danger">{{ error }}</div>
@@ -17,20 +17,30 @@
          <div class="alert alert-success">{{ success }}</div>
          {% endif %}
          <form method="post" action="{{ url_for('edit_uploading_item', id=record['id']) }}" >
-            <label for="particulars">Particulars:</label>
-            <input type="text" name="particulars" id="particulars" value="{{ record['particulars']}}" required>
-            <label for="res_person">Reserve Person:</label>
-            <input type="number" name="res_person" id="res_person" value="{{ record['reserve_person']}}" required>
-            <label for="previous_month">Previous Month:</label>
-            <input type="month" name="previous_month" id="previous_month" value="{{ record['previous_month']}}" required>
-            <input type="number" name="previous_month_quantity" id="previous_month_quantity" value="{{ record['previous_month_quantity']}}" required>
-            <label for="current_month">Current Month:</label>
-            <input type="month" name="current_month" id="current_month" value="{{ record['current_month']}}" required>
-            <input type="number" name="current_month_quantity" id="current_month_quantity" value="{{ record['current_month_quantity']}}" required>
-            <label for="hoursspend">Total Hours Spend:</label>
-            <input type="number" name="hoursspend" id="hoursspend" value="{{ record['hoursspend']}}" required>
-            <button type="submit" class="btn4 btn-primary">Update</button>
-            <a href="{{ url_for('store_item_list') }}" class="btn3 btn-danger">Cancel</a>
+            <div class="form-group">
+               <label for="particulars">Particulars:</label>
+               <input type="text" name="particulars" id="particulars" class="form-control" value="{{ record['particulars']}}" required>
+            </div>
+            <div class="form-group">
+               <label for="res_person">Reserve Person:</label>
+               <input type="number" name="res_person" id="res_person" class="form-control" value="{{ record['reserve_person']}}" required>
+            </div>
+            <div class="form-group">
+               <label for="previous_month">Previous Month:</label>
+               <input type="month" name="previous_month" id="previous_month" class="form-control" value="{{ record['previous_month']}}" required>
+               <input type="number" name="previous_month_quantity" id="previous_month_quantity" class="form-control" value="{{ record['previous_month_quantity']}}" required>
+            </div>
+            <div class="form-group">
+               <label for="current_month">Current Month:</label>
+               <input type="month" name="current_month" id="current_month" class="form-control" value="{{ record['current_month']}}" required>
+               <input type="number" name="current_month_quantity" id="current_month_quantity" class="form-control" value="{{ record['current_month_quantity']}}" required>
+            </div>
+            <div class="form-group">
+               <label for="hoursspend">Total Hours Spend:</label>
+               <input type="number" name="hoursspend" id="hoursspend" class="form-control" value="{{ record['hoursspend']}}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="{{ url_for('store_item_list') }}" class="btn btn-danger">Cancel</a>
          </form>
       </div>
    </body>

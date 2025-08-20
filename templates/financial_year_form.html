@@ -1,35 +1,37 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-      <script src="{{ url_for('static', filename='main.js') }}" defer></script>
-      <title>Financial Year Form</title>
-   </head>
-   <body>
-      <div class="container">
-         <h1>Financial Year Form</h1>
-         <!-- Display flashed messages -->
-         {% with messages = get_flashed_messages(with_categories=true) %}
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+   <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+   <title>Financial Year Form</title>
+</head>
+<body>
+   <div class="container1">
+      <h1>Financial Year Form</h1>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
          {% if messages %}
-         {% for category, message in messages %}
-         <div class="alert alert-{{ category }}">{{ message }}</div>
-         {% endfor %}
+            {% for category, message in messages %}
+               <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
          {% endif %}
-         {% endwith %}
-         <form method="post" action="/financial_year_form">
-            <div id="financial_year">
-               <div class="form-group">
-                  <select name="financialyear[]" class="form-control" required>
-                     <option value="">Select Financial Year</option>
-                  </select>
-               </div>
-            </div>
-            <button type="button" class="btn btn-info" onclick="AddField()">➕ Add More</button>
-            <button type="submit" class="btn btn-primary">Submit</button>
-         </form>
-      </div>
-   </body>
+      {% endwith %}
+
+      <!-- Financial Year Form -->
+      <form method="post" action="/financial_year_form" class="form-financial-year">
+         <div id="financial_year" class="form-group">
+            <select name="financialyear[]" class="form-control" required>
+               <option value="">Select Financial Year</option>
+            </select>
+         </div>
+
+         <button type="button" class="btn btn-info" onclick="AddField()">➕ Add More</button>
+         <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+   </div>
+</body>
 </html>

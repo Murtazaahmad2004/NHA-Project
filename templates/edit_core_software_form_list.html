@@ -8,7 +8,7 @@
       <title>Edit Core Software</title>
    </head>
    <body>
-      <div class="container">
+      <div class="container1">
          {% if error %}
          <div class="alert alert-danger">{{ error }}</div>
          {% endif %}
@@ -17,12 +17,16 @@
          {% endif %}
          <form method="post" action="{{ url_for('edit_core_software_form_list', id=record['id']) }}">
             <h1>Edit Core Software</h1>
-            <label for="coresoftware">Core Software</label>
-            <input type="text" id="coresoftware" name="coresoftware" value="{{ record['core_software']}}" required>
-            <label for="module">Module</label>
-            <input type="number" id="module" name="module" value="{{ record['modules']}}" required>
-            <button type="submit" class="btn4 btn-primary">Update</button>
-            <a href="{{ url_for('core_software_form_list') }}" class="btn3 btn-danger">Cancel</a>
+            <div class="form-group">
+               <label for="coresoftware">Core Software</label>
+               <input type="text" id="coresoftware" name="coresoftware" class="form-control" value="{{ record['core_software']}}" required>
+            </div>
+            <div class="form-group">
+               <label for="module">Module</label>
+               <input type="number" id="module" name="module" class="form-control" value="{{ record['modules']}}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="{{ url_for('core_software_form_list') }}" class="btn btn-danger">Cancel</a>
          </form>
       </div>
    </body>

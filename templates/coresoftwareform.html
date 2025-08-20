@@ -8,7 +8,7 @@
       <title>Core Software Form</title>
    </head>
    <body>
-      <div class="container">
+      <div class="container1">
          {% if error %}
          <div class="alert alert-danger">{{ error }}</div>
          {% endif %}
@@ -18,9 +18,9 @@
          <form method="post" action="/coresoftwareform">
             <h1>Core Software Form</h1>
             <label for="coresoftware">Core Software:</label>
-            <input type="text" id="coresoftware" name="coresoftware" placeholder="Core Software Name" required>
+            <input type="text" id="coresoftware" name="coresoftware" class="form-control" placeholder="Core Software Name" required>
             <label for="module">Module:</label>
-            <input type="number" id="module" name="module" placeholder="Enter Module" required>
+            <input type="number" id="module" name="module" class="form-control" placeholder="Enter Module" required>
             <button type="submit" class="btn btn-primary">Submit</button>
          </form>
       </div>

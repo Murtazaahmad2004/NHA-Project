@@ -3318,7 +3318,7 @@ def delete_summarisereport_list(id):
     finally:
         cursor.close()
         conn.close()
-    return render_template('summarisereport_list.html')
+    return redirect(url_for('summarisereport_list'))
 
 # Summarize edit
 @app.route('/edit_summarisereport_list/<int:id>', methods=['GET', 'POST'])

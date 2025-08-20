@@ -1,6 +1,5 @@
 item_name,unit_in_house,units_externals,hours_spend_in_house,days_externals,expenditure,item_total,percentage_of_an_item,avg_cost_per_unit,total_unit_repaired_in_house,total_unit_repaired_external
-Desktops,15,9,10,8,70000,24,7,7778,11,9
+Desktops,15,9,10,9,70000,24,7,7778,11,9
 LCDs,15,20,23,12,98000,35,10,4900,15,20
 Servers,11,16,24,10,658000,27,66,41125,11,16
-Printers,3,8,3,4,94506,11,9,11813,3,8
-Laptops,15,10,46,40,80000,25,8,7800,15,10
+Laptops,15,20,30,35,175000,35,17,8750,15,20

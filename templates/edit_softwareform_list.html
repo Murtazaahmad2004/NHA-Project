@@ -17,16 +17,24 @@
             {% if success %}
             <div class="alert alert-success">{{ success }}</div>
             {% endif %}
-            <label for="activities">Activities</label>
-            <input type="text" id="activities" name="activities" value="{{ record['activities']}}" required>
-            <label for="no_of_software">No.of Software's Under Development:</label>
-            <input type="number" id="no_of_software" name="no_of_software" value="{{ record['no_of_software_under_development']}}" required>
-            <label for="no_of_team_member">No.of Team Member:</label>
-            <input type="number" id="no_of_team_member" name="no_of_team_member" value="{{ record['no_of_team_member']}}" required>
-            <label for="working_hours">Working Hours During the Month:</label>
-            <input type="number" id="working_hours" name="working_hours" value="{{ record['working_hours_during_month']}}" required>
-            <button type="submit" class="btn4 btn-primary">Update</button>
-            <a href="{{ url_for('softwareform_list') }}" class="btn3 btn-danger">Cancel</a>
+            <div class="form-group">
+               <label for="activities">Activities</label>
+               <input type="text" id="activities" name="activities" class="form-control" value="{{ record['activities']}}" required>
+            </div>
+            <div class="form-group">
+               <label for="no_of_software">No.of Software's Under Development:</label>
+               <input type="number" id="no_of_software" name="no_of_software" class="form-control" value="{{ record['no_of_software_under_development']}}" required>
+            </div>
+            <div class="form-group">
+               <label for="no_of_team_member">No.of Team Member:</label>
+               <input type="number" id="no_of_team_member" name="no_of_team_member" class="form-control" value="{{ record['no_of_team_member']}}" required>
+            </div>
+            <div class="form-group">
+               <label for="working_hours">Working Hours During the Month:</label>
+               <input type="number" id="working_hours" name="working_hours" class="form-control" value="{{ record['working_hours_during_month']}}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="{{ url_for('softwareform_list') }}" class="btn btn-danger">Cancel</a>
          </form>
       </div>
    </body>
