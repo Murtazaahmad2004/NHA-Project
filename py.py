@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, Response, flash, json, redirect, render_template, request, url_for
+from flask import Flask, Response, flash, json, jsonify, redirect, render_template, request, url_for
 import mysql.connector
 from flask_cors import CORS
 import calendar
@@ -39,24 +39,106 @@ def home_page():
 # Dashboard page route
 @app.route('/dashboard')
 def dashboard():
+    return render_template("dashboard.html")
+
+# route chart type
+@app.route('/chart-data/<chart_type>')
+def chart_type(chart_type):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Fetching data ordered by Reporting Month Last Day (or Budget Month)
-    cursor.execute("""
-        SELECT `financial_year`, `total_budget` 
-        FROM budget
-        ORDER BY `financial_year` ASC
-    """)
-    data = cursor.fetchall()
+    if chart_type == "budget":
+        cursor.execute("""
+            SELECT financial_year, total_budget 
+            FROM budget
+            ORDER BY financial_year ASC
+        """)
+        rows = cursor.fetchall()
+        labels = [row[0] for row in rows]
+        values = [float(row[1]) for row in rows]
+        data = {"labels": labels, "values": values, "label": "Remaining Budget"}
+    
+    elif chart_type == "repair_maintenance":
+        cursor.execute("""
+            SELECT item_name, unit_in_house, units_externals 
+            FROM repair_maintenance
+            ORDER BY item_name ASC
+        """)
+        rows = cursor.fetchall()
+        labels = [row[0] for row in rows]
+        values = [float(row[1]) for row in rows]
+        data = {"labels": labels, "values": values, "label": "Repair & Maintenance"}
+    
+    elif chart_type == "complaints":
+        cursor.execute("""
+            SELECT network_resolved_complaints, network_pending_complaints, it_resolved_complaints,  it_pending_complaints
+            FROM complaints
+        """)
+        rows = cursor.fetchall()
+        labels = [row[0] for row in rows]
+        values = [float(row[1]) for row in rows]
+        data = {"labels": labels, "values": values, "label": "Calls Detail"}
+    
+    elif chart_type == "store_items":
+        cursor.execute("""
+            SELECT items_name, demands_of_previous_month, issued_of_previous_month,  demands_of_current_month, issued_of_current_month
+            FROM store_items
+            ORDER BY items_name ASC
+        """)
+        rows = cursor.fetchall()
+        labels = [row[0] for row in rows]
+        values = [float(row[1]) for row in rows]
+        data = {"labels": labels, "values": values, "label": "Store Items"}
+    
+    elif chart_type == "uploding":
+        cursor.execute("""
+            SELECT particulars, previous_month_quantity, current_month_quantity
+            FROM uploding
+            ORDER BY particulars ASC
+        """)
+        rows = cursor.fetchall()
+        labels = [row[0] for row in rows]
+        values = [float(row[1]) for row in rows]
+        data = {"labels": labels, "values": values, "label": "Uploding"}
+    
+    elif chart_type == "software_form":
+        cursor.execute("""
+            SELECT activities, no_of_software_under_development, no_of_team_member
+            FROM software_form
+            ORDER BY activities ASC
+        """)
+        rows = cursor.fetchall()
+        labels = [row[0] for row in rows]
+        values = [float(row[1]) for row in rows]
+        data = {"labels": labels, "values": values, "label": "Software Form"}
+    
+    elif chart_type == "core_software":
+        cursor.execute("""
+            SELECT core_software, modules
+            FROM core_software
+            ORDER BY core_software ASC
+        """)
+        rows = cursor.fetchall()
+        labels = [row[0] for row in rows]
+        values = [float(row[1]) for row in rows]
+        data = {"labels": labels, "values": values, "label": "Core Software"}
+    
+    elif chart_type == "summarize":
+        cursor.execute("""
+            SELECT procurement_activities, available_hours
+            FROM summarize
+            ORDER BY procurement_activities ASC
+        """)
+        rows = cursor.fetchall()
+        labels = [row[0] for row in rows]
+        values = [float(row[1]) for row in rows]
+        data = {"labels": labels, "values": values, "label": "Summarize"}
+    else:
+        data = {"labels": [], "values": [], "label": "Unknown"}
+
     cursor.close()
     conn.close()
-
-    # Prepare data for Chart.js
-    labels = [row[0] for row in data]  # Budget Month
-    values = [float(row[1]) for row in data]  # Remaining Budget
-
-    return render_template('dashboard.html', labels=json.dumps(labels), values=json.dumps(values))
+    return jsonify(data)
 
 # Route to submission financial year 
 @app.route('/financial_year_form', methods=['GET', 'POST'])

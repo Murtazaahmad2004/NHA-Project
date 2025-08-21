@@ -185,3 +185,63 @@ document.addEventListener("DOMContentLoaded", function () {
     setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
     setupTablePagination("budgetTable", "pagination", 5); // 5 rows per page
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    function getRainbowColors(count) {
+        const colors = [];
+        for (let i = 0; i < count; i++) {
+            const hue = Math.floor((i / count) * 360); // distribute hue evenly
+            colors.push(`hsl(${hue}, 70%, 50%)`);
+        }
+        return colors;
+    }
+
+    function loadChart(endpoint, canvasId, chartType = "line") {
+        fetch(`/chart-data/${endpoint}`)
+            .then(response => response.json())
+            .then(data => {
+                var ctx = document.getElementById(canvasId).getContext("2d");
+
+                let chartColors = [];
+                if (chartType === "pie" || chartType === "doughnut" || data.values.length > 1) {
+                    chartColors = getRainbowColors(data.values.length);
+                } else {
+                    chartColors = ["rgb(54, 162, 235)"];
+                }
+
+                new Chart(ctx, {
+                    type: chartType,
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: data.label,
+                            data: data.values,
+                            backgroundColor: chartColors,
+                            borderColor: chartColors,
+                            fill: false,
+                            lineTension: 0.2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            yAxes: [{ ticks: { beginAtZero: true } }]
+                        }
+                    }
+                });
+            })
+            .catch(err => console.error(`Error loading ${endpoint} chart:`, err));
+    }
+
+    // Load charts dynamically
+    loadChart("budget", "budgetChart", "line");
+    loadChart("repair_maintenance", "repairChart", "bar");
+    loadChart("complaints", "callsChart", "pie");
+    loadChart("store_items", "storeItemChart", "line");
+    loadChart("uploding", "uploadingChart", "bar");
+    loadChart("software_form", "softwareFormChart", "pie");
+    loadChart("core_software", "coreSoftwareChart", "line");
+    loadChart("summarize", "summarizeChart", "bar");
+});
