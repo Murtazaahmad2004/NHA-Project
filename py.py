@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, Response, flash, redirect, render_template, request, url_for
+from flask import Flask, Response, flash, json, redirect, render_template, request, url_for
 import mysql.connector
 from flask_cors import CORS
 import calendar
@@ -17,6 +17,15 @@ db_config = {
     'database': 'nha_db'
 }
 
+def get_db_connection():
+    conn = mysql.connector.connect(
+        host=db_config['host'],
+        user=db_config['user'],
+        password=db_config['password'],
+        database=db_config['database']
+    )
+    return conn
+
 # home route
 @app.route('/')
 def home():
@@ -26,6 +35,28 @@ def home():
 @app.route('/home')
 def home_page():
     return render_template('home.html')
+
+# Dashboard page route
+@app.route('/dashboard')
+def dashboard():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Fetching data ordered by Reporting Month Last Day (or Budget Month)
+    cursor.execute("""
+        SELECT `financial_year`, `total_budget` 
+        FROM budget
+        ORDER BY `financial_year` ASC
+    """)
+    data = cursor.fetchall()
+    cursor.close()
+    conn.close()
+
+    # Prepare data for Chart.js
+    labels = [row[0] for row in data]  # Budget Month
+    values = [float(row[1]) for row in data]  # Remaining Budget
+
+    return render_template('dashboard.html', labels=json.dumps(labels), values=json.dumps(values))
 
 # Route to submission financial year 
 @app.route('/financial_year_form', methods=['GET', 'POST'])
