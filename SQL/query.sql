@@ -49,9 +49,12 @@ CREATE TABLE complaints (
 	id INT AUTO_INCREMENT PRIMARY KEY,
     network_resolved_complaints varchar(255),
     network_pending_complaints varchar(255),
+    total_calls_network int,
     it_resolved_complaints varchar(255),
     it_pending_complaints varchar(255),
-    total_hours_spend int
+    total_calls_it int,
+    total_hours_spend int,
+    grand_total_calls int
 );
 
 CREATE TABLE store_items (
