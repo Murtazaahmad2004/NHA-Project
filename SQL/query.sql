@@ -1,25 +1,26 @@
 use nha_db;
 CREATE TABLE financial_year (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    financial_year VARCHAR(20) NOT NULL
+    financial_year VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE item (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    items_name VARCHAR(255) NOT NULL
+    items_name VARCHAR(255) NOT NULL,
+    quantity INT,
+    percentage_of_item DECIMAL(2,0)
 );
 
 CREATE TABLE budget (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    financial_year_id INT,
-    total_budget INT,
-    budget_month VARCHAR(20),
-    budget_used INT,
-    budget_used_upto_june INT,
-    reporting_month_last_day DATE,
-    remaining_budget INT,
+    financial_year VARCHAR(20),
+    total_budget DECIMAL(15,2),
+    budget_month VARCHAR(7),
+    budget_used DECIMAL(15,2),
+    budget_used_upto_june DECIMAL(15,2),
+    reporting_month_last_day INT,
+    remaining_budget DECIMAL(15,2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (financial_year_id) REFERENCES financial_year(id)
 );
 
 CREATE TABLE procurement (
@@ -31,7 +32,7 @@ CREATE TABLE procurement (
 
 CREATE TABLE repair_maintenance (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    item_name VARCHAR(255),
+    item_name VARCHAR(45),
     unit_in_house INT,
     units_externals INT,
     hours_spend_in_house INT,
@@ -71,9 +72,9 @@ CREATE TABLE uploding (
     particulars varchar(255),
     reserve_person int,
     previous_month text,
-    previous_month_quantity text,
+    previous_month_quantity INT,
     current_month text,
-    current_month_quantity text,
+    current_month_quantity INT,
     hoursspend int
 );
 
