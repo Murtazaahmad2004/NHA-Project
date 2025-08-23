@@ -1243,7 +1243,7 @@ def complaints_form():
         try:
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
-            cursor.execute("""
+            ("""
                 INSERT INTO complaints (
                     network_resolved_complaints, 
                     network_pending_complaints, 
@@ -1257,7 +1257,7 @@ def complaints_form():
             """, (
                 network_resolved,
                 network_pending,
-                total_calls_network,
+                total_calls_ncursor.executeetwork,
                 it_resolved,
                 it_pending,
                 total_calls_it,
