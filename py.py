@@ -1257,7 +1257,7 @@ def complaints_form():
             """, (
                 network_resolved,
                 network_pending,
-                total_calls_ncursor.executeetwork,
+                total_calls_network,
                 it_resolved,
                 it_pending,
                 total_calls_it,
