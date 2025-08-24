@@ -1277,7 +1277,7 @@ def complaints_form():
         return render_template('complaints_form.html', success=success, error=error)
 
     # Handle GET
-    return render_template('complaints_form.html')
+    return render_template('complaints_form.html') 
 
 # Complaints List Route
 @app.route('/complaints_list', methods=['GET', 'POST'])
