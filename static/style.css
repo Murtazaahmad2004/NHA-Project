@@ -167,7 +167,7 @@ a.btn1 {
 
 .back-btn {
   float: right;
-  margin: 10px 20px 20px 0;
+  margin: 10px;
 }
 
 /* ===== Table Styling ===== */
@@ -290,6 +290,17 @@ table tbody tr:hover, #budgetTable tbody tr:nth-child(even) {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
+.container3 {
+  width: 95%;
+  height: 880px;
+  padding: 30px;
+  margin-top: 2%;
+  margin-left: 2%;
+  text-align: left;
+  border-radius: 10px;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
 
 /* ===== Dashboard Buttons ===== */
 .btn-container {
@@ -331,16 +342,16 @@ table tbody tr:hover, #budgetTable tbody tr:nth-child(even) {
 }
 
 .dashboard-container {
-    padding: 30px 15px;
+  padding: 30px 15px;
 }
 
 .dashboard-title {
   margin-top: 0px;
-    margin-bottom: 15px;
-    font-weight: 900;
-    text-align: center;
-    font-family: 'Courier New', Courier, monospace;
-    color: #2c3e50;
+  margin-bottom: 15px;
+  font-weight: 900;
+  text-align: center;
+  font-family: 'Courier New', Courier, monospace;
+  color: #2c3e50;
 }
 
 .chart-card {
@@ -364,13 +375,12 @@ table tbody tr:hover, #budgetTable tbody tr:nth-child(even) {
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
-/* Chart canvas size to avoid scrolling */
+
 canvas {
     width: 100% !important;
-    height: 300px !important;  /* fixed height to prevent vertical scroll */
+    height: 300px !important;
 }
 
-/* ===== Dashboard Button Colors ===== */
 .button.blue { background: #3498db; }
 .button.orange { background: #e67e22; }
 .button.green { background: #27ae60; }
