@@ -20,7 +20,7 @@ CREATE TABLE budget (
     budget_used_upto_june DECIMAL(15,2),
     reporting_month_last_day INT,
     remaining_budget DECIMAL(15,2),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE procurement (
