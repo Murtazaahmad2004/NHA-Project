@@ -270,8 +270,8 @@ table tbody tr:hover, #budgetTable tbody tr:nth-child(even) {
 .container1 {
   width: 450px;
   padding: 30px;
-  margin-top: 7%;
-  margin-left: 36%;
+  margin-top: 3%;
+  margin-left: 38%;
   text-align: left;
   border-radius: 10px;
   background-color: rgba(255, 255, 255, 0.95);
@@ -280,9 +280,8 @@ table tbody tr:hover, #budgetTable tbody tr:nth-child(even) {
 
 .container2 {
   width: 30%;
-  height: 880px;
+  height: 930px;
   padding: 30px;
-  margin-top: 2%;
   margin-left: 36%;
   text-align: left;
   border-radius: 10px;
@@ -349,7 +348,6 @@ table tbody tr:hover, #budgetTable tbody tr:nth-child(even) {
   margin-top: 0px;
   margin-bottom: 15px;
   font-weight: 900;
-  text-align: center;
   font-family: 'Courier New', Courier, monospace;
   color: #2c3e50;
 }

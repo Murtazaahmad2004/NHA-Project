@@ -9,14 +9,27 @@
    </head>
    <body>
       <div class="container1">
-         <form method="post" action="/softwareform">
-            <h1>Software Activities Form</h1>
+         <h1>Software Activities Form</h1>
             {% if error %}
             <div class="alert alert-danger">{{ error }}</div>
             {% endif %}
             {% if success %}
             <div class="alert alert-success">{{ success }}</div>
             {% endif %}
+         <form method="post" action="/softwareform">
+            <div class="form-group">
+               <label for="financialyear">Financial Year:</label>
+               <select id="financialyear" name="financialyear" class="form-control" required>
+                  <option value="">Select Financial Year</option>
+                     {% for fy in financial_years %}
+                  <option value="{{ fy['financial_year'] }}">{{ fy['financial_year'] }}</option>
+                     {% endfor %}
+               </select>
+            </div>
+            <div class="form-group">
+               <label for="month">Month:</label>
+               <input type="month" id="month" name="month" class="form-control" placeholder="Enter Month" required>
+            </div>
             <div class="form-group">
                <label for="activities">Activities:</label>
                <input type="text" id="activities" name="activities" class="form-control" placeholder="Enter Activity Name" required>

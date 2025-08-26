@@ -11,11 +11,12 @@
 </head>
 <body>
     <div class="container3 dashboard-container">
-        <h1 class="dashboard-title">DASHBOARD</h1>
+        <h1 class="dashboard-title">DASHBOARD REPORTS</h1>
         <a href="/home" class="btn1 btn-danger back-btn">Back To Home Page</a>
         <div class="row">
             {% for chart in [
                 {"id": "budgetChart", "title": "Remaining Budget"},
+                {"id": "procrumentChart", "title": "Procurement"},
                 {"id": "repairChart", "title": "Repair & Maintenance"},
                 {"id": "callsChart", "title": "Calls Detail"},
                 {"id": "storeItemChart", "title": "Store Items"},

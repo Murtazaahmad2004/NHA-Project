@@ -54,6 +54,8 @@
       <thead>
          <tr>
             <th>S. #</th>
+            <th>Financial Year</th>
+            <th>Month</th>
             <th>Core Software</th>
             <th>Modules</th>
             <th>Action</th>
@@ -63,6 +65,8 @@
          {% for record in records %}
          <tr>
             <td>{{ loop.index }}</td>
+            <td>{{ record['financial_year'] }}</td>
+            <td>{{ record['month'] }}</td>
             <td>{{ record['core_software'] }}</td>
             <td>{{ record['modules'] }}</td>
             <td>

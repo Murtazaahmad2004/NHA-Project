@@ -19,8 +19,21 @@
          {% endif %}
          <form method="POST" action="/procrument_form">
             <div class="form-group">
+               <label for="financialyear">Financial Year:</label>
+               <select id="financialyear" name="financialyear" class="form-control" required>
+                  <option value="">Select Financial Year</option>
+                  {% for fy in financial_years %}
+                  <option value="{{ fy['financial_year'] }}">{{ fy['financial_year'] }}</option>
+                  {% endfor %}
+               </select>
+            </div>
+            <div class="form-group">
+               <label for="procrument_month">Procrument Month:</label>
+               <input type="month" id="procrument_month" name="procrument_month" class="form-control" placeholder="Enter Procrument Month" required>
+            </div>
+            <div class="form-group">
                <label for="item">Item Name:</label>
-               <input type="text" id="item" name="item" class="form-control" placeholder="Enter Item Name">
+               <input type="text" id="item" name="item" class="form-control" placeholder="Enter Item Name" required>
             </div>
             <div class="form-group">
                <label for="units">Units:</label>

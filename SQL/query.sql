@@ -17,7 +17,7 @@ CREATE TABLE budget (
     total_budget DECIMAL(15,2),
     budget_month VARCHAR(7),
     budget_used DECIMAL(15,2),
-    budget_used_upto_june DECIMAL(15,2),
+    budget_used_upto_current_month DECIMAL(15,2),
     reporting_month_last_day INT,
     remaining_budget DECIMAL(15,2),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -25,6 +25,8 @@ CREATE TABLE budget (
 
 CREATE TABLE procurement (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    financial_year VARCHAR(20),
+    procrument_month VARCHAR(7),
     item_name VARCHAR(255),
     units INT,
     expenditure INT
@@ -32,6 +34,8 @@ CREATE TABLE procurement (
 
 CREATE TABLE repair_maintenance (
     id INT AUTO_INCREMENT PRIMARY KEY,
+    financial_year VARCHAR(20),
+    procrument_month VARCHAR(7),
     item_name VARCHAR(45),
     unit_in_house INT,
     units_externals INT,
@@ -47,6 +51,8 @@ CREATE TABLE repair_maintenance (
 
 CREATE TABLE complaints (
 	id INT AUTO_INCREMENT PRIMARY KEY,
+    financial_year VARCHAR(20),
+    complaint_month VARCHAR(7),
     network_resolved_complaints varchar(255),
     network_pending_complaints varchar(255),
     total_calls_network int,
@@ -59,6 +65,7 @@ CREATE TABLE complaints (
 
 CREATE TABLE store_items (
 	id INT AUTO_INCREMENT PRIMARY KEY,
+    financial_year VARCHAR(20),
     items_name varchar(255),
     pending_dmands varchar(255),
     previous_month TEXT, 
@@ -73,6 +80,7 @@ CREATE TABLE store_items (
 CREATE TABLE uploding (
 	id INT AUTO_INCREMENT PRIMARY KEY,
     particulars varchar(255),
+    financial_year VARCHAR(20),
     reserve_person int,
     previous_month text,
     previous_month_quantity INT,
@@ -83,6 +91,8 @@ CREATE TABLE uploding (
 
 CREATE TABLE software_form (
 	id INT AUTO_INCREMENT PRIMARY KEY,
+    financial_year VARCHAR(20),
+    month VARCHAR(7),
     activities varchar(255),
     no_of_software_under_development int,
     no_of_team_member int,
@@ -91,6 +101,8 @@ CREATE TABLE software_form (
 
 CREATE TABLE core_software (
 	id INT AUTO_INCREMENT PRIMARY KEY,
+    financial_year VARCHAR(20),
+    month VARCHAR(7),
     core_software varchar(255),
     modules int
 );
@@ -132,6 +144,7 @@ CREATE TABLE pmis (
 
 CREATE TABLE summarize (
 	id INT AUTO_INCREMENT PRIMARY KEY,
+    financial_year VARCHAR(20),
     procurement_activities varchar(255),
     current_month varchar(255),
     available_hours int,

@@ -55,9 +55,26 @@ def chart_type(chart_type):
         """)
         rows = cursor.fetchall()
         labels = [row[0] for row in rows]
-        values = [float(row[1]) for row in rows]
-        data = {"labels": labels, "values": values, "label": "Remaining Budget"}
-    
+        datasets = [{
+            "label": "Remaining Budget",
+            "data": [float(row[1]) for row in rows]
+        }]
+        data = {"labels": labels, "datasets": datasets}
+
+    elif chart_type == "procurement":
+        cursor.execute("""
+            SELECT item_name, expenditure 
+            FROM procurement
+            ORDER BY item_name ASC
+        """)
+        rows = cursor.fetchall()
+        labels = [row[0] for row in rows]
+        datasets = [{
+            "label": "Expenditure",
+            "data": [float(row[1]) for row in rows]
+        }]
+        data = {"labels": labels, "datasets": datasets}
+
     elif chart_type == "repair_maintenance":
         cursor.execute("""
             SELECT item_name, unit_in_house, units_externals 
@@ -66,30 +83,48 @@ def chart_type(chart_type):
         """)
         rows = cursor.fetchall()
         labels = [row[0] for row in rows]
-        values = [float(row[1]) for row in rows]
-        data = {"labels": labels, "values": values, "label": "Repair & Maintenance"}
-    
+        datasets = [
+            {"label": "In-House", "data": [float(row[1]) for row in rows]},
+            {"label": "Externals", "data": [float(row[2]) for row in rows]}
+        ]
+        data = {"labels": labels, "datasets": datasets}
+
     elif chart_type == "complaints":
         cursor.execute("""
-            SELECT network_resolved_complaints, network_pending_complaints, it_resolved_complaints,  it_pending_complaints
+            SELECT network_resolved_complaints, network_pending_complaints, 
+                it_resolved_complaints, it_pending_complaints
             FROM complaints
         """)
         rows = cursor.fetchall()
-        labels = [row[0] for row in rows]
-        values = [float(row[1]) for row in rows]
-        data = {"labels": labels, "values": values, "label": "Calls Detail"}
-    
+
+        if rows:  # agar data exist kare
+            labels = ["Network Resolved", "Network Pending", "IT Resolved", "IT Pending"]
+            values = [float(rows[0][0]), float(rows[0][1]), float(rows[0][2]), float(rows[0][3])]
+            datasets = [{
+                "label": "Complaints",
+                "data": values
+            }]
+            data = {"labels": labels, "datasets": datasets}
+        else:
+            data = {"labels": [], "datasets": []}
+
     elif chart_type == "store_items":
         cursor.execute("""
-            SELECT items_name, demands_of_previous_month, issued_of_previous_month,  demands_of_current_month, issued_of_current_month
+            SELECT items_name, demands_of_previous_month, issued_of_previous_month,  
+                   demands_of_current_month, issued_of_current_month
             FROM store_items
             ORDER BY items_name ASC
         """)
         rows = cursor.fetchall()
         labels = [row[0] for row in rows]
-        values = [float(row[1]) for row in rows]
-        data = {"labels": labels, "values": values, "label": "Store Items"}
-    
+        datasets = [
+            {"label": "Demand (Prev Month)", "data": [float(row[1]) for row in rows]},
+            {"label": "Issued (Prev Month)", "data": [float(row[2]) for row in rows]},
+            {"label": "Demand (Curr Month)", "data": [float(row[3]) for row in rows]},
+            {"label": "Issued (Curr Month)", "data": [float(row[4]) for row in rows]}
+        ]
+        data = {"labels": labels, "datasets": datasets}
+
     elif chart_type == "uploding":
         cursor.execute("""
             SELECT particulars, previous_month_quantity, current_month_quantity
@@ -98,9 +133,12 @@ def chart_type(chart_type):
         """)
         rows = cursor.fetchall()
         labels = [row[0] for row in rows]
-        values = [float(row[1]) for row in rows]
-        data = {"labels": labels, "values": values, "label": "Uploding"}
-    
+        datasets = [
+            {"label": "Prev Month", "data": [float(row[1]) for row in rows]},
+            {"label": "Current Month", "data": [float(row[2]) for row in rows]}
+        ]
+        data = {"labels": labels, "datasets": datasets}
+
     elif chart_type == "software_form":
         cursor.execute("""
             SELECT activities, no_of_software_under_development, no_of_team_member
@@ -109,9 +147,12 @@ def chart_type(chart_type):
         """)
         rows = cursor.fetchall()
         labels = [row[0] for row in rows]
-        values = [float(row[1]) for row in rows]
-        data = {"labels": labels, "values": values, "label": "Software Form"}
-    
+        datasets = [
+            {"label": "Software Under Dev", "data": [float(row[1]) for row in rows]},
+            {"label": "Team Members", "data": [float(row[2]) for row in rows]}
+        ]
+        data = {"labels": labels, "datasets": datasets}
+
     elif chart_type == "core_software":
         cursor.execute("""
             SELECT core_software, modules
@@ -120,21 +161,27 @@ def chart_type(chart_type):
         """)
         rows = cursor.fetchall()
         labels = [row[0] for row in rows]
-        values = [float(row[1]) for row in rows]
-        data = {"labels": labels, "values": values, "label": "Core Software"}
-    
+        datasets = [{
+            "label": "Modules",
+            "data": [float(row[1]) for row in rows]
+        }]
+        data = {"labels": labels, "datasets": datasets}
+
     elif chart_type == "summarize":
         cursor.execute("""
-            SELECT procurement_activities, available_hours
+            SELECT procurement_activities, hours_worked
             FROM summarize
             ORDER BY procurement_activities ASC
         """)
         rows = cursor.fetchall()
         labels = [row[0] for row in rows]
-        values = [float(row[1]) for row in rows]
-        data = {"labels": labels, "values": values, "label": "Summarize"}
+        datasets = [{
+            "label": "Hours Worked",
+            "data": [float(row[1]) for row in rows]
+        }]
+        data = {"labels": labels, "datasets": datasets}
     else:
-        data = {"labels": [], "values": [], "label": "Unknown"}
+        data = {"labels": [], "datasets": []}
 
     cursor.close()
     conn.close()
@@ -342,7 +389,7 @@ def form():
                     total_budget,
                     budget_month,
                     budget_used,
-                    budget_used_upto_june,
+                    budget_used_upto_current_month,
                     reporting_month_last_day,
                     remaining_budget
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s)
@@ -444,7 +491,7 @@ def export_budget_csv():
     for r in records:
         si.append([
             r['id'], r['financial_year'], r['total_budget'], r['budget_month'],
-            r['budget_used'], r['budget_used_upto_june'], r['reporting_month_last_day'],
+            r['budget_used'], r['budget_used_upto_current_month'], r['reporting_month_last_day'],
             r['remaining_budget']
         ])
 
@@ -499,7 +546,7 @@ def edit_record(id):
                     total_budget = %s,
                     budget_month = %s,
                     budget_used = %s,
-                    budget_used_upto_june = %s,
+                    budget_used_upto_current_month = %s,
                     reporting_month_last_day = %s,
                     remaining_budget = %s
                 WHERE id = %s
@@ -749,7 +796,23 @@ def procrument_form():
     error = None
     success = None
 
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT financial_year FROM financial_year ORDER BY financial_year DESC")
+        financial_years = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching financial years:", e)
+        financial_years = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
     if request.method == 'POST':
+        financial_year = request.form.get('financialyear')
+        procrument_month = request.form.get('procrument_month')
         item = request.form.get('item')
         units = request.form.get('units')
         expenditure = request.form.get('expenditure')
@@ -758,9 +821,9 @@ def procrument_form():
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
             cursor.execute("""
-                INSERT INTO procurement (item_name, units, expenditure)
-                VALUES (%s, %s, %s)
-            """, (item, units, expenditure))
+                INSERT INTO procurement (financial_year, procrument_month, item_name, units, expenditure)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (financial_year, procrument_month, item, units, expenditure))
             conn.commit()
             success = "✅ Data saved successfully!"
         except Exception as e:
@@ -769,7 +832,7 @@ def procrument_form():
             cursor.close()
             conn.close()
 
-    return render_template('procrument_form.html', error=error, success=success)
+    return render_template('procrument_form.html', financial_years=financial_years, error=error, success=success)
 
 # Procurement item list route
 @app.route('/procurement_item_list')
@@ -923,7 +986,23 @@ def repair_form():
     error = None
     success = None
 
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT financial_year FROM financial_year ORDER BY financial_year DESC")
+        financial_years = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching financial years:", e)
+        financial_years = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
     if request.method == 'POST':
+        financial_year = request.form.get('financialyear')
+        procrument_month = request.form.get('procrument_month')
         itemlist = request.form.get('itemlist')
         units = request.form.get('units')
         unit = request.form.get('unit')
@@ -957,12 +1036,12 @@ def repair_form():
         try:
             cursor.execute("""
                 INSERT INTO repair_maintenance (
-                    item_name, unit_in_house, units_externals, hours_spend_in_house, 
+                    financial_year, procrument_month, item_name, unit_in_house, units_externals, hours_spend_in_house, 
                     days_externals, expenditure, item_total, percentage_of_an_item, 
                     avg_cost_per_unit, total_unit_repaired_in_house, total_unit_repaired_external
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
-                itemlist, units, unit, hoursspend, days, expenditure, item_total,
+                financial_year, procrument_month, itemlist, units, unit, hoursspend, days, expenditure, item_total,
                 percentage_of_an_item, avg_cost_per_unit,
                 total_unit_repaired_in_house, total_unit_repaired_external
             ))
@@ -974,7 +1053,7 @@ def repair_form():
             cursor.close()
             conn.close()
 
-    return render_template('repair_maintenance.html', error=error, success=success)
+    return render_template('repair_maintenance.html', financial_years=financial_years, error=error, success=success)
 
 # Repair and Maintenance item list route
 @app.route('/repair_maintenance_list')
@@ -1216,8 +1295,25 @@ def complaints_form():
     error = None
     success = None
 
+    # Fetch financial years for dropdown
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT financial_year FROM financial_year ORDER BY financial_year DESC")
+        financial_years = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching financial years:", e)
+        financial_years = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+            
     if request.method == 'POST':
         # Get form data
+        financial_year = request.form.get('financialyear')
+        complaint_month = request.form.get('complaint_month')
         network_resolved = request.form.get('network_resolved')
         network_pending = request.form.get('network_pending')
         it_resolved = request.form.get('it_resolved')
@@ -1225,26 +1321,25 @@ def complaints_form():
         hours_spend = request.form.get('hours_spend')
 
         try:
+            # Convert values to integers
             network_resolved = int(network_resolved)
             network_pending = int(network_pending)
             total_calls_network = network_resolved + network_pending
+
             it_resolved = int(it_resolved)
             it_pending = int(it_pending)
             total_calls_it = it_resolved + it_pending
+
             grand_total_calls = total_calls_network + total_calls_it
 
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
-        except ValueError:
-            error = "⚠️ Invalid numeric values."
-            return render_template('complaints_form.html', error=error, success=success)
 
-        # Insert into DB
-        try:
-            conn = mysql.connector.connect(**db_config)
-            cursor = conn.cursor()
-            ("""
+            # Insert into DB
+            cursor.execute("""
                 INSERT INTO complaints (
+                    financial_year,
+                    complaint_month,
                     network_resolved_complaints, 
                     network_pending_complaints, 
                     total_calls_network,
@@ -1253,8 +1348,10 @@ def complaints_form():
                     total_calls_it,
                     total_hours_spend,
                     grand_total_calls
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
+                financial_year,
+                complaint_month,
                 network_resolved,
                 network_pending,
                 total_calls_network,
@@ -1266,6 +1363,9 @@ def complaints_form():
             ))
             conn.commit()
             success = "✅ Complaint data inserted successfully."
+
+        except ValueError:
+            error = "⚠️ Invalid numeric values."
         except Exception as e:
             error = f"❌ Failed to insert data: {e}"
         finally:
@@ -1274,10 +1374,10 @@ def complaints_form():
             if conn:
                 conn.close()
 
-        return render_template('complaints_form.html', success=success, error=error)
+        return render_template('complaints_form.html', success=success, error=error, financial_years=financial_years)
 
     # Handle GET
-    return render_template('complaints_form.html') 
+    return render_template('complaints_form.html', financial_years=financial_years) 
 
 # Complaints List Route
 @app.route('/complaints_list', methods=['GET', 'POST'])
@@ -1478,7 +1578,23 @@ def store_item():
     success = None
     error = None
     
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor_fetch = conn.cursor(dictionary=True)
+        cursor_fetch.execute("SELECT financial_year FROM financial_year ORDER BY financial_year DESC")
+        financial_years = cursor_fetch.fetchall()
+    except Exception as e:
+        print("Error fetching financial years:", e)
+        financial_years = []
+    finally:
+        if 'cursor_fetch' in locals() and cursor_fetch:
+            cursor_fetch.close()
+        if 'conn' in locals() and conn:
+            conn.close()
+
+    # --- Insert data when form is submitted ---
     if request.method == 'POST':
+        financialyear = request.form.get('financialyear')
         Items_Name = request.form.get('Items_Name')
         pending_demands = request.form.get('pending_demands')
         previous_month = request.form.get('previous_month')
@@ -1489,17 +1605,12 @@ def store_item():
         issued_curnt_month = request.form.get('issued_curnt_month')
         total_hours_spend = request.form.get('total_hours_spend')
 
-        # Convert month input to MySQL DATE format
-        # if previous_month:
-        #     previous_month += "-01"
-        # if current_month:
-        #     current_month += "-01"
-
         try:
             conn = mysql.connector.connect(**db_config)
-            cursor = conn.cursor()
-            cursor.execute("""
+            cursor_insert = conn.cursor()
+            cursor_insert.execute("""
                 INSERT INTO store_items (
+                    financial_year,
                     items_name, 
                     pending_dmands, 
                     previous_month, 
@@ -1509,8 +1620,9 @@ def store_item():
                     demands_of_current_month, 
                     issued_of_current_month, 
                     total_hours_spend
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """, (
+                financialyear,
                 Items_Name,
                 pending_demands,
                 previous_month,
@@ -1526,11 +1638,12 @@ def store_item():
         except Exception as e:
             error = f"❌ Failed to insert data: {e}"
         finally:
-            if cursor:
-                cursor.close()
-            if conn:
+            if 'cursor_insert' in locals() and cursor_insert:
+                cursor_insert.close()
+            if 'conn' in locals() and conn:
                 conn.close()
-    return render_template('store_item.html', success=success, error=error)
+
+    return render_template('store_item.html', financial_years=financial_years, success=success, error=error)
 
 # store item list route
 @app.route('/store_item_list', methods=['GET'])
@@ -1747,7 +1860,22 @@ def uploding_form():
     success = None
     error = None
 
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT financial_year FROM financial_year ORDER BY financial_year DESC")
+        financial_years = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching financial years:", e)
+        financial_years = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
     if request.method == 'POST':
+        financial_year = request.form.get('financialyear')
         particulars = request.form.get('particulars')
         res_person = request.form.get('res_person')
         previous_month = request.form.get('previous_month')
@@ -1761,6 +1889,7 @@ def uploding_form():
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO uploding (
+                    financial_year,
                     particulars, 
                     reserve_person, 
                     previous_month, 
@@ -1768,8 +1897,9 @@ def uploding_form():
                     current_month, 
                     current_month_quantity, 
                     hoursspend
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
             """,(
+                financial_year,
                 particulars, 
                 res_person,
                 previous_month,
@@ -1787,7 +1917,7 @@ def uploding_form():
                 cursor.close()
             if conn:
                 conn.close()
-    return render_template('uploding_form.html', success=success, error=error)
+    return render_template('uploding_form.html', financial_years=financial_years, success=success, error=error)
 
 # uploding list
 @app.route('/uploding_list', methods=['GET', 'POST'])
@@ -2001,7 +2131,23 @@ def softwareform():
     success = None
     error = None
 
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT financial_year FROM financial_year ORDER BY financial_year DESC")
+        financial_years = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching financial years:", e)
+        financial_years = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
     if request.method == 'POST':
+        financial_year = request.form.get('financialyear')
+        month = request.form.get('month')
         activities = request.form.get('activities')
         no_of_software = request.form.get('no_of_software')
         no_of_team_member = request.form.get('no_of_team_member')
@@ -2012,12 +2158,16 @@ def softwareform():
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO software_form (
+                    financial_year,
+                    month,
                     activities, 
                     no_of_software_under_development, 
                     no_of_team_member, 
                     working_hours_during_month 
-                ) VALUES (%s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s)
             """,(
+                financial_year,
+                month,
                 activities, 
                 no_of_software,
                 no_of_team_member,
@@ -2032,7 +2182,7 @@ def softwareform():
                 cursor.close()
             if conn:
                 conn.close()
-    return render_template('softwareform.html', success=success, error=error)
+    return render_template('softwareform.html', financial_years=financial_years, success=success, error=error)
 
 # Software form List Route
 @app.route('/softwareform_list', methods=['GET', 'POST'])
@@ -2213,19 +2363,40 @@ def coresoftwareform():
     success = None
     error = None
 
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT financial_year FROM financial_year ORDER BY financial_year DESC")
+        financial_years = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching financial years:", e)
+        financial_years = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
     if request.method == 'POST':
-        coresoftware = request.form.get('coresoftware')
+        financial_year = request.form.get('financialyear')
+        month = request.form.get('month')
+        coresoftware = request.form.get('coresoftware') 
         module = request.form.get('module')
+
         
         try:
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO core_software (
+                    financial_year,
+                    month,
                     core_software, 
                     modules 
-                ) VALUES (%s, %s)
+                ) VALUES (%s, %s, %s, %s)
             """,(
+                financial_year,
+                month,
                 coresoftware, 
                 module
             ))
@@ -2240,6 +2411,7 @@ def coresoftwareform():
                 conn.close()
     return render_template(
         'coresoftwareform.html', 
+        financial_years=financial_years,
         success=success, 
         error=error, 
     )
@@ -3275,7 +3447,22 @@ def summarisereport():
     success = None
     error = None
 
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT financial_year FROM financial_year ORDER BY financial_year DESC")
+        financial_years = cursor.fetchall()
+    except Exception as e:
+        print("Error fetching financial years:", e)
+        financial_years = []
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
     if request.method == 'POST':
+        financial_year = request.form.get('financialyear')
         procurement = request.form.get('procurement')
         current_month = request.form.get('current_month')
         available_hours = request.form.get('availablehours')
@@ -3286,13 +3473,15 @@ def summarisereport():
             cursor = conn.cursor(dictionary=True)
             cursor.execute("""
                 INSERT INTO summarize (
+                    financial_year,
                     procurement_activities,
                     current_month,
                     available_hours,
                     working_strength,
                     hours_worked
-                ) VALUES (%s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s)
             """,(
+                financial_year,
                 procurement,
                 current_month,
                 available_hours,
@@ -3308,7 +3497,7 @@ def summarisereport():
                 cursor.close()
             if conn:
                 conn.close()
-    return render_template('summarisereport.html' , success=success, error=error)
+    return render_template('summarisereport.html', financial_years=financial_years, success=success, error=error)
 
 # Summarize List
 @app.route('/summarisereport_list', methods=['GET', 'POST'])

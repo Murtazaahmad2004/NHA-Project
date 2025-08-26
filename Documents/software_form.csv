@@ -1,5 +1,2 @@
 id,activities,no_of_software_under_development,no_of_team_member,working_hours_during_month
-1,Analysis,5,5,25
-4,Design,20,5,35
-5,Development,4,3,35
-8,Testing,55,8,45
+1,Analysis,15,8,45

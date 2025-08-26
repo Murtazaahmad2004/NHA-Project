@@ -50,10 +50,11 @@
    </div>
 
    <!-- Records Table -->
-   <table id="budgetTable" class="table table-bordered table-striped">
+   <table id="budgetTable" class="table table-bordered table-striped table-hover">
       <thead>
          <tr>
             <th>S. #</th>
+            <th>Financial year</th>
             <th>Items Name</th>
             <th>Pending Demands</th>
             <th>Previous Month</th>
@@ -70,6 +71,7 @@
          {% for record in records %}
          <tr>
             <td>{{ loop.index }}</td>
+            <td>{{ record['financial_year'] }}</td>
             <td>{{ record['items_name'] }}</td>
             <td>{{ record['pending_dmands'] }}</td>
             <td>{{ record['previous_month'] }}</td>

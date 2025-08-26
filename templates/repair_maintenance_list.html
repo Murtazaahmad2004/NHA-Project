@@ -48,6 +48,8 @@
       <thead>
          <tr>
             <th rowspan="2">S. #</th>
+            <th rowspan="2">Financial Year</th>
+            <th rowspan="2">Procrument Month</th>
             <th rowspan="2">Items</th>
             <th rowspan="2">Total Items</th>
             <th colspan="2">In House</th>
@@ -67,6 +69,8 @@
          {% for record in records %}
          <tr>
             <td>{{ loop.index }}</td>
+            <td>{{ record.financial_year }}</td>
+            <td>{{ record['procrument_month'] }}</td>
             <td>{{ record.item_name }}</td>
             <td>{{ record.item_total }}</td>
             <td>{{ record.unit_in_house }}</td>
@@ -92,21 +96,21 @@
 
          <!-- Total Row -->
          <tr class="info">
-            <td colspan="2"><strong>Total</strong></td>
+            <td colspan="3"><strong>Total</strong></td> <!-- S.# + Year + Items -->
             <td><strong>{{ total_items }}</strong></td>
             <td><strong>{{ unit_in_house }} ({{ percenteage_inhouse_unit | int }}%)</strong></td>
             <td><strong>{{ hours_spend_in_house }}</strong></td>
             <td><strong>{{ units_externals }} ({{ percenteage_external_unit | int }}%)</strong></td>
             <td><strong>{{ days_externals }}</strong></td>
             <td><strong>{{ total_expenditure }}</strong></td>
-            <td colspan="2"></td>
+            <td colspan="2"></td> <!-- Percentage + Actions -->
          </tr>
 
          <!-- Average Cost Row -->
          <tr class="warning">
-            <td colspan="7"><strong>Avg./ Unit</strong></td>
-            <td><strong>{{ avg_cost_per_unit | int }}</strong></td>
-            <td colspan="2"></td>
+            <td colspan="8"><strong>Avg./ Unit</strong></td> <!-- S.# se leke External Days tak -->
+            <td><strong>{{ avg_cost_per_unit | int }}</strong></td> <!-- Expenditure -->
+            <td colspan="2"></td> <!-- Percentage + Actions -->
          </tr>
       </tbody>
    </table>

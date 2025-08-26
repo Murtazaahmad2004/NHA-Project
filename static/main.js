@@ -55,12 +55,13 @@ function addField() {
 
 function GenerateYearOptions() {
     const currentyear =  new Date().getFullYear();
-    const startyear = 2018;
+    const startyear = 2020;
+    const endyear = currentyear + 1;
     let options = `<option value="">Select Financial Year</option>`;
 
-    for(let year = startyear; year < currentyear; year++){
-        const range = `${year} - ${year + 1}`;
-        options += `<option value="${range}">${range}</option>`;
+    for(let year = startyear; year < endyear; year++){
+        
+        options += `<option value="${year}">${year}</option>`;
     }
     return options;
 }
@@ -187,11 +188,51 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 document.addEventListener("DOMContentLoaded", function () {
+  const budgetMonthInput = document.getElementById("budgetmonth");
+  const budgetUptoContainer = document.getElementById("budgetupto-container");
+
+  budgetMonthInput.addEventListener("change", function () {
+    const value = this.value; // e.g. "2025-04"
+    if (!value) return;
+
+    const [year, month] = value.split("-");
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const monthName = monthNames[parseInt(month) - 1];
+
+    // Pehle purana field hata do (agar already add hua ho)
+    budgetUptoContainer.innerHTML = "";
+
+    // Naya field banao
+    const formGroup = document.createElement("div");
+    formGroup.classList.add("form-group");
+
+    const label = document.createElement("label");
+    label.setAttribute("for", "budgetupto");
+    label.textContent = `Budget Up to ${monthName} ${year}:`;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.id = "budgetupto";
+    input.name = "budgetupto";
+    input.classList.add("form-control");
+    input.placeholder = `Enter Budget up to ${monthName} ${year}`;
+    input.required = true;
+
+    formGroup.appendChild(label);
+    formGroup.appendChild(input);
+    budgetUptoContainer.appendChild(formGroup);
+  });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
 
     function getRainbowColors(count) {
         const colors = [];
         for (let i = 0; i < count; i++) {
-            const hue = Math.floor((i / count) * 360); // distribute hue evenly
+            const hue = Math.floor((i / count) * 360);
             colors.push(`hsl(${hue}, 70%, 50%)`);
         }
         return colors;
@@ -203,45 +244,48 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(data => {
                 var ctx = document.getElementById(canvasId).getContext("2d");
 
-                let chartColors = [];
-                if (chartType === "pie" || chartType === "doughnut" || data.values.length > 1) {
-                    chartColors = getRainbowColors(data.values.length);
-                } else {
-                    chartColors = ["rgb(54, 162, 235)"];
-                }
+                // Generate unique colors for all datasets of this chart
+                const colors = getRainbowColors(data.datasets.length);
+
+                let datasets = data.datasets.map((ds, idx) => {
+                    return {
+                        label: ds.label,
+                        data: ds.data,
+                        backgroundColor: (chartType === "pie" || chartType === "doughnut") 
+                            ? getRainbowColors(ds.data.length)  // pie slices -> each slice different colour
+                            : colors[idx],                      // bar/line -> dataset different colour
+                        borderColor: colors[idx],
+                        fill: chartType === "line" ? false : true,
+                        lineTension: 0.2
+                    };
+                });
 
                 new Chart(ctx, {
                     type: chartType,
                     data: {
                         labels: data.labels,
-                        datasets: [{
-                            label: data.label,
-                            data: data.values,
-                            backgroundColor: chartColors,
-                            borderColor: chartColors,
-                            fill: false,
-                            lineTension: 0.2
-                        }]
+                        datasets: datasets
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        scales: {
+                        scales: (chartType !== "pie" && chartType !== "doughnut") ? {
                             yAxes: [{ ticks: { beginAtZero: true } }]
-                        }
+                        } : {}
                     }
                 });
             })
             .catch(err => console.error(`Error loading ${endpoint} chart:`, err));
     }
 
-    // Load charts dynamically
-    loadChart("budget", "budgetChart", "line");
-    loadChart("repair_maintenance", "repairChart", "bar");
-    loadChart("complaints", "callsChart", "pie");
-    loadChart("store_items", "storeItemChart", "line");
-    loadChart("uploding", "uploadingChart", "bar");
-    loadChart("software_form", "softwareFormChart", "pie");
-    loadChart("core_software", "coreSoftwareChart", "line");
-    loadChart("summarize", "summarizeChart", "bar");
+    // Load charts
+    loadChart("budget", "budgetChart", "bar");
+    loadChart("procurement", "procrumentChart", "pie");
+    loadChart("repair_maintenance", "repairChart", "line");
+    loadChart("complaints", "callsChart", "doughnut");
+    loadChart("store_items", "storeItemChart", "bar");
+    loadChart("uploding", "uploadingChart", "line");
+    loadChart("software_form", "softwareFormChart", "bar");
+    loadChart("core_software", "coreSoftwareChart", "pie");
+    loadChart("summarize", "summarizeChart", "line");
 });

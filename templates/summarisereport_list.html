@@ -54,6 +54,7 @@
       <thead>
          <tr>
             <th>S. #</th>
+            <th>Financial Year</th>
             <th>Procurement Activities</th>
             <th>Current Month</th>
             <th>Available Hours</th>
@@ -66,6 +67,7 @@
          {% for record in records %}
          <tr>
             <td>{{ loop.index }}</td>
+            <td>{{ record['financial_year'] }}</td>
             <td>{{ record['procurement_activities'] }}</td>
             <td>{{ record['current_month'] }}</td>
             <td>{{ record['available_hours'] }}</td>

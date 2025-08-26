@@ -56,6 +56,8 @@
       <thead>
          <tr>
             <th>S. #</th>
+            <th>Financial Year</th>
+            <th>Procrument Month</th>
             <th>Item Name</th>
             <th>Units</th>
             <th>Expenditure</th>
@@ -66,6 +68,8 @@
          {% for record in records %}
          <tr>
             <td>{{ loop.index }}</td>
+            <td>{{ record['financial_year'] }}</td>
+            <td>{{ record['procrument_month'] }}</td>
             <td>{{ record['item_name'] }}</td>
             <td>{{ record['units'] }}</td>
             <td>{{ record['expenditure'] }}</td>
@@ -84,7 +88,7 @@
          </tr>
          {% else %}
          <tr>
-            <td colspan="5">No records found.</td>
+            <td colspan="6">No records found.</td>
          </tr>
          {% endfor %}
       </tbody>
