@@ -288,4 +288,20 @@ document.addEventListener("DOMContentLoaded", function () {
     loadChart("software_form", "softwareFormChart", "bar");
     loadChart("core_software", "coreSoftwareChart", "pie");
     loadChart("summarize", "summarizeChart", "line");
+
+    function getRainbowColors(count) {
+    const baseColors = [
+        "#4e79a7", // blue
+        "#f28e2b", // orange
+        "#e15759", // red
+        "#76b7b2", // teal
+        "#59a14f", // green
+        "#edc949", // yellow
+        "#af7aa1", // purple
+        "#ff9da7", // pink
+        "#9c755f", // brown
+        "#bab0ab"  // gray
+    ];
+    return Array.from({ length: count }, (_, i) => baseColors[i % baseColors.length]);
+}
 });
