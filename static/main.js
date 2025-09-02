@@ -60,7 +60,7 @@ function GenerateYearOptions() {
     let options = `<option value="">Select Financial Year</option>`;
 
     for(let year = startyear; year < endyear; year++){
-        
+      
         options += `<option value="${year}">${year}</option>`;
     }
     return options;
@@ -227,81 +227,80 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-document.addEventListener("DOMContentLoaded", function () {
+let charts = {};
+const rainbowColors = ["#FF6384","#36A2EB","#FFCE56","#4BC0C0","#9966FF","#FF9F40","#C9CBCF","#8DD17D","#FF6F61","#6A5ACD"];
 
-    function getRainbowColors(count) {
-        const colors = [];
-        for (let i = 0; i < count; i++) {
-            const hue = Math.floor((i / count) * 360);
-            colors.push(`hsl(${hue}, 70%, 50%)`);
+function loadChart(chartId, chartType, chartLabel, chartJsType) {
+  const month = document.getElementById("monthPicker").value;
+
+  fetch(`/chart/${chartType}?month=${month}`)
+    .then(res => res.json())
+    .then(data => {
+      if (charts[chartId]) charts[chartId].destroy();
+
+      const ctx = document.getElementById(chartId).getContext("2d");
+
+      charts[chartId] = new Chart(ctx, {
+        type: chartJsType,
+        data: {
+          labels: data.labels,
+          datasets: data.datasets.map((ds, i) => {
+            if (chartJsType === "line") {
+              return {...ds, borderColor: rainbowColors[i % rainbowColors.length], backgroundColor: "rgba(0,0,0,0)", borderWidth: 2, fill: false, tension: 0.2};
+            }
+            if (chartJsType === "doughnut" || chartJsType === "pie") {
+              return {...ds, backgroundColor: rainbowColors.slice(0, ds.data.length), borderColor: "#fff", borderWidth: 1};
+            }
+            return {...ds, backgroundColor: rainbowColors.slice(0, ds.data.length), borderColor: "#fff", borderWidth: 1};
+          })
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { position: "top", labels: { boxWidth: 20, padding: 15 } },
+            title: { display: true, text: chartLabel, font: { size: 18 } },
+            tooltip: { mode: "index", intersect: false }
+          },
+          scales: chartJsType !== "doughnut" && chartJsType !== "pie" ? {
+            y: { beginAtZero: true, grid: { color: "#f0f0f0" } },
+            x: { grid: { color: "#f0f0f0" } }
+          } : {}
         }
-        return colors;
-    }
-
-    function loadChart(endpoint, canvasId, chartType = "line") {
-        fetch(`/chart-data/${endpoint}`)
-            .then(response => response.json())
-            .then(data => {
-                var ctx = document.getElementById(canvasId).getContext("2d");
-
-                // Generate unique colors for all datasets of this chart
-                const colors = getRainbowColors(data.datasets.length);
-
-                let datasets = data.datasets.map((ds, idx) => {
-                    return {
-                        label: ds.label,
-                        data: ds.data,
-                        backgroundColor: (chartType === "pie" || chartType === "doughnut") 
-                            ? getRainbowColors(ds.data.length)  // pie slices -> each slice different colour
-                            : colors[idx],                      // bar/line -> dataset different colour
-                        borderColor: colors[idx],
-                        fill: chartType === "line" ? false : true,
-                        lineTension: 0.2
-                    };
-                });
-
-                new Chart(ctx, {
-                    type: chartType,
-                    data: {
-                        labels: data.labels,
-                        datasets: datasets
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: (chartType !== "pie" && chartType !== "doughnut") ? {
-                            yAxes: [{ ticks: { beginAtZero: true } }]
-                        } : {}
-                    }
-                });
-            })
-            .catch(err => console.error(`Error loading ${endpoint} chart:`, err));
-    }
-
-    // Load charts
-    loadChart("budget", "budgetChart", "bar");
-    loadChart("procurement", "procrumentChart", "pie");
-    loadChart("repair_maintenance", "repairChart", "line");
-    loadChart("complaints", "callsChart", "doughnut");
-    loadChart("store_items", "storeItemChart", "bar");
-    loadChart("uploding", "uploadingChart", "line");
-    loadChart("software_form", "softwareFormChart", "bar");
-    loadChart("core_software", "coreSoftwareChart", "pie");
-    loadChart("summarize", "summarizeChart", "line");
-
-    function getRainbowColors(count) {
-    const baseColors = [
-        "#4e79a7", // blue
-        "#f28e2b", // orange
-        "#e15759", // red
-        "#76b7b2", // teal
-        "#59a14f", // green
-        "#edc949", // yellow
-        "#af7aa1", // purple
-        "#ff9da7", // pink
-        "#9c755f", // brown
-        "#bab0ab"  // gray
-    ];
-    return Array.from({ length: count }, (_, i) => baseColors[i % baseColors.length]);
+      });
+    })
+    .catch(err => console.error("Chart Load Error:", err));
 }
+
+function loadAllCharts() {
+  const chartsList = [
+  {id: "budgetChart", type: "budget", chartJsType: "bar"},
+  {id: "procurementChart", type: "procurement", chartJsType: "line"},
+  {id: "repairChart", type: "repair_maintenance", chartJsType: "bar"},
+  {id: "callsChart", type: "complaints", chartJsType: "line"},
+  {id: "storeItemChart", type: "store_items", chartJsType: "bar"},
+  {id: "uplodingChart", type: "uploding", chartJsType: "pie"},
+  {id: "softwareFormChart", type: "software_form", chartJsType: "bar"},
+  {id: "coreSoftwareChart", type: "core_software", chartJsType: "doughnut"},
+  {id: "summarizeChart", type: "summarize", chartJsType: "bar"}
+];
+
+  chartsList.forEach(c => loadChart(c.id, c.type, c.title, c.chartJsType));
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  loadAllCharts();
+  document.getElementById("monthPicker").addEventListener("change", loadAllCharts);
 });
+
+function togglePassword(inputId, icon) {
+  const input = document.getElementById(inputId);
+  if (input.type === "password") {
+    input.type = "text";
+    icon.classList.remove("fa-eye-slash");
+    icon.classList.add("fa-eye");
+  } else {
+    input.type = "password";
+    icon.classList.remove("fa-eye");
+    icon.classList.add("fa-eye-slash");
+  }
+}

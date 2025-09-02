@@ -1,38 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
-    <script src="{{ url_for('static', filename='main.js') }}"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Reports</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
 </head>
-<body>
-    <div class="container3 dashboard-container">
-        <h1 class="dashboard-title">DASHBOARD REPORTS</h1>
-        <a href="/home" class="btn1 btn-danger back-btn">Back To Home Page</a>
-        <div class="row">
-            {% for chart in [
-                {"id": "budgetChart", "title": "Remaining Budget"},
-                {"id": "procrumentChart", "title": "Procurement"},
-                {"id": "repairChart", "title": "Repair & Maintenance"},
-                {"id": "callsChart", "title": "Calls Detail"},
-                {"id": "storeItemChart", "title": "Store Items"},
-                {"id": "uploadingChart", "title": "Uploading"},
-                {"id": "softwareFormChart", "title": "Software Form"},
-                {"id": "coreSoftwareChart", "title": "Core Software"},
-                {"id": "summarizeChart", "title": "Summarize"}
-            ] %}
-            <div class="col-md-4 col-sm-6">
-                <div class="chart-card">
-                    <h3>{{ chart.title }}</h3>
-                    <canvas id="{{ chart.id }}"></canvas>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
+<body class="bg-light">
+
+<div class="container3 dashboard-container">
+  <h1 class="dashboard-title text-center">DASHBOARD REPORTS</h1>
+
+  <div class="d-flex mb-3">
+    <a href="/home" class="btn1 btn-danger back-btn no-print">Back To Home Page</a>
+    <button onclick="window.print()" class="btn btn-primary no-print">
+      🖨️ Print
+    </button>
+  </div>
+
+  <!-- Month Selector -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <label for="monthPicker" class="form-label fw-bold">Select Year & Month</label>
+      <input type="month" id="monthPicker" class="form-control">
     </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="row">
+    {% for chart in [
+      {"id": "budgetChart", "title": "Remaining Budget"},
+      {"id": "procurementChart", "title": "Procurement"},
+      {"id": "repairChart", "title": "Repair & Maintenance"},
+      {"id": "callsChart", "title": "Calls Detail"},
+      {"id": "storeItemChart", "title": "Store Items"},
+      {"id": "uplodingChart", "title": "Uploading"},
+      {"id": "softwareFormChart", "title": "Software Form"},
+      {"id": "coreSoftwareChart", "title": "Core Software"},
+      {"id": "summarizeChart", "title": "Summarize"}
+    ] %}
+    <div class="col-md-4 col-sm-6 mb-4">
+      <div class="chart-card">
+        <h3>{{ chart.title }}</h3>
+        <canvas id="{{ chart.id }}"></canvas>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
 </body>
 </html>

@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, Response, flash, json, jsonify, redirect, render_template, request, url_for
+from flask import Flask, Response, flash, json, jsonify, redirect, render_template, request, session, url_for
 import mysql.connector
 from flask_cors import CORS
 import calendar
@@ -29,11 +29,12 @@ def get_db_connection():
 # home route
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('login.html')
 
-# home page route
+# home_page route
 @app.route('/home')
 def home_page():
+    # ✅ Show home.html after login
     return render_template('home.html')
 
 # Dashboard page route
@@ -41,96 +42,164 @@ def home_page():
 def dashboard():
     return render_template("dashboard.html")
 
+# login route
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        if username == 'Admin' and password == 'admin@1':
+            # ✅ Redirect to home route
+            return redirect(url_for('home_page'))
+        else:
+            error = "Invalid username or password."
+
+    return render_template('login.html', error=error)
+
 # route chart type
-@app.route('/chart-data/<chart_type>')
+@app.route("/chart/<chart_type>")
 def chart_type(chart_type):
+    selected_month = request.args.get("month")
+    print("DEBUG: chart_type =", chart_type, "selected_month =", selected_month)
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    # ---------- Budget ----------
     if chart_type == "budget":
-        cursor.execute("""
-            SELECT financial_year, total_budget 
+        if selected_month:
+           cursor.execute("""
+            SELECT financial_year, total_budget
             FROM budget
-            ORDER BY financial_year ASC
-        """)
-        rows = cursor.fetchall()
-        labels = [row[0] for row in rows]
-        datasets = [{
-            "label": "Remaining Budget",
-            "data": [float(row[1]) for row in rows]
-        }]
-        data = {"labels": labels, "datasets": datasets}
-
-    elif chart_type == "procurement":
-        cursor.execute("""
-            SELECT item_name, expenditure 
-            FROM procurement
-            ORDER BY item_name ASC
-        """)
-        rows = cursor.fetchall()
-        labels = [row[0] for row in rows]
-        datasets = [{
-            "label": "Expenditure",
-            "data": [float(row[1]) for row in rows]
-        }]
-        data = {"labels": labels, "datasets": datasets}
-
-    elif chart_type == "repair_maintenance":
-        cursor.execute("""
-            SELECT item_name, unit_in_house, units_externals 
-            FROM repair_maintenance
-            ORDER BY item_name ASC
-        """)
-        rows = cursor.fetchall()
-        labels = [row[0] for row in rows]
-        datasets = [
-            {"label": "In-House", "data": [float(row[1]) for row in rows]},
-            {"label": "Externals", "data": [float(row[2]) for row in rows]}
-        ]
-        data = {"labels": labels, "datasets": datasets}
-
-    elif chart_type == "complaints":
-        cursor.execute("""
-            SELECT network_resolved_complaints, network_pending_complaints, 
-                it_resolved_complaints, it_pending_complaints
-            FROM complaints
-        """)
-        rows = cursor.fetchall()
-
-        if rows:  # agar data exist kare
-            labels = ["Network Resolved", "Network Pending", "IT Resolved", "IT Pending"]
-            values = [float(rows[0][0]), float(rows[0][1]), float(rows[0][2]), float(rows[0][3])]
-            datasets = [{
-                "label": "Complaints",
-                "data": values
-            }]
-            data = {"labels": labels, "datasets": datasets}
+            WHERE budget_month = %s
+            ORDER BY financial_year
+        """, (selected_month,))
         else:
-            data = {"labels": [], "datasets": []}
-
-    elif chart_type == "store_items":
-        cursor.execute("""
-            SELECT items_name, demands_of_previous_month, issued_of_previous_month,  
-                   demands_of_current_month, issued_of_current_month
-            FROM store_items
-            ORDER BY items_name ASC
-        """)
+            cursor.execute("""
+                SELECT financial_year, total_budget
+                FROM budget
+                ORDER BY financial_year ASC
+            """)
         rows = cursor.fetchall()
-        labels = [row[0] for row in rows]
+        labels = [str(r[0]) for r in rows]
+        datasets = [{"label": "Budget", "data": [float(r[1]) for r in rows]}]
+        data = {"labels": labels, "datasets": datasets}
+
+    # ---------- Procurement ----------
+    elif chart_type == "procurement":
+        if selected_month:
+            cursor.execute("""
+                SELECT item_name, expenditure
+                FROM procurement
+                WHERE procrument_month = %s
+                ORDER BY financial_year ASC
+            """, (selected_month,))
+        else:
+            cursor.execute("""
+                SELECT item_name, expenditure
+                FROM procurement
+                ORDER BY item_name ASC
+            """)
+        rows = cursor.fetchall()
+        labels = [r[0] for r in rows]
+        datasets = [{"label": "Expenditure", "data": [float(r[1]) for r in rows]}]
+        data = {"labels": labels, "datasets": datasets}
+
+    # ---------- Repair & Maintenance ----------
+    elif chart_type == "repair_maintenance":
+        if selected_month:
+            cursor.execute("""
+                SELECT item_name, unit_in_house, units_externals
+                FROM repair_maintenance
+                WHERE repair_month = %s
+                ORDER BY financial_year ASC
+            """, (selected_month,))
+        else:
+            cursor.execute("""
+                SELECT item_name, unit_in_house, units_externals
+                FROM repair_maintenance
+                ORDER BY item_name ASC
+            """)
+        rows = cursor.fetchall()
+        labels = [r[0] for r in rows]
         datasets = [
-            {"label": "Demand (Prev Month)", "data": [float(row[1]) for row in rows]},
-            {"label": "Issued (Prev Month)", "data": [float(row[2]) for row in rows]},
-            {"label": "Demand (Curr Month)", "data": [float(row[3]) for row in rows]},
-            {"label": "Issued (Curr Month)", "data": [float(row[4]) for row in rows]}
+            {"label": "In-House", "data": [float(r[1]) for r in rows]},
+            {"label": "Externals", "data": [float(r[2]) for r in rows]}
         ]
         data = {"labels": labels, "datasets": datasets}
 
+# ---------- Complaints ----------
+    elif chart_type == "complaints":
+        if selected_month:
+            cursor.execute("""
+                SELECT network_resolved_complaints, network_pending_complaints, 
+                    it_resolved_complaints, it_pending_complaints, financial_year
+                FROM complaints
+                WHERE complaint_month = %s
+                ORDER BY financial_year ASC
+            """, (selected_month,))
+        else:
+            cursor.execute("""
+                SELECT network_resolved_complaints, network_pending_complaints, 
+                    it_resolved_complaints, it_pending_complaints, financial_year
+                FROM complaints
+                ORDER BY financial_year ASC
+            """)
+        rows = cursor.fetchall()
+        labels = [r[0] for r in rows]
+        datasets = [
+            {"label": "Network Resolved", "data": [float(r[0] or 0) for r in rows]},
+            {"label": "Network Pending", "data": [float(r[1] or 0) for r in rows]},
+            {"label": "IT Resolved", "data": [float(r[2] or 0) for r in rows]},
+            {"label": "IT Pending", "data": [float(r[3] or 0) for r in rows]}
+        ]
+        data = {"labels": labels, "datasets": datasets}
+
+# ---------- Store Items ----------
+    elif chart_type == "store_items":
+        if selected_month:
+            cursor.execute("""
+                SELECT items_name, demands_of_previous_month, issued_of_previous_month,  
+                    demands_of_current_month, issued_of_current_month
+                FROM store_items
+                WHERE current_month = %s
+                ORDER BY items_name ASC
+            """, (selected_month,))
+        else:
+            cursor.execute("""
+                SELECT items_name, demands_of_previous_month, issued_of_previous_month,  
+                    demands_of_current_month, issued_of_current_month
+                FROM store_items
+                ORDER BY items_name ASC
+            """)
+
+        # ✅ Always fetch results
+        rows = cursor.fetchall()
+        labels = [row[0] for row in rows]
+        datasets = [
+            {"label": "Demand (Prev Month)", "data": [row[1] or 0 for row in rows]},
+            {"label": "Issued (Prev Month)", "data": [row[2] or 0 for row in rows]},
+            {"label": "Demand (Curr Month)", "data": [row[3] or 0 for row in rows]},
+            {"label": "Issued (Curr Month)", "data": [row[4] or 0 for row in rows]}
+        ]
+        data = {"labels": labels, "datasets": datasets}
+
+    # ---------- Uploading ----------
     elif chart_type == "uploding":
-        cursor.execute("""
-            SELECT particulars, previous_month_quantity, current_month_quantity
-            FROM uploding
-            ORDER BY particulars ASC
-        """)
+        if selected_month:
+            cursor.execute("""
+                SELECT particulars, previous_month_quantity, current_month_quantity
+                FROM uploding
+                WHERE current_month = %s
+                ORDER BY particulars ASC
+            """, (selected_month,))
+        else:
+            cursor.execute("""
+                SELECT particulars, previous_month_quantity, current_month_quantity
+                FROM uploding
+                ORDER BY particulars ASC
+            """)
         rows = cursor.fetchall()
         labels = [row[0] for row in rows]
         datasets = [
@@ -139,12 +208,21 @@ def chart_type(chart_type):
         ]
         data = {"labels": labels, "datasets": datasets}
 
+# ---------- Software Form ----------
     elif chart_type == "software_form":
-        cursor.execute("""
-            SELECT activities, no_of_software_under_development, no_of_team_member
-            FROM software_form
-            ORDER BY activities ASC
-        """)
+        if selected_month:
+            cursor.execute("""
+                SELECT activities, no_of_software_under_development, no_of_team_member
+                FROM software_form
+                WHERE month = %s
+                ORDER BY activities ASC
+            """, (selected_month,))
+        else:
+            cursor.execute("""
+                SELECT activities, no_of_software_under_development, no_of_team_member
+                FROM software_form
+                ORDER BY activities ASC
+            """)
         rows = cursor.fetchall()
         labels = [row[0] for row in rows]
         datasets = [
@@ -153,12 +231,21 @@ def chart_type(chart_type):
         ]
         data = {"labels": labels, "datasets": datasets}
 
+# ---------- Core Software ----------
     elif chart_type == "core_software":
-        cursor.execute("""
-            SELECT core_software, modules
-            FROM core_software
-            ORDER BY core_software ASC
-        """)
+        if selected_month:
+            cursor.execute("""
+                SELECT core_software, modules
+                FROM core_software
+                WHERE month = %s
+                ORDER BY core_software ASC
+            """, (selected_month,))
+        else:
+            cursor.execute("""
+                SELECT core_software, modules
+                FROM core_software
+                ORDER BY core_software ASC
+            """)
         rows = cursor.fetchall()
         labels = [row[0] for row in rows]
         datasets = [{
@@ -167,12 +254,21 @@ def chart_type(chart_type):
         }]
         data = {"labels": labels, "datasets": datasets}
 
+# ---------- summarize ----------
     elif chart_type == "summarize":
-        cursor.execute("""
-            SELECT procurement_activities, hours_worked
-            FROM summarize
-            ORDER BY procurement_activities ASC
-        """)
+        if selected_month:
+            cursor.execute("""
+                SELECT procurement_activities, hours_worked
+                FROM summarize
+                WHERE current_month = %s
+                ORDER BY procurement_activities ASC
+            """, (selected_month,))
+        else:
+            cursor.execute("""
+                SELECT procurement_activities, hours_worked
+                FROM summarize
+                ORDER BY procurement_activities ASC
+            """)
         rows = cursor.fetchall()
         labels = [row[0] for row in rows]
         datasets = [{
@@ -1036,7 +1132,7 @@ def repair_form():
         try:
             cursor.execute("""
                 INSERT INTO repair_maintenance (
-                    financial_year, procrument_month, item_name, unit_in_house, units_externals, hours_spend_in_house, 
+                    financial_year, repair_month, item_name, unit_in_house, units_externals, hours_spend_in_house, 
                     days_externals, expenditure, item_total, percentage_of_an_item, 
                     avg_cost_per_unit, total_unit_repaired_in_house, total_unit_repaired_external
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)

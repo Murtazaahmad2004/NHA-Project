@@ -35,7 +35,7 @@ CREATE TABLE procurement (
 CREATE TABLE repair_maintenance (
     id INT AUTO_INCREMENT PRIMARY KEY,
     financial_year VARCHAR(20),
-    procrument_month VARCHAR(7),
+    repair_month VARCHAR(7),
     item_name VARCHAR(45),
     unit_in_house INT,
     units_externals INT,

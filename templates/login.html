@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+    <title>Login Page</title>
+</head>
+<body class="login-page">
+  <div class="login-container">
+    <h2><i class="fa-solid fa-user-lock"></i> Login</h2>
+
+    <!-- ✅ Flask message handling -->
+    {% if message %}
+      <div class="message {% if 'success' in message|lower %}success{% else %}error{% endif %}">
+        {{ message }}
+      </div>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('login') }}">
+      
+      <!-- Username -->
+      <div class="form-group">
+        <div class="input-field">
+          <i class="fa-solid fa-user left-icon"></i>
+          <input type="text" id="username" name="username" placeholder="Enter your UserName" required>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <div class="input-field">
+          <i class="fa-solid fa-lock left-icon"></i>
+          <input type="password" id="password" name="password" placeholder="Enter your Password" required>
+          <i class="fa-solid fa-eye-slash toggle-password" onclick="togglePassword('password', this)"></i>
+        </div>
+      </div>
+
+      <button type="submit"><i class="fa-solid fa-right-to-bracket"></i> Login</button>
+    </form>
+  </div>
+</body>
+</html>
