@@ -16,7 +16,6 @@ body {
 /* ===== Headings ===== */
 h1 {
   font-size: 30px;
-  margin-bottom: 30px;
   color: #2c3e50;
   font-weight: bold;
 }
@@ -316,25 +315,31 @@ table tbody tr:hover, #budgetTable tbody tr:nth-child(even) {
 .btn-container {
   display: flex;
   justify-content: center;
+  gap: 25px;
   flex-wrap: wrap;
-  gap: 15px;
-  margin-bottom: 25px;
+  margin-top: 10%;
+}
+
+.btn-column {
+  display: flex;
+  flex-direction: column;
+  gap: 35px;
 }
 
 .btn6 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-width: 220px;
   padding: 12px 20px;
-  min-width: 200px;
   border-radius: 10px;
   font-size: 16px;
   font-weight: 600;
   text-decoration: none;
   color: #fff !important;
+  background: #337ab7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.3s ease;
   box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
-  position: relative;
 }
 
 .btn6 span {
@@ -349,6 +354,13 @@ table tbody tr:hover, #budgetTable tbody tr:nth-child(even) {
   transform: translateY(-3px);
   box-shadow: 0px 6px 12px rgba(0,0,0,0.15);
   opacity: 0.9;
+}
+
+/* Logout button top-right */
+.logout-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
 }
 
 .dashboard-container {
