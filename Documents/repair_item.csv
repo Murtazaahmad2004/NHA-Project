@@ -1,0 +1,3 @@
+item_name,unit_in_house,units_externals,hours_spend_in_house,days_externals,expenditure,item_total,percentage_of_an_item,avg_cost_per_unit,total_unit_repaired_in_house,total_unit_repaired_external
+Desktops,27,12,33,18,345000,39,60,28750,27,12
+Laptops,30,22,35,28,230000,52,40,10455,30,22
