@@ -326,6 +326,22 @@ table tbody tr:hover, #budgetTable tbody tr:nth-child(even) {
   gap: 35px;
 }
 
+.btn5 {
+  min-width: 220px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #fff !important;
+   background-color: red;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+}
+
 .btn6 {
   min-width: 220px;
   padding: 12px 20px;
