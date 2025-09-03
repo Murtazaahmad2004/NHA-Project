@@ -228,7 +228,16 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 let charts = {};
-const rainbowColors = ["#FF6384","#36A2EB","#FFCE56","#4BC0C0","#9966FF","#FF9F40","#C9CBCF","#8DD17D","#FF6F61","#6A5ACD"];
+
+// Rainbow generator
+function getRainbowColors(count) {
+  const colors = [];
+  for (let i = 0; i < count; i++) {
+    const hue = Math.floor((i / count) * 360);
+    colors.push(`hsl(${hue}, 70%, 50%)`);
+  }
+  return colors;
+}
 
 function loadChart(chartId, chartType, chartLabel, chartJsType) {
   const month = document.getElementById("monthPicker").value;
@@ -245,13 +254,59 @@ function loadChart(chartId, chartType, chartLabel, chartJsType) {
         data: {
           labels: data.labels,
           datasets: data.datasets.map((ds, i) => {
+            // Rainbow set for dataset count
+            const rainbow = getRainbowColors(data.datasets.length);
+
             if (chartJsType === "line") {
-              return {...ds, borderColor: rainbowColors[i % rainbowColors.length], backgroundColor: "rgba(0,0,0,0)", borderWidth: 2, fill: false, tension: 0.2};
+              // ✅ Each dataset (line) different colour
+              return {
+                ...ds,
+                borderColor: rainbow[i % rainbow.length],
+                backgroundColor: "rgba(0,0,0,0)",
+                borderWidth: 2,
+                fill: false,
+                tension: 0.2
+              };
             }
+
             if (chartJsType === "doughnut" || chartJsType === "pie") {
-              return {...ds, backgroundColor: rainbowColors.slice(0, ds.data.length), borderColor: "#fff", borderWidth: 1};
+              // ✅ Each slice different colour
+              return {
+                ...ds,
+                backgroundColor: getRainbowColors(ds.data.length),
+                borderColor: "#fff",
+                borderWidth: 1
+              };
             }
-            return {...ds, backgroundColor: rainbowColors.slice(0, ds.data.length), borderColor: "#fff", borderWidth: 1};
+
+            if (chartJsType === "bar") {
+              // ✅ In-House vs External different colours
+              if (ds.label && ds.label.toLowerCase().includes("in-house")) {
+                return {
+                  ...ds,
+                  backgroundColor: "hsl(200,70%,50%)", // Blue
+                  borderColor: "#fff",
+                  borderWidth: 1
+                };
+              } else if (ds.label && ds.label.toLowerCase().includes("external")) {
+                return {
+                  ...ds,
+                  backgroundColor: "hsl(20,70%,50%)", // Orange/Red
+                  borderColor: "#fff",
+                  borderWidth: 1
+                };
+              } else {
+                // Any other dataset gets rainbow colour
+                return {
+                  ...ds,
+                  backgroundColor: rainbow[i % rainbow.length],
+                  borderColor: "#fff",
+                  borderWidth: 1
+                };
+              }
+            }
+
+            return ds;
           })
         },
         options: {
@@ -273,16 +328,16 @@ function loadChart(chartId, chartType, chartLabel, chartJsType) {
 
 function loadAllCharts() {
   const chartsList = [
-  {id: "budgetChart", type: "budget", chartJsType: "bar"},
-  {id: "procurementChart", type: "procurement", chartJsType: "line"},
-  {id: "repairChart", type: "repair_maintenance", chartJsType: "bar"},
-  {id: "callsChart", type: "complaints", chartJsType: "line"},
-  {id: "storeItemChart", type: "store_items", chartJsType: "bar"},
-  {id: "uplodingChart", type: "uploding", chartJsType: "pie"},
-  {id: "softwareFormChart", type: "software_form", chartJsType: "bar"},
-  {id: "coreSoftwareChart", type: "core_software", chartJsType: "doughnut"},
-  {id: "summarizeChart", type: "summarize", chartJsType: "bar"}
-];
+    {id: "budgetChart", type: "budget", chartJsType: "bar"},
+    {id: "procurementChart", type: "procurement", chartJsType: "line"},
+    {id: "repairChart", type: "repair_maintenance", chartJsType: "bar"},
+    {id: "callsChart", type: "complaints", chartJsType: "line"},
+    {id: "storeItemChart", type: "store_items", chartJsType: "bar"},
+    {id: "uplodingChart", type: "uploding", chartJsType: "pie"},
+    {id: "softwareFormChart", type: "software_form", chartJsType: "bar"},
+    {id: "coreSoftwareChart", type: "core_software", chartJsType: "doughnut"},
+    {id: "summarizeChart", type: "summarize", chartJsType: "bar"}
+  ];
 
   chartsList.forEach(c => loadChart(c.id, c.type, c.title, c.chartJsType));
 }
