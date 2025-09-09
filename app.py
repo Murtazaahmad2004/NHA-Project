@@ -3777,4 +3777,4 @@ def edit_summarisereport_list(id):
     return render_template('edit_summarisereport_list.html', record=record)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="192.168.100.3", port=5000, debug=True)
