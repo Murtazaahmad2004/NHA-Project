@@ -486,6 +486,7 @@ body.login-page {
 
 .form-group {
   margin-bottom: 22px;
+  overflow: hidden;
 }
 
 .input-field {
