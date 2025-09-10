@@ -1,33 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>Budgeting Form</title>
-   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-   <script src="{{ url_for('static', filename='main.js') }}" defer></script>
-</head>
-<body>
-   <div class="container">
-      <h1>Budgeting Form</h1>
-
-      <!-- Error messages -->
-      {% if error %}
-      <div class="alert alert-danger">{{ error }}</div>
-      {% endif %}
-
-      <!-- Success messages -->
-      {% with messages = get_flashed_messages() %}
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Budgeting Form</title>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+      <script src="{{ url_for('static', filename='main.js') }}" defer></script>
+   </head>
+   <body>
+      <div class="container">
+         <h1>Budgeting Form</h1>
+         <!-- Error messages -->
+         {% if error %}
+         <div class="alert alert-danger">{{ error }}</div>
+         {% endif %}
+         <!-- Success messages -->
+         {% with messages = get_flashed_messages() %}
          {% if messages %}
          {% for message in messages %}
-            <div class="alert alert-success">{{ message }}</div>
+         <div class="alert alert-success">{{ message }}</div>
          {% endfor %}
          {% endif %}
-      {% endwith %}
-
-      <form method="post" action="/form">
-         <div class="form-group">
+         {% endwith %}
+         <form method="post" action="/form">
+            <div class="form-group">
                <label for="financialyear">Financial Year:</label>
                <select id="financialyear" name="financialyear" class="form-control" required>
                   <option value="">Select Financial Year</option>
@@ -35,22 +32,22 @@
                   <option value="{{ fy['financial_year'] }}">{{ fy['financial_year'] }}</option>
                   {% endfor %}
                </select>
-         </div>
-         <div class="form-group">
+            </div>
+            <div class="form-group">
                <label for="totalbudget">Total Budget Allocated:</label>
                <input type="number" id="totalbudget" name="totalbudget" class="form-control" placeholder="Enter Total Budget" required>
-         </div>
-         <div class="form-group">
+            </div>
+            <div class="form-group">
                <label for="budgetmonth">Budget Month (YYYY-MM):</label>
                <input type="month" id="budgetmonth" name="budgetmonth" class="form-control" required>
-         </div>
-         <div class="form-group">
+            </div>
+            <div class="form-group">
                <label for="budgetused">Budget Used:</label>
                <input type="number" id="budgetused" name="budgetused" class="form-control" placeholder="Enter Budget Used" required>
-         </div>
-         <div id="budgetupto-container"></div>
-         <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
-   </div>
-</body>
+            </div>
+            <div id="budgetupto-container"></div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+         </form>
+      </div>
+   </body>
 </html>

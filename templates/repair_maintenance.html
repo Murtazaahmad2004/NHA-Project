@@ -1,71 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <!-- add version to bust cache -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=1.0">
-  <title>Repair Maintenance Form</title>
-</head>
-<body>
-  <div class="container1">
-    <h1>Repair Maintenance Form</h1>
-
-      <!-- Error messages -->
-      {% if error %}
-      <div class="alert alert-danger">{{ error }}</div>
-      {% endif %}
-
-      <!-- Success messages -->
-      {% with messages = get_flashed_messages() %}
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+      <!-- add version to bust cache -->
+      <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=1.0">
+      <title>Repair Maintenance Form</title>
+   </head>
+   <body>
+      <div class="container1">
+         <h1>Repair Maintenance Form</h1>
+         <!-- Error messages -->
+         {% if error %}
+         <div class="alert alert-danger">{{ error }}</div>
+         {% endif %}
+         <!-- Success messages -->
+         {% with messages = get_flashed_messages() %}
          {% if messages %}
          {% for message in messages %}
-            <div class="alert alert-success">{{ message }}</div>
+         <div class="alert alert-success">{{ message }}</div>
          {% endfor %}
          {% endif %}
-      {% endwith %}
-
-    <form method="post" action="/repair_maintenance">
-      <div class="form-group">
-        <label for="financialyear">Financial Year:</label>
-        <select id="financialyear" name="financialyear" class="form-control" required>
-          <option value="">Select Financial Year</option>
-            {% for fy in financial_years %}
-          <option value="{{ fy['financial_year'] }}">{{ fy['financial_year'] }}</option>
-            {% endfor %}
-        </select>
+         {% endwith %}
+         <form method="post" action="/repair_maintenance">
+            <div class="form-group">
+               <label for="financialyear">Financial Year:</label>
+               <select id="financialyear" name="financialyear" class="form-control" required>
+                  <option value="">Select Financial Year</option>
+                  {% for fy in financial_years %}
+                  <option value="{{ fy['financial_year'] }}">{{ fy['financial_year'] }}</option>
+                  {% endfor %}
+               </select>
+            </div>
+            <div class="form-group">
+               <label for="procrument_month">Repair Month:</label>
+               <input type="month" id="procrument_month" name="procrument_month" class="form-control" placeholder="Enter Procrument Month" required>
+            </div>
+            <div class="form-group">
+               <label for="itemlist">Items Name</label>
+               <input type="text" id="itemlist" name="itemlist" class="form-control" placeholder="Enter Item Name">
+            </div>
+            <div class="form-group">
+               <label for="units">Units In-House:</label>
+               <input type="number" id="units" name="units" class="form-control" placeholder="Enter units" required>
+            </div>
+            <div class="form-group">
+               <label for="hoursspend">Hours Spend (In-House):</label>
+               <input type="number" id="hoursspend" name="hoursspend" class="form-control" placeholder="Enter Hours Spend" required>
+            </div>
+            <div class="form-group">
+               <label for="unit">Units Externals:</label>
+               <input type="number" id="unit" name="unit" class="form-control" placeholder="Enter Units" required>
+            </div>
+            <div class="form-group">
+               <label for="days">Days (Externals):</label>
+               <input type="number" id="days" name="days" class="form-control" placeholder="Enter Spend Days" required>
+            </div>
+            <div class="form-group">
+               <label for="expenditure">Expenditure:</label>
+               <input type="number" id="expenditure" name="expenditure" class="form-control" placeholder="Enter Expenditure" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+         </form>
       </div>
-      <div class="form-group">
-        <label for="procrument_month">Repair Month:</label>
-        <input type="month" id="procrument_month" name="procrument_month" class="form-control" placeholder="Enter Procrument Month" required>
-      </div>
-      <div class="form-group">
-        <label for="itemlist">Items Name</label>
-        <input type="text" id="itemlist" name="itemlist" class="form-control" placeholder="Enter Item Name">
-      </div>
-      <div class="form-group">
-        <label for="units">Units In-House:</label>
-        <input type="number" id="units" name="units" class="form-control" placeholder="Enter units" required>
-      </div>
-      <div class="form-group">
-        <label for="hoursspend">Hours Spend (In-House):</label>
-        <input type="number" id="hoursspend" name="hoursspend" class="form-control" placeholder="Enter Hours Spend" required>
-      </div>
-      <div class="form-group">
-        <label for="unit">Units Externals:</label>
-        <input type="number" id="unit" name="unit" class="form-control" placeholder="Enter Units" required>
-      </div>
-      <div class="form-group">
-        <label for="days">Days (Externals):</label>
-        <input type="number" id="days" name="days" class="form-control" placeholder="Enter Spend Days" required>
-      </div>
-      <div class="form-group">
-        <label for="expenditure">Expenditure:</label>
-        <input type="number" id="expenditure" name="expenditure" class="form-control" placeholder="Enter Expenditure" required>
-      </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-  </div>
-</body>
+   </body>
 </html>

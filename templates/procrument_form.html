@@ -12,16 +12,15 @@
          <h1>Procurement Form</h1>
          <!-- Error messages -->
          {% if error %}
-            <div class="alert alert-danger">{{ error }}</div>
-            {% endif %}
-
-            <!-- Success messages -->
-            {% with messages = get_flashed_messages() %}
-               {% if messages %}
-               {% for message in messages %}
-                  <div class="alert alert-success">{{ message }}</div>
-               {% endfor %}
-               {% endif %}
+         <div class="alert alert-danger">{{ error }}</div>
+         {% endif %}
+         <!-- Success messages -->
+         {% with messages = get_flashed_messages() %}
+         {% if messages %}
+         {% for message in messages %}
+         <div class="alert alert-success">{{ message }}</div>
+         {% endfor %}
+         {% endif %}
          {% endwith %}
          <form method="POST" action="/procrument_form">
             <div class="form-group">

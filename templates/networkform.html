@@ -11,20 +11,18 @@
       <div class="container1">
          <form method="post" action="/networkform">
             <h1>Network Data Form</h1>
-     <!-- Error messages -->
-      {% if error %}
-      <div class="alert alert-danger">{{ error }}</div>
-      {% endif %}
-
-      <!-- Success messages -->
-      {% with messages = get_flashed_messages() %}
-         {% if messages %}
-         {% for message in messages %}
+            <!-- Error messages -->
+            {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+            {% endif %}
+            <!-- Success messages -->
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            {% for message in messages %}
             <div class="alert alert-success">{{ message }}</div>
-         {% endfor %}
-         {% endif %}
-      {% endwith %}
-      
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
             <div class="form-group">
                <label for="item">Item:</label>
                <input type="text" id="item" name="item" class="form-control" placeholder="Enter Item Name " required>

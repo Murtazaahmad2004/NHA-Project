@@ -10,28 +10,26 @@
    <body>
       <div class="container1">
          <h1>Software Activities Form</h1>
-     <!-- Error messages -->
-      {% if error %}
-      <div class="alert alert-danger">{{ error }}</div>
-      {% endif %}
-
-      <!-- Success messages -->
-      {% with messages = get_flashed_messages() %}
+         <!-- Error messages -->
+         {% if error %}
+         <div class="alert alert-danger">{{ error }}</div>
+         {% endif %}
+         <!-- Success messages -->
+         {% with messages = get_flashed_messages() %}
          {% if messages %}
          {% for message in messages %}
-            <div class="alert alert-success">{{ message }}</div>
+         <div class="alert alert-success">{{ message }}</div>
          {% endfor %}
          {% endif %}
-      {% endwith %}
-      
+         {% endwith %}
          <form method="post" action="/softwareform">
             <div class="form-group">
                <label for="financialyear">Financial Year:</label>
                <select id="financialyear" name="financialyear" class="form-control" required>
                   <option value="">Select Financial Year</option>
-                     {% for fy in financial_years %}
+                  {% for fy in financial_years %}
                   <option value="{{ fy['financial_year'] }}">{{ fy['financial_year'] }}</option>
-                     {% endfor %}
+                  {% endfor %}
                </select>
             </div>
             <div class="form-group">
