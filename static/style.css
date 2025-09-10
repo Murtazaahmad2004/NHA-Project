@@ -268,7 +268,7 @@ table tbody tr:hover, #budgetTable tbody tr:nth-child(even) {
 
 .container {
   width: 30%;
-  height: 600px;
+  height: 100% auto;
   padding: 30px;
   margin-top: 7%;
   text-align: left;

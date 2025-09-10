@@ -49,6 +49,7 @@ function addField() {
     div.innerHTML = `
     <input type="text" name="itemname[]" class="form-control" placeholder="Enter Item Name" required>
     <input type="number" name="quantity" class="form-control" placeholder="Quantity" required>
+    <textarea id="remarks" name="remarks" class="form-control" placeholder="Description"></textarea>
     `;
     document.getElementById('itemFields')?.appendChild(div);
 }

@@ -1,5 +1,5 @@
 import datetime
-from flask import Flask, Response, flash, json, jsonify, redirect, render_template, request, session, url_for
+from flask import Flask, Response, flash, json, jsonify, make_response, redirect, render_template, request, session, url_for
 import mysql.connector
 from flask_cors import CORS
 import calendar
@@ -430,9 +430,9 @@ def delete_financial_year(id):
 @app.route('/form', methods=['GET', 'POST'])
 def form():
     error = None
-    success = None
     financial_years = []
 
+    # Fetch financial years
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
@@ -462,55 +462,69 @@ def form():
             budgetupto_val = float(budgetupto)
         except ValueError:
             error = "⚠️ Invalid numeric values."
-            return render_template('form.html', financial_years=financial_years, error=error)
 
         # Validate month format
-        try:
-            year, month = map(int, budgetmonth.split('-'))
-            reporting_month_last_day = calendar.monthrange(year, month)[1]
-        except:
-            error = "⚠️ Invalid month format. Use YYYY-MM."
-            return render_template('form.html', financial_years=financial_years, error=error)
+        if not error:
+            try:
+                year, month = map(int, budgetmonth.split('-'))
+                reporting_month_last_day = calendar.monthrange(year, month)[1]
+            except:
+                error = "⚠️ Invalid month format. Use YYYY-MM."
 
-        # Calculate remaining budget
-        remaining_budget = totalbudget_val - budgetupto_val
-
-        # Insert data into DB
-        try:
-            conn = mysql.connector.connect(**db_config)
-            cursor = conn.cursor()
-            cursor.execute("""
-                INSERT INTO budget (
+        # Insert into DB if no errors
+        if not error:
+            remaining_budget = totalbudget_val - budgetupto_val
+            try:
+                conn = mysql.connector.connect(**db_config)
+                cursor = conn.cursor()
+                cursor.execute("""
+                    INSERT INTO budget (
+                        financial_year,
+                        total_budget,
+                        budget_month,
+                        budget_used,
+                        budget_used_upto_current_month,
+                        reporting_month_last_day,
+                        remaining_budget
+                    ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (
                     financial_year,
-                    total_budget,
-                    budget_month,
-                    budget_used,
-                    budget_used_upto_current_month,
+                    totalbudget_val,
+                    budgetmonth,
+                    budgetused_val,
+                    budgetupto_val,
                     reporting_month_last_day,
                     remaining_budget
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s)
-            """, (
-                financial_year,
-                totalbudget_val,
-                budgetmonth,
-                budgetused_val,
-                budgetupto_val,
-                reporting_month_last_day,
-                remaining_budget
-            ))
-            conn.commit()
-            success = "✅ Budget data submitted successfully!"
-        except Exception as e:
-            error = f"❌ Failed to insert data: {e}"
-        finally:
-            if cursor:
-                cursor.close()
-            if conn:
-                conn.close()
+                ))
+                conn.commit()
+                # ✅ Flash success message
+                flash("✅ Budget data submitted successfully!")
+            except Exception as e:
+                flash(f"❌ Failed to insert data: {e}")
+                response = make_response(render_template('form.html', financial_years=financial_years, error=error))
+                response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+                response.headers['Pragma'] = 'no-cache'
+                response.headers['Expires'] = '0'
+                return response
+            finally:
+                if cursor:
+                    cursor.close()
+                if conn:
+                    conn.close()
 
-        return render_template('form.html', financial_years=financial_years, success=success, error=error)
+            # Redirect to prevent duplicate submission on reload
+            return redirect(url_for('form'))
 
-    return render_template('form.html', financial_years=financial_years)
+    # Render form with no-cache headers
+    response = make_response(render_template(
+        'form.html',
+        financial_years=financial_years,
+        error=error
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 # Route to show budget list
 @app.route('/budget_list')
@@ -681,31 +695,52 @@ def edit_record(id):
 @app.route('/head_form', methods=['GET', 'POST'])
 def head_form():
     error = None
-    success = None
 
     if request.method == 'POST':
         item_names = request.form.getlist('itemname[]')
         quantity = request.form.get('quantity')
+        remarks = request.form.get('remarks')
 
         try:
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
 
             # Insert all non-empty item names
+            count = 0
             for item in item_names:
                 item = item.strip()
                 if item:
-                    cursor.execute("INSERT INTO item (items_name, quantity) VALUES (%s, %s)", (item, quantity,))
+                    cursor.execute(
+                        "INSERT INTO item (items_name, quantity, remarks) VALUES (%s, %s, %s)",
+                        (item, quantity,remarks,)
+                    )
+                    count += 1
 
             conn.commit()
-            success = f"✅ {len([i for i in item_names if i.strip()])} items submitted successfully!"
+            # ✅ Use flash instead of success variable
+            flash(f"✅ {count} items submitted successfully!")
         except Exception as e:
             error = f"❌ Failed to insert items: {e}"
+            response = make_response(render_template('head_form.html', error=error))
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
         finally:
-            cursor.close()
-            conn.close()
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
 
-    return render_template('head_form.html', success=success, error=error)
+        # Redirect to prevent duplicate submission on reload
+        return redirect(url_for('head_form'))
+
+    # Render form with no-cache headers
+    response = make_response(render_template('head_form.html', error=error))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 # head/items List route
 @app.route('/item_list', methods=['GET'])
@@ -921,14 +956,29 @@ def procrument_form():
                 VALUES (%s, %s, %s, %s, %s)
             """, (financial_year, procrument_month, item, units, expenditure))
             conn.commit()
-            success = "✅ Data saved successfully!"
+            flash("✅ Data saved successfully!")
         except Exception as e:
-            error = f"❌ Error inserting data: {e}"
+            flash(f"❌ Error inserting data: {e}")
+            response = make_response(render_template('procrument_form.html', error=error))
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
         finally:
-            cursor.close()
-            conn.close()
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
 
-    return render_template('procrument_form.html', financial_years=financial_years, error=error, success=success)
+        # Redirect to prevent duplicate submission on reload
+        return redirect(url_for('procrument_form'))
+
+    # Render form with no-cache headers
+    response = make_response(render_template('procrument_form.html', financial_years=financial_years, error=error))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 # Procurement item list route
 @app.route('/procurement_item_list')
@@ -1142,14 +1192,33 @@ def repair_form():
                 total_unit_repaired_in_house, total_unit_repaired_external
             ))
             conn.commit()
-            success = "✅ Repair & Maintenance data submitted successfully!"
+            flash("✅ Repair & Maintenance data submitted successfully!")
         except Exception as e:
-            error = f"❌ Failed to insert data: {e}"
+            flash(f"❌ Failed to insert data: {e}")
+            response = make_response(render_template('repair_maintenance.html', financial_years=financial_years, error=error))
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
         finally:
-            cursor.close()
-            conn.close()
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
 
-    return render_template('repair_maintenance.html', financial_years=financial_years, error=error, success=success)
+        # Redirect to prevent duplicate submission on reload
+        return redirect(url_for('repair_maintenance_list'))
+
+    # Render form with no-cache headers
+    response = make_response(render_template(
+        'repair_maintenance.html',
+        financial_years=financial_years,
+        error=error
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 # Repair and Maintenance item list route
 @app.route('/repair_maintenance_list')
@@ -1458,22 +1527,35 @@ def complaints_form():
                 grand_total_calls
             ))
             conn.commit()
-            success = "✅ Complaint data inserted successfully."
-
+            flash( "✅ Complaint data inserted successfully.")
         except ValueError:
             error = "⚠️ Invalid numeric values."
         except Exception as e:
-            error = f"❌ Failed to insert data: {e}"
+            flash(f"❌ Failed to insert data: {e}")
+            response = make_response(render_template('complaints_form.html', financial_years=financial_years, error=error))
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
 
-        return render_template('complaints_form.html', success=success, error=error, financial_years=financial_years)
+        # Redirect to prevent duplicate submission on reload
+        return redirect(url_for('complaints_form'))
 
-    # Handle GET
-    return render_template('complaints_form.html', financial_years=financial_years) 
+    # Render form with no-cache headers
+    response = make_response(render_template(
+        'complaints_form.html',
+        financial_years=financial_years,
+        error=error
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response 
 
 # Complaints List Route
 @app.route('/complaints_list', methods=['GET', 'POST'])
@@ -1671,9 +1753,9 @@ def edit_complaints_form(id):
 # Store Items submission Route
 @app.route('/store_item', methods=['GET', 'POST'])
 def store_item():
-    success = None
     error = None
     
+    # --- Fetch financial years first ---
     try:
         conn = mysql.connector.connect(**db_config)
         cursor_fetch = conn.cursor(dictionary=True)
@@ -1730,17 +1812,34 @@ def store_item():
                 total_hours_spend
             ))
             conn.commit()
-            success = "✅ Items data inserted successfully."
+            flash("✅ Items data inserted successfully.")
         except Exception as e:
-            error = f"❌ Failed to insert data: {e}"
+            flash(f"❌ Failed to insert data: {e}")
+            response = make_response(render_template('store_item.html', financial_years=financial_years, error=error))
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
         finally:
             if 'cursor_insert' in locals() and cursor_insert:
                 cursor_insert.close()
             if 'conn' in locals() and conn:
                 conn.close()
 
-    return render_template('store_item.html', financial_years=financial_years, success=success, error=error)
+        # Redirect to prevent duplicate submission on reload
+        return redirect(url_for('store_item'))
 
+    # --- Render form with no-cache headers ---
+    response = make_response(render_template(
+        'store_item.html',
+        financial_years=financial_years,
+        error=error
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+       
 # store item list route
 @app.route('/store_item_list', methods=['GET'])
 def store_item_list():
@@ -2005,15 +2104,33 @@ def uploding_form():
                 hoursspend
             ))
             conn.commit()
-            success = "✅ Uploading data inserted successfully."
+            flash("✅ Uploading data inserted successfully.")
         except Exception as e:
-            error = f"❌ Failed to insert data: {e}"
+            flash(f"❌ Failed to insert data: {e}")
+            response = make_response(render_template('uploding_form.html', financial_years=financial_years, error=error))
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
-    return render_template('uploding_form.html', financial_years=financial_years, success=success, error=error)
+
+        # Redirect to prevent duplicate submission on reload
+        return redirect(url_for('uploding_form'))
+
+    # Render form with no-cache headers
+    response = make_response(render_template(
+        'uploding_form.html',
+        financial_years=financial_years,
+        error=error
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 # uploding list
 @app.route('/uploding_list', methods=['GET', 'POST'])
@@ -2270,16 +2387,34 @@ def softwareform():
                 working_hours
             ))
             conn.commit()
-            success = "✅ Software data inserted successfully."
+            flash("✅ Software data inserted successfully.")
         except Exception as e:
-            error = f"❌ Failed to insert data: {e}"
+            flash(f"❌ Failed to insert data: {e}")
+            response = make_response(render_template('softwareform.html', financial_years=financial_years, error=error))
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
-    return render_template('softwareform.html', financial_years=financial_years, success=success, error=error)
 
+        # Redirect to prevent duplicate submission on reload
+        return redirect(url_for('softwareform'))
+
+    # Render form with no-cache headers
+    response = make_response(render_template(
+        'softwareform.html',
+        financial_years=financial_years,
+        error=error
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+    
 # Software form List Route
 @app.route('/softwareform_list', methods=['GET', 'POST'])
 def softwareform_list():
@@ -2479,7 +2614,6 @@ def coresoftwareform():
         coresoftware = request.form.get('coresoftware') 
         module = request.form.get('module')
 
-        
         try:
             conn = mysql.connector.connect(**db_config)
             cursor = conn.cursor()
@@ -2497,20 +2631,33 @@ def coresoftwareform():
                 module
             ))
             conn.commit()
-            success = "✅ Core software data inserted successfully."
+            flash("✅ Core software data inserted successfully.")
         except Exception as e:
-            error = f"❌ Failed to insert data: {e}"
+            flash(f"❌ Failed to insert data: {e}")
+            response = make_response(render_template('coresoftwareform.html', financial_years=financial_years, error=error))
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
-    return render_template(
-        'coresoftwareform.html', 
+
+        # Redirect to prevent duplicate submission on reload
+        return redirect(url_for('coresoftwareform'))
+
+    # Render form with no-cache headers
+    response = make_response(render_template(
+        'coresoftwareform.html',
         financial_years=financial_years,
-        success=success, 
-        error=error, 
-    )
+        error=error
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 # Core Software List
 @app.route('/core_software_form_list', methods=['GET', 'POST'])
@@ -2689,15 +2836,32 @@ def softwarecomplainet():
                 resolved
             ))
             conn.commit()
-            success = "✅ Core software data inserted successfully."
+            flash("✅ Core software data inserted successfully.")
         except Exception as e:
-            error = f"❌ Failed to insert data: {e}"
+            flash(f"❌ Failed to insert data: {e}")
+            response = make_response(render_template('softwarecomplainet.html',  error=error))
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
-    return render_template('softwarecomplainet.html', success=success, error=error)
+
+        # Redirect to prevent duplicate submission on reload
+        return redirect(url_for('softwarecomplainet'))
+
+    # Render form with no-cache headers
+    response = make_response(render_template(
+        'softwarecomplainet.html',
+        error=error
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 # Software complaints List
 @app.route('/softwarecomplainet_list', methods=['GET', 'POST'])
@@ -2917,15 +3081,32 @@ def meetingform():
                 remarks
             ))
             conn.commit()
-            success = "✅ meetings data inserted successfully."
+            flash("✅ meetings data inserted successfully.")
         except Exception as e:
-            error = f"❌ Failed to insert data: {e}"
+            flash(f"❌ Failed to insert data: {e}")
+            response = make_response(render_template('meetingform.html',  error=error))
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
-    return render_template('meetingform.html', success=success, error=error)
+
+        # Redirect to prevent duplicate submission on reload
+        return redirect(url_for('meetingform'))
+
+    # Render form with no-cache headers
+    response = make_response(render_template(
+        'meetingform.html',
+        error=error
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 # Meetings List
 @app.route('/meetingform_list', methods=['GET', 'POST'])
@@ -3144,15 +3325,32 @@ def networkform():
                 remarks
             ))
             conn.commit()
-            success = "✅ network data inserted successfully."
+            flash("✅ network data inserted successfully.")
         except Exception as e:
-            error = f"❌ Failed to insert data: {e}"
+            flash(f"❌ Failed to insert data: {e}")
+            response = make_response(render_template('networkform.html', error=error))
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
-    return render_template('networkform.html', success=success, error=error)
+
+        # Redirect to prevent duplicate submission on reload
+        return redirect(url_for('networkform'))
+
+    # Render form with no-cache headers
+    response = make_response(render_template(
+        'networkform.html',
+        error=error
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 # Network List
 @app.route('/networkform_list', methods=['GET', 'POST'])
@@ -3318,9 +3516,9 @@ def edit_networkform_list(id):
     return render_template('edit_networkform_list.html', record=record)
 
 # PMIS Route
+
 @app.route('/pmisreport', methods=['GET', 'POST'])
 def pmisreport():
-    success = None
     error = None
     progress_percentage = 0
     drone_video_percentage = 0
@@ -3331,44 +3529,62 @@ def pmisreport():
         total_packages = int(request.form.get('totalpackages'))
         monthly_progress = int(request.form.get('monthlyprogress'))
         drone_video = int(request.form.get('dronevideo'))
+        remarks = request.form.get('remarks')
 
-        # Calculate percentages after getting form data
+        # Calculate percentages
         progress_percentage = int(monthly_progress / total_packages * 100) if total_packages > 0 else 0
         drone_video_percentage = int(drone_video / total_packages * 100) if total_packages > 0 else 0
 
         try:
             conn = mysql.connector.connect(**db_config)
-            cursor = conn.cursor(dictionary=True)
+            cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO pmis (
                     total_packages,
                     monthly_progress,
                     drone_video,
                     progress_percentage,
-                    drone_video_percentage
-                ) VALUES (%s, %s, %s, %s, %s)
+                    drone_video_percentage,
+                    remarks
+                ) VALUES (%s, %s, %s, %s, %s, %s)
             """, (
                 total_packages,
                 monthly_progress,
                 drone_video,
                 progress_percentage,
-                drone_video_percentage
+                drone_video_percentage,
+                remarks
             ))
             conn.commit()
-            success = "✅ PMIS data inserted successfully."
+            # ✅ use flash instead of success variable
+            flash("✅ PMIS data inserted successfully.")
         except Exception as e:
-            error = f"❌ Failed to insert data: {e}"
+            flash(f"❌ Failed to insert data: {e}")
+            response = make_response(render_template(
+                'pmisreport.html',
+                error=error,
+                drone_video_percentage=drone_video_percentage,
+                progress_percentage=progress_percentage,
+                records=records
+            ))
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
 
-    # Fetch existing data for display
+        # Redirect to prevent duplicate submissions on reload
+        return redirect(url_for('pmisreport'))
+
+    # 🔹 Fetch existing data for display
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM pmis")
+        cursor.execute("SELECT * FROM pmis ORDER BY id DESC")
         records = cursor.fetchall()
     except Exception as e:
         print("Error fetching pmis items:", e)
@@ -3378,14 +3594,18 @@ def pmisreport():
         if conn:
             conn.close()
 
-    return render_template(
+    # Render with no-cache headers
+    response = make_response(render_template(
         'pmisreport.html',
-        success=success,
         error=error,
         drone_video_percentage=drone_video_percentage,
         progress_percentage=progress_percentage,
         records=records
-    )
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 # PMIS List
 @app.route('/pmisreport_list', methods=['GET', 'POST'])
@@ -3585,16 +3805,34 @@ def summarisereport():
                 hours_worked
             ))
             conn.commit()
-            success = "✅ summarize data inserted successfully."
+            flash("✅ summarize data inserted successfully.")
         except Exception as e:
-            error = f"❌ Failed to insert data: {e}"
+            flash(f"❌ Failed to insert data: {e}")
+            response = make_response(render_template('summarisereport.html', financial_years=financial_years, error=error))
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+            return response
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
-    return render_template('summarisereport.html', financial_years=financial_years, success=success, error=error)
 
+        # Redirect to prevent duplicate submission on reload
+        return redirect(url_for('summarisereport'))
+
+    # Render form with no-cache headers
+    response = make_response(render_template(
+        'summarisereport.html',
+        financial_years=financial_years,
+        error=error
+    ))
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
+    
 # Summarize List
 @app.route('/summarisereport_list', methods=['GET', 'POST'])
 def summarisereport_list():
@@ -3777,4 +4015,4 @@ def edit_summarisereport_list(id):
     return render_template('edit_summarisereport_list.html', record=record)
 
 if __name__ == '__main__':
-    app.run(host="192.168.100.3", port=5000, debug=True)
+    app.run(host="172.16.48.57", port=5000, debug=True)

@@ -11,13 +11,19 @@
    <body>
       <div class="container1">
          <h1>Head Form</h1>
-         <!-- Messages -->
+         <!-- Error messages -->
          {% if error %}
          <div class="alert alert-danger">{{ error }}</div>
          {% endif %}
-         {% if success %}
-         <div class="alert alert-success">{{ success }}</div>
-         {% endif %}
+
+         <!-- Success messages -->
+         {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            {% for message in messages %}
+               <div class="alert alert-success">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+         {% endwith %}
          <!-- Form -->
          <form method="POST" action="/head_form" id="itemForm">
             <div id="itemFields">
@@ -27,7 +33,7 @@
                   <label for="quantity">Quantity:</label>
                   <input type="number" name="quantity" class="form-control" placeholder="Quantity" required>
                   <label for="remarks">Description:</label>
-                  <textarea id="remarks" name="remarks" class="form-control" placeholder="Description" required></textarea>
+                  <textarea id="remarks" name="remarks" class="form-control" placeholder="Description"></textarea>
                </div>
             </div>
             <button type="button" class="btn btn-info" onclick="addField()">➕ Add More</button>

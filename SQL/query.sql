@@ -8,7 +8,8 @@ CREATE TABLE item (
     id INT AUTO_INCREMENT PRIMARY KEY,
     items_name VARCHAR(255) NOT NULL,
     quantity INT,
-    percentage_of_item DECIMAL(2,0)
+    percentage_of_item DECIMAL(2,0),
+    remarks text
 );
 
 CREATE TABLE budget (
@@ -130,7 +131,8 @@ CREATE TABLE network (
     item varchar(255),
     down_time int,
     up_time_percentage INT,
-    remarks varchar(255)
+    remarks varchar(255),
+    remarks text
 );
 
 CREATE TABLE pmis (
@@ -139,7 +141,8 @@ CREATE TABLE pmis (
     monthly_progress int,
     progress_percentage INT,
     drone_video int,
-    drone_video_percentage INT
+    drone_video_percentage INT,
+    remarks text
 );
 
 CREATE TABLE summarize (

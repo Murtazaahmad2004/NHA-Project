@@ -10,12 +10,20 @@
    <body>
       <div class="container1">
          <h1>Store Items Form</h1>
-         {% if error %}
-         <div class="alert alert-danger">{{ error }}</div>
+     <!-- Error messages -->
+      {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+      {% endif %}
+
+      <!-- Success messages -->
+      {% with messages = get_flashed_messages() %}
+         {% if messages %}
+         {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+         {% endfor %}
          {% endif %}
-         {% if success %}
-         <div class="alert alert-success">{{ success }}</div>
-         {% endif %}
+      {% endwith %}
+      
          <form method="post" action="/store_item">
             <div class="form-group">
                <label for="financialyear">Financial Year:</label>

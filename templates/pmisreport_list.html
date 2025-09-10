@@ -44,6 +44,7 @@
             <th>Progress %</th>
             <th>Drone Video</th>
             <th>Drone Video %</th>
+            <th>Remarks</th>
             <th>Actions</th>
          </tr>
       </thead>
@@ -56,6 +57,7 @@
             <td>{{ record['progress_percentage'] }}%</td>
             <td>{{ record['drone_video'] }}</td>
             <td>{{ record['drone_video_percentage'] }}%</td>
+            <td>{{ record['remarks'] }}</td>
             <td class="action-buttons">
                <a href="/edit_pmisreport_list/{{ record['id'] }}" class="icon-button edit" title="Edit">
                   <i class="fas fa-edit"></i>

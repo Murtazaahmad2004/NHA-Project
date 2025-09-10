@@ -58,6 +58,7 @@
             <th>Item Name</th>
             <th>Quantity</th>
             <th>Percentage of an Item (%)</th>
+            <th>Remarks</th>
             <th>Actions</th>
          </tr>
       </thead>
@@ -68,6 +69,7 @@
             <td>{{ record['items_name'] }}</td>
             <td>{{ record['quantity']}}</td>
             <td>{{ record['percentage_of_item']}}%</td>
+            <td>{{ record['remarks']}}</td>
             <td>
                <div class="action-buttons">
                   <a href="/edit_item/{{ record['id'] }}" class="icon-button edit" title="Edit">

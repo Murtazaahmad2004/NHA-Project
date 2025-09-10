@@ -12,13 +12,19 @@
   <div class="container1">
     <h1>Repair Maintenance Form</h1>
 
-    <!-- Display messages -->
-    {% if success %}
-      <div class="alert alert-success">{{ success }}</div>
-    {% endif %}
-    {% if error %}
+      <!-- Error messages -->
+      {% if error %}
       <div class="alert alert-danger">{{ error }}</div>
-    {% endif %}
+      {% endif %}
+
+      <!-- Success messages -->
+      {% with messages = get_flashed_messages() %}
+         {% if messages %}
+         {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+         {% endfor %}
+         {% endif %}
+      {% endwith %}
 
     <form method="post" action="/repair_maintenance">
       <div class="form-group">

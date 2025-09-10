@@ -11,12 +11,20 @@
       <div class="container1">
          <form  method="post" action="/softwarecomplainet">
             <h1>Software Complaints Form</h1>
-            {% if error %}
-            <div class="alert alert-danger">{{ error }}</div>
-            {% endif %}
-            {% if success %}
-            <div class="alert alert-success">{{ success }}</div>
-            {% endif %}
+      <!-- Error messages -->
+      {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+      {% endif %}
+
+      <!-- Success messages -->
+      {% with messages = get_flashed_messages() %}
+         {% if messages %}
+         {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+         {% endfor %}
+         {% endif %}
+      {% endwith %}
+      
             <div class="form-group">
                <label for="softwares">Software's Name:</label>
                <input type="text" name="softwares" id="softwares" class="form-control" placeholder="Enter Software Name" required>
